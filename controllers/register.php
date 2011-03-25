@@ -8,7 +8,7 @@ class Register extends CI_Controller{
                 $this->load->model('organization');
         }
 
-        public function newOrganization()
+        function newOrganization()
         {
 			$this->load->library('form_validation');
 			

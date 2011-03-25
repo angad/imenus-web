@@ -21,10 +21,7 @@ class Organization extends Model{
 	
 	function newOrganization($data)
 	{
-		$query = "INSERT INTO organization (name, username, password, owner_name, contact_number, address, email) VALUES (\'".$this->db->escape($data['name']) . "\', \'" $this->db->escape($data['username']) . "\', \'" . $this->db->escape($data['password']) . "\', \'" . $this->db->escape($data['owner_name']) . "\', \'" . $this->db->escape($data['contact_number']) . "\', \'" . 
-$this->db->escape($data['address']) . "\', \'" . 
-$this->db->escape($data['email']) . "\', \'" . 
+		$this->db->insert('organization', $data);
 	}
-	$this->db->query($sql);
 }
 ?>
