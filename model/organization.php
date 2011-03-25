@@ -5,7 +5,7 @@ class Organization extends Model{
 	
 	function Organization()
 	{
-		parent::Model();
+			$this->load_db();
 	}
 	
 	function load_db()
