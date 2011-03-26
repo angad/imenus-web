@@ -1,6 +1,6 @@
 <?php
 
-class Organization extends Model{
+class Organization extends CI_Model{
 	
 	
 	function Organization()
