@@ -6,20 +6,20 @@ define('EDITTITLE', 'Click to Edit');
 
  class Categories extends CI_Controller {
  
- 	public function view($menuID)
+ 	public function view($menuID = NULL)
  	{     
- 		$this->load->database();
+ 		if (!is_numeric($menuID))
+            show_404('', FALSE);
+        
         $this->load->library('table');
         $this->load->helper(array('form', 'url'));
         $this->load->model('Categories_model');
         
-        if (!is_numeric($menuID))
-            show_404('', FALSE);
         
         $this->table->set_heading('Name', 'Items', 'Delete');
         $this->table->set_template(array('row_start' => '<tr class="odd">', 'row_alt_start' => '<tr class = "even">'));
         
-        $this->table->add_row(array('data' => form_open('categories/add/'.$menuID).form_input('value', '', 'placeholder = "'.PLACEHOLDER.'"'), 'colspan' => 3));
+        $this->table->add_row(array('data' => form_open('categories/add/'.$menuID).form_input('value', '', 'placeholder = "'.PLACEHOLDER.'"').form_close(), 'colspan' => 3));
         
         foreach ($this->Categories_model->getAll($menuID) as $cat) {
             $this->table->add_row('<div class="edit" id="'.CATPREFIX.$cat['ID'].'" title="'.EDITTITLE.'">'.$cat['Name'].'</div>', anchor('items/view/'.$cat['ID'], 'View Items'), anchor('categories/delete/'.$cat['ID'], 'Delete Category'));
