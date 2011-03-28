@@ -5,11 +5,12 @@ class Register extends CI_Controller{
         {
                 $this->load->helper('form');
                 $this->load->view('register_form');
-                $this->load->model('organization');
         }
 
         function newOrganization()
         {
+	        $this->load->model('organization');
+    
 			$this->load->library('form_validation');
 			
 			
@@ -26,21 +27,21 @@ class Register extends CI_Controller{
 			}
 			else
 			{
-				$data['name'] = $this->input->post('name');
-                $data['username'] = $this->input->post('username');
-				$data['owner_name'] = $this->input->post('owner_name');
-				$data['contact_number'] = $this->input->post('name');
-				$data['address'] = $this->input->post('name');
-				$data['email'] = $this->input->post('name');
+				$data['Name'] = $this->input->post('name');
+                $data['Username'] = $this->input->post('username');
+				$data['OwnerName'] = $this->input->post('owner_name');
+				$data['ContactNumber'] = $this->input->post('contact_number');
+				$data['Address'] = $this->input->post('address');
+				$data['Email'] = $this->input->post('email');
 				
 				//need to md5 it
-				$data['password'] = $this->input->post('name');
+				$data['Password'] = $this->input->post('name');
 				
 				//Call the model
-				$this->organizAtion->newOrganization($data);
+				$this->organization->newOrganization($data);
 				
 				//Load the login screen
-				$this->load->view('login');
+				$this->load->view('login_form');
 			}
         }
 }

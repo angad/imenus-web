@@ -8,7 +8,7 @@
         <?php echo form_open('register\newOrganization'); ?>
 
         <p>Restaurant Name <input type = "text" name = "name" value = "<?php echo set_value('name'); ?>" size = "50" /></p>
-
+		
         <p>Username <input type = "text" name = "name" value = "<?php echo set_value('username'); ?>" size = "50"/></p>
 
         <p>Owner Name <input type = "text" name = "name" value = "<?php echo set_value('owner_name'); ?>" size = "50"/></p>
