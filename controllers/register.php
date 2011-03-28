@@ -5,6 +5,10 @@ class Register extends CI_Controller{
         {
                 $this->load->helper('form');
                 $this->load->view('register_form');
+<<<<<<< HEAD
+=======
+                $this->load->model('Organization');
+>>>>>>> d30674f8be14f4965c304859a6787e1e4371fa7e
         }
 
         function newOrganization()
