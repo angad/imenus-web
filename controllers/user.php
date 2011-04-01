@@ -5,27 +5,40 @@ class User extends CI_Controller{
 	public function index()
 	{
 		$this->load->helper('form');
-		$this->load->view('login_form');
+		$this->load->helper('url');
+		$this->load->model('user_model');
+		$username=$this->user_model->isLoggedIn();
+		if($username)
+		{
+			redirect('/designer/', 'refresh');
+		}
+		else $this->load->view('login_form');
 	}
 	
 	function login()
 	{	
 		$this->load->library('session');
+		$this->load->helper('url');
+		
 		$password = $this->input->post('password');
 		$username = $this->input->post('username');
 		$this->load->model('organization');
 		if($this->organization->checkPassword($username, md5($password)))
 		{
+			$menu_id = $this->organization->getMenuId($username);
+						
 			$newdata = array(
 		                    'username'  => $username,
-							'logged_in' => TRUE
+							'logged_in' => TRUE,
+							'menu_id'=> $menu_id
 							);
 		
-			$this->session->set_userdata($array);
+			$this->session->set_userdata($newdata);
 
 			//put redirect call from here to the designer
-			//redirect('designer');
-			redirect('designer');
+			//redirect('designer', 'refresh');
+			redirect('/designer/', 'refresh');
+			
 		}
 		
 		else 
@@ -40,13 +53,5 @@ class User extends CI_Controller{
 		$this->session->sess_destroy();
 		$this->load->view('login_form');
 	}
-	
-	function isLoggedIn()
-	{
-		if($this->session->userdata('logged_in'))
-		{
-			return $this->session->userdata('username');
-		}
-		return False;
-	}
+
 }
