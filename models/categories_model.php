@@ -14,7 +14,7 @@ class Categories_model extends CI_Model {
     }
     
     function getCat($catID) {
-        return $this->db->query('SELECT menuID, parentID, ID, Name FROM Category WHERE catID = ?', array($catID))->row_array();
+        return $this->db->query('SELECT menuID, parentID, ID, Name FROM Category WHERE ID = ?', array($catID))->row_array();
     }
     
     function getCategoriesInSameMenu($catID) {
@@ -48,9 +48,9 @@ class Categories_model extends CI_Model {
             
             $parentNode = &$nodes[$parentID];
             if (is_array($parentNode)) 
-                $parentNode['Data'][] = &$catNode;
+                $parentNode['Data'][$catID] = &$catNode;
             else
-                $parentNode = array('Name' => $parentNode, 'Data' => array(&$catNode));
+                $parentNode = array('Name' => $parentNode, 'Data' => array($catID => &$catNode));
         }
         
         if (!$include_items)
@@ -60,13 +60,14 @@ class Categories_model extends CI_Model {
         
         foreach ($nodes as $key => &$node) {
             if (is_array($node))
-                continue;
+                continue;                
             $menuitems = $this->Items_model->getAll($key);
+            $subtree = array();
             foreach ($menuitems as $mi)
                 $subtree[$mi['ID']] = $mi;
             $node = array('Name' => $node, 'Data' => $subtree);
         }
-        
+                                        
         return $nodes[0];
     }
     

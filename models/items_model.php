@@ -1,6 +1,8 @@
 <?php if ( ! defined('BASEPATH')) exit ('No direct script access allowed');
 
 define('ITEMS_TABLE', 'Item');
+define('PARENTS_TABLE', 'ItemParents');
+define('ITEM_FIELDS', 'ID, ParentID, CategoryID, Name, ShortDescription, LongDescription, Price, Type, ImageSmall, ImageMedium, ImageLarge');
 
 class Items_model extends CI_Model {
 
@@ -22,11 +24,11 @@ class Items_model extends CI_Model {
         } else if (is_numeric($count)) {
             $limit_str = sprintf('LIMIT %d', $count);
         }
-        return $this->db->query('SELECT ID, ParentID, CategoryID, Name, ShortDescription, LongDescription, Price, Type, ImageSmall, ImageMedium, ImageLarge FROM '.ITEMS_TABLE.' WHERE CategoryID = ?'.(isset($typeFilter) ? ' AND Type = ?' : '').$limit_str, array($catID, $typeFilter))->result_array();
+        return $this->db->query('SELECT '.ITEM_FIELDS.' FROM '.ITEMS_TABLE.' WHERE CategoryID = ?'.(isset($typeFilter) ? ' AND Type = ?' : '').$limit_str, array($catID, $typeFilter))->result_array();
     }
     
     function getItem($itemID) {
-        return $this->db->query('SELECT ID, ParentID, CategoryID, Name, ShortDescription, LongDescription, Price, Type, ImageSmall, ImageMedium, ImageLarge FROM '.ITEMS_TABLE.' WHERE ID = ?', array($itemID))->row_array();
+        return $this->db->query('SELECT '.ITEM_FIELDS.' FROM '.ITEMS_TABLE.' WHERE ID = ?', array($itemID))->row_array();
     }
     
     function addItem($catID, $name, $description, $shortDesc = '', $price = 0, $type = ITEMS_TYPE_ITEM, $imageSmall = '', $imageMed = '', $imageLarge = '') {
@@ -39,7 +41,7 @@ class Items_model extends CI_Model {
         $this->db->query('DELETE FROM '.ITEMS_TABLE.' WHERE ID = ?', array($itemID));
     }
 
-    function updateItem($itemID, $catID = NULL, $name = NULL, $description = NULL, $shortDesc = NULL, $price = NULL, $type = NULL, $imageSmall = NULL, $imageMed = NULL, $imageLarge = NULL) {
+    function updateItem($itemID, $catID = NULL, $name = NULL, $description = NULL, $shortDesc = NULL, $price = NULL, $type = NULL, $imageSmall = NULL, $imageMed = NULL, $imageLarge = NULL, $mealItems = NULL) {
         $fields = array('CategoryID', 'Name', 'LongDescription', 'ShortDescription', 'Price', 'Type', 'ImageSmall', 'ImageMedium', 'ImageLarge');
         $args = func_get_args();
         $update = array();
@@ -47,5 +49,38 @@ class Items_model extends CI_Model {
             if (isset($args[$i + 1]))
                 $update[$fields[$i]] = $args[$i + 1];
         $this->db->update(ITEMS_TABLE, $update, array('ID' => $itemID));
+        
+        $this->setMealItems($itemID, $mealItems);
+    }
+    
+    function getMealItems($itemID, $exclude_details = FALSE) {
+        if ($exclude_details)
+            $sql = 'SELECT ItemID FROM '.PARENTS_TABLE.' WHERE ParentID = ?';
+        else
+            $sql = 'SELECT I.'.str_replace(', ', ', I.', ITEM_FIELDS).' FROM '.ITEMS_TABLE.' I INNER JOIN '.PARENTS_TABLE.' P ON P.ItemID = I.ID AND P.ParentID = ?';
+        $arr = $this->db->query($sql, array($itemID))->result_array();
+        if ($exclude_details && count($arr) > 0)
+            return current(call_user_func_array('array_merge_recursive', $arr));
+        else
+            return $arr;
+    }
+    
+    function setMealItems($itemID, $newItemIDArray) {
+        $oldarr = $this->getMealItems($itemID, TRUE);
+        $to_del = array_diff($oldarr, $newItemIDArray);
+        $to_ins = array_diff($newItemIDArray, $oldarr);
+        
+        if (count($to_del) > 0) {
+            array_unshift($to_del, 'DELETE FROM '.PARENTS_TABLE.' WHERE ParentID = %d AND ItemID IN (%d'.str_repeat(', %d', count($to_del) - 1).')');
+            $this->db->query(call_user_func_array('sprintf', $to_del));
+        }
+        if (count($to_ins) > 0) {
+            $ins_args = array('INSERT INTO '.PARENTS_TABLE.'(ParentID, ItemID) VALUES (%d, %d)'.str_repeat(', (%d, %d)', count($to_ins) - 1));
+        	foreach($to_ins as $item) {
+        		$ins_args[] = $itemID;
+        		$ins_args[] = $item;
+        	}
+            $this->db->query(call_user_func_array('sprintf', $ins_args));
+        }
     }
 }

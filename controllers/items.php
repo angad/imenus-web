@@ -61,10 +61,10 @@ class Items extends CI_Controller {
         $this->load->model('Items_model');
         
         if ($insert) {
-            $this->Items_model->addItem($catID, $this->input->post('name'), $this->input->post('longdesc'), $this->input->post('shortdesc'), $this->input->post('price'), isset($_POST['items']) ? ITEMS_TYPE_MEAL : ITEMS_TYPE_ITEM);
+            $this->Items_model->addItem($catID, $this->input->post('name'), $this->input->post('longdesc'), $this->input->post('shortdesc'), $this->input->post('price'), isset($_POST['items']) ? ITEMS_TYPE_MEAL : ITEMS_TYPE_ITEM, NULL, NULL, NULL, $this->input->post('items'));
             redirect ('items/view/'.$catID);
         } else {
-            $this->Items_model->updateItem($itemID, $this->input->post('catID'), $this->input->post('name'), $this->input->post('longdesc'), $this->input->post('shortdesc'), $this->input->post('price'), isset($_POST['items']) ? ITEMS_TYPE_MEAL : ITEMS_TYPE_ITEM);
+            $this->Items_model->updateItem($itemID, $this->input->post('catID'), $this->input->post('name'), $this->input->post('longdesc'), $this->input->post('shortdesc'), $this->input->post('price'), isset($_POST['items']) ? ITEMS_TYPE_MEAL : ITEMS_TYPE_ITEM, NULL, NULL, NULL, $this->input->post('items'));
             redirect ('items/view/'.$this->input->post('catID'));
         }
         
@@ -76,8 +76,12 @@ class Items extends CI_Controller {
         $item = $this->Items_model->getItem($itemID);
         $this->load->helper(array('url', 'html', 'form'));
         
-        if (isset($item['CategoryID']))
+        $mode = isset($catID) ? 'Add' : ($readonly ? 'View' : 'Edit');
+        
+        if (!empty($item['CategoryID'])) { 
             $catID = $item['CategoryID'];
+            $itemType = $item['Type'];
+        }
         
         $output = anchor('items/view/'.$catID, '< Back').br(2).validation_errors();
 
@@ -109,10 +113,10 @@ class Items extends CI_Controller {
         $output .= '<div class="form-item"><label for="edit-price">Price: <span class="form-required" title="This field is required">*</span></label>$ '.form_input('price', isset($item['Price']) ? $item['Price'] : '', $readonly_text).'</div>';
 
         if (isset($itemType) && $itemType == ITEMS_TYPE_MEAL)        
-            $output .= '<div class="form-item"><label for="edit-items[]">Meal Items: <span class="form-required" title="This field is required">*</span></label>'.$this->load->view('tree_select_view', array('tree' => $this->Categories_model->getTreeFromCurrentMenu($catID, TRUE), 'selected' => array(), 'name' => 'items[]', 'readonly' => $readonly), TRUE).'</div>';
+            $output .= '<div class="form-item"><label for="edit-items[]">Meal Items: <span class="form-required" title="This field is required">*</span></label>'.$this->load->view('tree_select_view', array('tree' => $this->Categories_model->getTreeFromCurrentMenu($catID, TRUE), 'selected' => isset($itemID) ? $this->Items_model->getMealItems($itemID, TRUE) : array(), 'name' => 'items[]', 'readonly' => $readonly, 'leaffilter' => ITEMS_TYPE_ITEM), TRUE).'</div>';
         
         if (!$readonly)
-            $output .= form_submit('submit', 'Add');
+            $output .= form_submit('submit', $mode);
             
         $output .= form_close();
         
@@ -149,7 +153,13 @@ class Items extends CI_Controller {
 //			$this->load->view('login');
 //		}
      
-        $this->load->view('content_view', array('title' => 'Add Item', 'content' => $output, 'load_jquery_zoom' => TRUE));
+        $data = array('title' => $mode.' Item', 'content' => $output);
+        if ($itemType == ITEMS_TYPE_MEAL) {
+            $data['include_scripts'] = array('https://github.com/odyniec/selectlist/raw/master/jquery.selectlist.dev.js');
+            $data['include_css'] = array('https://github.com/odyniec/selectlist/raw/master/distfiles/css/selectlist.css');
+            $data['document_ready'] = '$("select[multiple=\'multiple\']").selectList();';
+        }
+        $this->load->view('content_view', $data);
 
     }
 

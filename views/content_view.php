@@ -18,17 +18,24 @@
                 color: #FFAE00;
             }
         </style>
+        <?php if (isset($include_css) && is_array($include_css))
+            foreach ($include_css as $css)
+                echo link_tag($css)."\n";
+        ?>
 </head>
 
 <body>
         <script src="http://code.jquery.com/jquery-1.5.2.min.js"></script>
         <script src="http://simplemodal.googlecode.com/files/jquery.simplemodal.1.4.1.min.js"></script>
-        <?php if (!empty($editable_uri))
-            echo '<script src="http://www.appelsiini.net/download/jquery.jeditable.mini.js"></script>';?>
+        <?php
+        if (isset($include_scripts) && is_array($include_scripts))
+            foreach ($include_scripts as $script)
+                echo '<script src="'.$script.'"></script>'."\n";
+        ?>
         <script>
             $(document).ready(function() {
-                <?php if (!empty($editable_uri))
-                    echo '$(".edit").editable("'.$editable_uri.'");'?>
+                <?php if (!empty($document_ready))
+                    echo $document_ready;?>
                 $("img.zooming").click(function() {
                     $.modal("<img src='" + $(this).src + "'>", {overlayClose : true, overlayCss: {backgroundColor:"black"}});
                 })
