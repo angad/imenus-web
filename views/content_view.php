@@ -21,7 +21,7 @@
 </head>
 
 <body>
-        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
+        <script src="http://code.jquery.com/jquery-1.5.2.min.js"></script>
         <script src="http://simplemodal.googlecode.com/files/jquery.simplemodal.1.4.1.min.js"></script>
         <?php if (!empty($editable_uri))
             echo '<script src="http://www.appelsiini.net/download/jquery.jeditable.mini.js"></script>';?>
