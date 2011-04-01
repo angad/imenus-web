@@ -22,6 +22,7 @@
 
 		<p>Password <input type = "password" name = "password" value = "" size = "50"/></p>
 		<p>Repeat Password <input type = "password" name = "repeat" value = "" size = "50"/></p>
+		<p>Invite Key (Optional) <input type = "text" name = "invite_key" value = "" size = "50"/> </p>
 		
 		Upload Logo <br/>
 		Gif, PNG or JPEG only

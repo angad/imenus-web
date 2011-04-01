@@ -53,5 +53,27 @@ class User extends CI_Controller{
 		$this->session->sess_destroy();
 		$this->load->view('login_form');
 	}
+	
+	function inviteKey()
+	{
+		$this->load->model('user_model');
+		
+		$menu_id = $this->user_model->getMenuId();
+			
+		//Generating a random key of ~11 characters
+		$n = rand(10e16, 10e20);
+		$key =  base_convert($n, 10, 36);
+		
+		$this->load->model('organization');
+		
+		$data = array(
+			'key'=>$key,
+			'MenuId'=>$menu_id
+		);
+		
+		$this->organization->setInviteKey($data);
+		
+		$this->load->view('invite_key.php', array('key'=>$key));
+	}
 
 }
