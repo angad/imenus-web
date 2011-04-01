@@ -4,11 +4,8 @@ class Register extends CI_Controller{
         public function index()
         {
                 $this->load->helper('form');
-                $this->load->view('register_form');
-<<<<<<< HEAD
-=======
-                $this->load->model('Organization');
->>>>>>> d30674f8be14f4965c304859a6787e1e4371fa7e
+				$data['error']='';
+                $this->load->view('register_form', $data);
         }
 
         function newOrganization()
@@ -17,33 +14,58 @@ class Register extends CI_Controller{
     
 			$this->load->library('form_validation');
 			
-			
 			//Input validation rules
-            $this->form_validation->set_rules('username', 'Username', 'callback_username_check');
-			$this->form_validation->set_rules('password', 'Password', 'required');
+            $this->form_validation->set_rules('username', 'Username', 'required|min_length[5]|alpha_numeric');
+			$this->form_validation->set_rules('password', 'Password', 'required|matches[repeat]|min_length[6]');
 			$this->form_validation->set_rules('repeat', 'Password Confirmation', 'required');
-			$this->form_validation->set_rules('email', 'Email', 'required');
+			$this->form_validation->set_rules('email', 'Email', 'required|valid_email');
+			$this->form_validation->set_rules('owner_name', 'Owner Name', 'required');
+			$this->form_validation->set_rules('address', 'Address', 'required');
 
-			if ($this->form_validation->run() == FALSE)
+			//Generating a random file name of ~11 characters
+			$n = rand(10e16, 10e20);
+			$file_name =  base_convert($n, 10, 36);
+
+			//Logo upload configuration
+			$config['file_name'] = $file_name;
+			$config['upload_path'] = './uploads/logos/';
+			$config['allowed_types'] = 'gif|jpg|png';
+			$config['max_size']	= '1024';	//Max 1MB
+			$config['max_width']  = '1024';
+			$config['max_height']  = '768';
+
+			$this->load->library('upload', $config);
+			$path = $config['upload_path'] . $file_name;
+			
+			//Getting Input post data
+			$data['Name'] = $this->input->post('name');
+            $data['Username'] = $this->input->post('username');
+			$data['OwnerName'] = $this->input->post('owner_name');
+			$data['ContactNumber'] = $this->input->post('contact_number');
+			$data['Address'] = $this->input->post('address');
+			$data['Email'] = $this->input->post('email');
+			$data['Logo'] = $path;
+			$data['Password'] = md5($this->input->post('password'));
+			
+			//check if Username already exists
+			if ($this->organization->username_exists($data['Username']))
+			{
+				$error = array('error' => 'Username Already exists. Please pick another one.');
+				$this->load->view('register_form', $error);
+				return;
+			}
+
+			if ($this->form_validation->run() == FALSE || !$this->upload->do_upload("logo"))
 			{
 				//Reload the form if there is any error with the inputs
-				$this->load->view('register_form');
+				$error = array('error' => $this->upload->display_errors());
+				$this->load->view('register_form', $error);
 			}
 			else
-			{
-				$data['Name'] = $this->input->post('name');
-                $data['Username'] = $this->input->post('username');
-				$data['OwnerName'] = $this->input->post('owner_name');
-				$data['ContactNumber'] = $this->input->post('contact_number');
-				$data['Address'] = $this->input->post('address');
-				$data['Email'] = $this->input->post('email');
-				
-				//need to md5 it
-				$data['Password'] = $this->input->post('name');
-				
+			{				
 				//Call the model
 				$this->organization->newOrganization($data);
-				
+
 				//Load the login screen
 				$this->load->view('login_form');
 			}
