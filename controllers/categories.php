@@ -29,8 +29,8 @@ define('EDITTITLE', 'Click to Edit');
     
     public function rename($menuID) {
         $this->load->model('Categories_model');
-        if ($id = $this->input->post('id') && $value = $this->input->post('value')) {
-            $this->Categories_model->rename($menuID, $id, $value);
+        if (($id = $this->input->post('id')) && ($value = $this->input->post('value'))) {
+            $this->Categories_model->rename(substr($id, strlen(CATPREFIX)), $value);
             echo $value;
         }
     }

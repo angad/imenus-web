@@ -10,11 +10,19 @@ class Items_model extends CI_Model {
 	}
     
     function getAll($catID, $typeFilter = NULL, $start = NULL, $count = NULL) {
-        $this->db->select('ID, ParentID, CategoryID, Name, ShortDescription, LongDescription, Price, Type, ImageSmall, ImageMedium, ImageLarge');
-        $this->db->where('CategoryID', $catID);                
-        if (!is_null($typeFilter))
-            $this->db->where('type', $typeFilter);
-        return $this->db->get(ITEMS_TABLE, $count, $start)->result_array();                
+//        $this->db->select('ID, ParentID, CategoryID, Name, ShortDescription, LongDescription, Price, Type, ImageSmall, ImageMedium, ImageLarge');
+//        $this->db->where('CategoryID', $catID);                
+//        if (!is_null($typeFilter))
+//            $this->db->where('type', $typeFilter);
+//        $this->db->get(ITEMS_TABLE, $count, $start);
+//        return $this->db->get(ITEMS_TABLE, $count, $start)->result_array();
+        $limit_str = '';
+        if (is_numeric($start)) {
+            $limit_str = sprintf('LIMIT %d, %d', $start, is_numeric($count) ? $count : PHP_INT_MAX);
+        } else if (is_numeric($count)) {
+            $limit_str = sprintf('LIMIT %d', $count);
+        }
+        return $this->db->query('SELECT ID, ParentID, CategoryID, Name, ShortDescription, LongDescription, Price, Type, ImageSmall, ImageMedium, ImageLarge FROM '.ITEMS_TABLE.' WHERE CategoryID = ?'.(isset($typeFilter) ? ' AND Type = ?' : '').$limit_str, array($catID, $typeFilter))->result_array();
     }
     
     function getItem($itemID) {
