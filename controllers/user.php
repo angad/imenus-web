@@ -4,17 +4,18 @@ class User extends CI_Controller{
 	
 	public function index()
 	{
-		$this->load->library('session');
+		$this->load->helper('form');
+		$this->load->view('login_form');
 	}
 	
 	function login()
 	{	
+		$this->load->library('session');
 		$password = $this->input->post('password');
 		$username = $this->input->post('username');
 		$this->load->model('organization');
-		if($this->organization->checkPassword($username, $password))
+		if($this->organization->checkPassword($username, md5($password)))
 		{
-
 			$newdata = array(
 		                    'username'  => $username,
 							'logged_in' => TRUE
