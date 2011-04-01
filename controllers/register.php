@@ -16,7 +16,7 @@ class Register extends CI_Controller{
 			
 			//Input validation rules
             $this->form_validation->set_rules('username', 'Username', 'required|min_length[5]|alpha_numeric');
-			$this->form_validation->set_rules('password', 'Password', 'required|matches[repeat]|min_length[6]');
+			$this->form_validation->set_rules('password', 'Password', 'required|matches[repeat]|min_length[6]|md5');
 			$this->form_validation->set_rules('repeat', 'Password Confirmation', 'required');
 			$this->form_validation->set_rules('email', 'Email', 'required|valid_email');
 			$this->form_validation->set_rules('owner_name', 'Owner Name', 'required');
@@ -47,6 +47,12 @@ class Register extends CI_Controller{
 			$data['Logo'] = $path;
 			$data['Password'] = md5($this->input->post('password'));
 			
+			$n = rand(10e16, 10e20);
+			$invite_key =  base_convert($n, 10, 36);
+			$data['InviteKey'] = $invite_key;
+			
+			$data['MenuId'] = $this->organization->getMaxMenuId() + 1;
+
 			//check if Username already exists
 			if ($this->organization->username_exists($data['Username']))
 			{

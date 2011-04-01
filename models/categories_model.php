@@ -10,6 +10,17 @@ class Categories_model extends CI_Model {
 	}
 
     function getAll($menuID) {
+<<<<<<< HEAD
+        return $this->db->query('Select ID, Name FROM Category WHERE menuID = ?', array($menuID))->result_array();
+    }
+    
+    function rename($menuID, $id, $name) {
+        $this->db->query('UPDATE Category SET Name = ? WHERE ID = ? AND menuID = ?', array($name, $id, $menuID));
+    }
+    
+    function add($menuID, $name) {
+        $this->db->query('UPDATE Category SET Name = ? WHERE ID = ? AND menuID = ?', array($this->db->escape($name), $id, $menuID));
+=======
         return $this->db->query('SELECT menuID, parentID, ID, Name FROM Category WHERE menuID = ?', array($menuID))->result_array();
     }
     
@@ -78,5 +89,6 @@ class Categories_model extends CI_Model {
     function add($menuID, $name) {
         $this->db->query('INSERT INTO Category(Name, menuID) VALUES (?, ?)', array($name, $menuID));
         return $this->db->insert_id();
+>>>>>>> 3906273a185c52301204fa2ae33367037d468a3a
     }
 }
