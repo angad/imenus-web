@@ -27,19 +27,19 @@ class Categories_model extends CI_Model {
     function getTreeFromCurrentMenu($catID, $include_items = FALSE) {
         $cats = $this->getCategoriesInSameMenu($catID);
         $nodes = array('Root');
-        $tree = &$nodes[0];
+        
+        $parentNode = $catNode = NULL;
         
         foreach ($cats as $cat) {
             $catID = $cat['ID'];
             $catName = $cat['Name'];
             $parentID = $cat['parentID'];
-            $parentNode = NULL;
-            $catNode = NULL;
             
             if (isset($nodes[$catID]))
                 $nodes[$catID]['Name'] = $catName;
             else
                 $nodes[$catID] = $catName;
+            
             
             $catNode = &$nodes[$catID];
                 
@@ -54,7 +54,7 @@ class Categories_model extends CI_Model {
         }
         
         if (!$include_items)
-            return $tree;
+            return $nodes[0];
             
         $this->load->model('Items_model');
         
@@ -67,11 +67,11 @@ class Categories_model extends CI_Model {
             $node = array('Name' => $node, 'Data' => $subtree);
         }
         
-        return $tree;
+        return $nodes[0];
     }
     
-    function rename($menuID, $id, $name) {
-        $this->db->query('UPDATE Category SET Name = ? WHERE ID = ? AND menuID = ?', array($name, $id, $menuID));
+    function rename($id, $name) {
+        $this->db->query('UPDATE Category SET Name = ? WHERE ID = ?', array($name, $id));
     }
     
     function add($menuID, $name) {
