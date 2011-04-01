@@ -24,13 +24,13 @@ define('EDITTITLE', 'Click to Edit');
         foreach ($this->Categories_model->getAll($menuID) as $cat) {
             $this->table->add_row('<div class="edit" id="'.CATPREFIX.$cat['ID'].'" title="'.EDITTITLE.'">'.$cat['Name'].'</div>', anchor('items/view/'.$cat['ID'], 'View Items'), anchor('categories/delete/'.$cat['ID'], 'Delete Category'));
         }
-        $this->load->view('categories_view', array('table' => $this->table->generate(), 'uri' => $this->config->site_url().'/categories/rename/'.$menuID));
+        $this->load->view('content_view', array('title' => 'Categories', 'content' => $this->table->generate(), 'editable_uri' => $this->config->site_url().'/categories/rename/'.$menuID));
  	}
     
     public function rename($menuID) {
         $this->load->model('Categories_model');
-        if ($id = $this->input->post('id') && $value = $this->input->post('value')) {
-            $this->Categories_model->rename($menuID, $id, $value);
+        if (($id = $this->input->post('id')) && ($value = $this->input->post('value'))) {
+            $this->Categories_model->rename(substr($id, strlen(CATPREFIX)), $value);
             echo $value;
         }
     }
