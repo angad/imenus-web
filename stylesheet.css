@@ -1,0 +1,33 @@
+body{
+	width:1024px;
+	margin:0 auto;
+}
+
+#sidebar{
+	float:left;
+	margin:50px 40px 0px 50px;
+	padding-right:20px;
+	border-right-style:dotted;
+	border-right-width:4px;
+	border-right-color:#989898;
+	height:400px;
+}
+
+#content{
+	float:right;
+	margin:50px 500px 0px 50px;
+}
+
+#notselected{
+	width: 80%;
+	margin-right: auto;
+	margin-left: auto;
+}
+
+#selected {
+	border-style:solid;
+	border-width:5px;
+}
+
+#image{
+}

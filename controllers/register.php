@@ -1,11 +1,16 @@
 <?php
 class Register extends CI_Controller{
 
+		public function __construct()
+		{
+			parent::__construct();
+			$this->load->helper('form');
+		}
+
         public function index()
         {
-                $this->load->helper('form');
-				$data['error']='';
-                $this->load->view('register_form', $data);
+			$data['error']='';
+            $this->load->view('register_form', $data);
         }
 
         function newOrganization()
@@ -35,7 +40,9 @@ class Register extends CI_Controller{
 			$config['max_height']  = '768';
 
 			$this->load->library('upload', $config);
-			$path = $config['upload_path'] . $file_name;
+			
+			$file_data = $this->upload->data();
+			$path = $file_data['full_path'];
 			
 			//Getting Input post data
 			$data['Name'] = $this->input->post('name');
@@ -63,7 +70,7 @@ class Register extends CI_Controller{
 					$error = array('error' => 'Invite key bad or already expired.');
 					$this->load->view('register_form', $error);
 					return;
-				}	
+				}
 			}
 			else
 			{

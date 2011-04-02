@@ -6,7 +6,7 @@
 <body>
         <?php echo validation_errors(); ?>
 		<?php echo $error;?>		
-        <?php echo form_open_multipart('register\newOrganization'); ?>		
+        <?php echo form_open_multipart('register/newOrganization'); ?>		
 
         <p>Restaurant Name <input type = "text" name = "name" value = "<?php echo set_value('name'); ?>" size = "50" /></p>
 		

@@ -1,10 +1,4 @@
-<html>
-<head>
-	<title>Invite Key</title>
-</head>
-
-<body>
+<div id = "content">
 <p>Invite Key : <?php echo $key; ?></p>
-</body>
-
-</html>
+</div>
+<br style="clear:both;"/> 
