@@ -240,9 +240,9 @@ class Items extends CI_Controller {
         
         $output .= '<div class="form-item"><label for="edit-price">Price: <span class="form-required" title="This field is required">*</span></label>$ '.form_input('price', isset($item['Price']) ? $item['Price'] : '', 'id="edit-price"'.$readonly_text).'</div>';
         
-        $output .= '<div class="form-item"><label for="edit-imageSmall">Small Image:</label>'.($readonly ? '' : form_upload('imageSmall', '', 'id="edit-imageSmall"')).($item['ImageSmall'] != '' ? img(array('src' => $item['ImageSmall'], 'class' => 'zooming')) : '').'</div>';
-        $output .= '<div class="form-item"><label for="edit-imageMedium">Medium Image:</label>'.($readonly ? '' : form_upload('imageMedium', '', 'id="edit-imageMedium"')).($item['ImageMedium'] != '' ? img(array('src' => $item['ImageMedium'], 'class' => 'zooming')) : '').'</div>';
-        $output .= '<div class="form-item"><label for="edit-imageLarge">Large Image:</label>'.($readonly ? '' : form_upload('imageLarge', '', 'id="edit-imageLarge"')).($item['ImageLarge'] != '' ? img(array('src' => $item['ImageLarge'], 'class' => 'zooming')) : '').'</div>';
+        $output .= '<div class="form-item"><label for="edit-imageSmall">Small Image:</label>'.($readonly ? '' : form_upload('imageSmall', '', 'id="edit-imageSmall"')).(!empty($item['ImageSmall']) ? img(array('src' => $item['ImageSmall'], 'class' => 'zooming')) : '').'</div>';
+        $output .= '<div class="form-item"><label for="edit-imageMedium">Medium Image:</label>'.($readonly ? '' : form_upload('imageMedium', '', 'id="edit-imageMedium"')).(!empty($item['ImageMedium']) ? img(array('src' => $item['ImageMedium'], 'class' => 'zooming')) : '').'</div>';
+        $output .= '<div class="form-item"><label for="edit-imageLarge">Large Image:</label>'.($readonly ? '' : form_upload('imageLarge', '', 'id="edit-imageLarge"')).(!empty($item['ImageLarge']) ? img(array('src' => $item['ImageLarge'], 'class' => 'zooming')) : '').'</div>';
     
         if (isset($itemType) && $itemType == ITEMS_TYPE_MEAL)
             $output .= '<div class="form-item"><label for="edit-items[]">Meal Items: <span class="form-required" title="This field is required">*</span></label>'.$this->load->view('tree_select_view', array('tree' => $this->Categories_model->getTreeFromCurrentMenu($catID, TRUE), 'selected' => isset($itemID) ? $this->Items_model->getMealItems($itemID, TRUE) : array(), 'name' => 'items[]', 'readonly' => $readonly, 'leaffilter' => ITEMS_TYPE_ITEM), TRUE).'</div>';
