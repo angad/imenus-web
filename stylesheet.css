@@ -30,6 +30,11 @@ body{
 	background:#FFFFFF;
 }
 
+#registration
+{
+	margin:10px 0px 0px 70px;
+}
+
 #content{
 	float:right;
 	margin:50px 450px 0px 50px;
@@ -98,7 +103,42 @@ a{
 	border-color:#F05B16;
 }
 
-	tr:nth-child(odd){
+#login{
+	margin:30px 0px 10px 50px;
+	font-family:'ubuntu';
+	font-size:20px;
+}
+
+#registerlink
+{
+	margin:20px 0px 10px 50px;
+}
+
+h4{
+	font-size:15px;
+	font-weight:normal;
+	display:inline-block;
+	width:150px;
+	font-family: 'Molengo', arial, serif;
+}
+
+
+#formelem{
+ margin:0px 0px 0px 0px;
+ border:0px;
+ font-size:150%;
+ height:38px;
+ padding:5px 0px 0px 10px;
+ vertical-align:middle;
+ width:300px;
+ font-family: 'Ubuntu', arial, serif;
+-moz-box-shadow: 1px 1px 5px #888888 inset; /* Firefox */
+-webkit-box-shadow: 1px 1px 5px #888888 inset; /* Safari and Chrome */
+box-shadow: 1px 1px 5px #888888 inset;
+}
+
+
+tr:nth-child(odd){
     background-color:#EEE;
 }
 

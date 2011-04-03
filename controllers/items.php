@@ -95,7 +95,7 @@ class Items extends CI_Controller {
         } else {
             $this->Items_model->updateItem($itemID, $this->input->post('catID'), $this->input->post('name'), $this->input->post('longdesc'), $this->input->post('shortdesc'), $this->input->post('price'), isset($_POST['items']) ? ITEMS_TYPE_MEAL : ITEMS_TYPE_ITEM, NULL, NULL, NULL, $this->input->post('items'));
             redirect ('items/view/'.$this->input->post('catID'));
-        }       
+        }
     }
     
     private function _details($itemID, $readonly, $itemType = NULL, $catID = NULL) {
@@ -136,6 +136,7 @@ class Items extends CI_Controller {
         $output .= '<div class="form-item"><label for="edit-longdesc">Long Description: <span class="form-required" title="This field is required">*</span></label>'.form_textarea('longdesc', isset($item['LongDescription']) ? $item['LongDescription'] : '', $readonly_text).'</div>';
         
         $output .= '<div class="form-item"><label for="edit-price">Price: <span class="form-required" title="This field is required">*</span></label>$ '.form_input('price', isset($item['Price']) ? $item['Price'] : '', $readonly_text).'</div>';
+
 
         if (isset($itemType) && $itemType == ITEMS_TYPE_MEAL)        
             $output .= '<div class="form-item"><label for="edit-items[]">Meal Items: <span class="form-required" title="This field is required">*</span></label>'.$this->load->view('tree_select_view', array('tree' => $this->Categories_model->getTreeFromCurrentMenu($catID, TRUE), 'selected' => isset($itemID) ? $this->Items_model->getMealItems($itemID, TRUE) : array(), 'name' => 'items[]', 'readonly' => $readonly, 'leaffilter' => ITEMS_TYPE_ITEM), TRUE).'</div>';
