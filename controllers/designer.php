@@ -57,7 +57,6 @@ class Designer extends CI_Controller
 	function selectTheme()
 	{
 		//http://imenus.tk/index.php/designer/selectTheme
-		
 		$menu_id = $this->user_model->getMenuId();
 		
 		//if session does not exist, load the login form

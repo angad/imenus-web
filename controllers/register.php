@@ -84,6 +84,9 @@ class Register extends CI_Controller{
 			{
 				//if its empty, create a new menu
 				$data['MenuId'] = $this->organization->getMaxMenuId() + 1;
+				$menudata['Theme'] = 1;
+				$this->load->model('menu_model');
+				$this->menu_model->newMenu($menudata);
 			}
 			
 			//check if Username already exists
