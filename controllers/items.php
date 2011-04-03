@@ -1,28 +1,48 @@
 <?php if ( ! defined('BASEPATH')) exit ('No direct script access allowed');
 
 define('PAGESIZE_ITEMS', 10);
-define('ITEMS_TYPE_ITEM', 0);
-define('ITEMS_TYPE_MEAL', 1);
+
 
 class Items extends CI_Controller {
+    
+    private function _checkAccess($catID) {
+        $this->load->model('User_model');
+        $this->load->model('Categories_model');
+        $this->load->helper('url');
+        
+ 		if (($menuID = $this->User_model->getMenuId()) === FALSE)
+            redirect('/user');
+
+        if (!is_numeric($catID))
+            show_404('', FALSE);
+        else if (!in_array($catID, $this->Categories_model->getAllIDs($menuID)))
+            show_error(ACCESS_DENIED_MSG, 403, ACCESS_DENIED);
+    }
 
 	public function view($catID = NULL, $page = 1) {
-		if (!is_numeric($catID))
-            show_404('', FALSE);
+		$this->_checkAccess($catID);
             
         $this->load->library('table');        
         $this->load->helper(array('url', 'form', 'html'));
         $this->load->model('Items_model');
         
-        $links = anchor('items/additem/'.$catID.'/'.ITEMS_TYPE_ITEM, 'Add Item').anchor('items/additem/'.$catID.'/'.ITEMS_TYPE_MEAL, 'Add Meal');
+        $this->load->model('Categories_model');
+        $cat = $this->Categories_model->getCat($catID);
+        $parentCat = $cat['parentID'];
         
+        $note = '<h3 class="note">You may sort the Items and Set Meals by dragging them around.</h3>';
+        $note .= anchor('items/additem/'.$catID.'/'.ITEMS_TYPE_ITEM, 'Add Item').' '.anchor('items/additem/'.$catID.'/'.ITEMS_TYPE_MEAL, 'Add Meal');
+        
+        $this->table->set_template(array('table_open' => '<table id="order" border="0" cellpadding="4" cellspacing="0">', 'table_close' => '</table><span id="order-save">Save</span>'));
         $this->table->set_heading('Pic', 'Name', 'Price', 'Edit', 'Delete');
-        $this->table->set_template(array('row_start' => '<tr class="odd">', 'row_alt_start' => '<tr class = "even">'));
         
         foreach ($this->Items_model->getAll($catID) as $item) {
             $this->table->add_row(img($item['ImageSmall']), anchor('items/viewitem/'.$item['ID'], $item['Name']), $item['Price'], anchor('items/edititem/'.$item['ID'], 'Edit Item'), anchor('items/deleteitem/'.$item['ID'], 'Delete Item'));
         }
-        $this->load->view('content_view', array('title' => 'Items', 'content' => $links.br().$this->table->generate()));
+        
+        $data = array('title' => 'Categories', 'content' => $note.$this->table->generate(), 'back' => 'categories/index/'.$parentCat, 'include_scripts' => array(site_url('../scripts/jquery.tablednd_0_5.js'), site_url('../scripts/reorder.js')));
+        $data['document_ready'] = 'handleReOrder("../reorder/'.$catID.'");';
+        $this->load->view('content_view', $data);
 	}
     
     public function additem($catID, $itemType = ITEMS_TYPE_ITEM) {
@@ -46,6 +66,8 @@ class Items extends CI_Controller {
     }
     
     private function _handlesubmit($catID, $itemType, $insert, $itemID = NULL) {
+        $this->_checkAccess($catID);
+        
         $this->load->helper('url');
         $this->load->library("form_validation");
         $this->form_validation->set_rules('catID', 'Category', 'required')->set_rules('name', 'Name', 'required')->set_rules('longdesc', 'Long Description', 'required')->set_rules('price', 'Price', 'required|numeric');
@@ -56,19 +78,17 @@ class Items extends CI_Controller {
             if ($insert)
                 return $this->_details(NULL, FALSE, $itemType, $catID);
             else
-                return $this->_details($this->input->post('ID'), FALSE);
+                return $this->_details($itemID, FALSE);
         
         $this->load->model('Items_model');
         
         if ($insert) {
-            $this->Items_model->addItem($catID, $this->input->post('name'), $this->input->post('longdesc'), $this->input->post('shortdesc'), $this->input->post('price'), isset($_POST['items']) ? ITEMS_TYPE_MEAL : ITEMS_TYPE_ITEM, NULL, NULL, NULL, $this->input->post('items'));
+            $this->Items_model->addItem($catID, $this->input->post('name'), $this->input->post('longdesc'), $this->input->post('shortdesc'), $this->input->post('price'), isset($_POST['items']) ? ITEMS_TYPE_MEAL : ITEMS_TYPE_ITEM, '', '', '', $this->input->post('items'));
             redirect ('items/view/'.$catID);
         } else {
             $this->Items_model->updateItem($itemID, $this->input->post('catID'), $this->input->post('name'), $this->input->post('longdesc'), $this->input->post('shortdesc'), $this->input->post('price'), isset($_POST['items']) ? ITEMS_TYPE_MEAL : ITEMS_TYPE_ITEM, NULL, NULL, NULL, $this->input->post('items'));
             redirect ('items/view/'.$this->input->post('catID'));
-        }
-        
-        
+        }       
     }
     
     private function _details($itemID, $readonly, $itemType = NULL, $catID = NULL) {
@@ -83,7 +103,9 @@ class Items extends CI_Controller {
             $itemType = $item['Type'];
         }
         
-        $output = anchor('items/view/'.$catID, '< Back').br(2).validation_errors();
+        $this->_checkAccess($catID);
+        
+        $output = '';
 
         if (isset($items['ImageSmall']))        
             $output .= img(array('src' => $item['ImageSmall'], 'class' => 'zooming'));
@@ -119,48 +141,29 @@ class Items extends CI_Controller {
             $output .= form_submit('submit', $mode);
             
         $output .= form_close();
-        
-//        $this->load->library('form_validation');
-//		
-//		
-//		//Input validation rules
-//        $this->form_validation->set_rules('username', 'Username', 'callback_username_check');
-//		$this->form_validation->set_rules('password', 'Password', 'required');
-//		$this->form_validation->set_rules('repeat', 'Password Confirmation', 'required');
-//		$this->form_validation->set_rules('email', 'Email', 'required');
-//
-//		if ($this->form_validation->run() == FALSE)
-//		{
-//			//Reload the form if there is any error with the inputs
-//			$this->load->view('register_form');
-//		}
-//		else
-//		{
-//			$data['name'] = $this->input->post('name');
-//            $data['username'] = $this->input->post('username');
-//			$data['owner_name'] = $this->input->post('owner_name');
-//			$data['contact_number'] = $this->input->post('name');
-//			$data['address'] = $this->input->post('name');
-//			$data['email'] = $this->input->post('name');
-//			
-//			//need to md5 it
-//			$data['password'] = $this->input->post('name');
-//			
-//			//Call the model
-//			$this->organizAtion->newOrganization($data);
-//			
-//			//Load the login screen
-//			$this->load->view('login');
-//		}
      
-        $data = array('title' => $mode.' Item', 'content' => $output);
+        $data = array('title' => $mode.' Item', 'content' => $output, 'back' => 'items/view/'.$catID);
         if ($itemType == ITEMS_TYPE_MEAL) {
             $data['include_scripts'] = array('https://github.com/odyniec/selectlist/raw/master/jquery.selectlist.dev.js');
             $data['include_css'] = array('https://github.com/odyniec/selectlist/raw/master/distfiles/css/selectlist.css');
             $data['document_ready'] = '$("select[multiple=\'multiple\']").selectList();';
         }
         $this->load->view('content_view', $data);
-
     }
-
+    
+    public function reorder($catID) {
+        $this->load->model('User_model');
+        $this->load->helper('url');
+        
+        $this->load->model('Categories_model');
+        
+ 		if (($menuID = $this->User_model->getMenuId()) === FALSE || !in_array($catID, $this->Categories_model->getAllIDs($menuID)))
+            return;
+            
+        $i = 1;
+        
+        foreach ($this->input->post('order') as $item)
+            if (is_numeric($item))
+                $this->db->query('UPDATE '.ITEMS_TABLE.' SET SortOrder = ? WHERE ID = ?', array($i++, $item));
+    }
 }

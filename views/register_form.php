@@ -24,7 +24,8 @@
 		<p>Repeat Password <input type = "password" name = "repeat" value = "" size = "50"/></p>
 		
 		Upload Logo <br/>
-		Gif, PNG or JPEG only
+		GIF, PNG or JPEG only <br />
+        Maximum Size: 1024 x 768 <br />
 		<input type="file" name="logo" size="20" />
 		
 		<p><input type = "submit" value = "Submit" /></p>

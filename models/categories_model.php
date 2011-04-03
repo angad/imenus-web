@@ -1,45 +1,53 @@
 <?php if ( ! defined('BASEPATH')) exit ('No direct script access allowed');
 
-define('CATEGORIES_TABLE', 'Category');
 
 class Categories_model extends CI_Model {
 
 	function __construct() {
 		parent::__construct();
         $this->load->database();
+        $this->load->helper('constants');
 	}
+    
+    static function tableName() {
+        return CATEGORIES_TABLE;
+    }
 
-    function getAll($menuID) {
-<<<<<<< HEAD
-        return $this->db->query('Select ID, Name FROM Category WHERE menuID = ?', array($menuID))->result_array();
+    function getAll($menuID, $include_counts = FALSE, $only_children_of = NULL) {
+        $filter = isset($only_children_of) ? ' AND ParentID = ?' : '';
+        $order = ' ORDER BY SortOrder ASC';
+        if ($include_counts)
+            $sql = 'SELECT C.menuID, C.parentID, C.ID, C.Name, (SELECT COUNT(*) FROM '.ITEMS_TABLE.' X WHERE X.CategoryID = C.ID AND X.Type = '.ITEMS_TYPE_ITEM.') AS ItemCount, (SELECT COUNT(*) FROM '.ITEMS_TABLE.' X WHERE X.CategoryID = C.ID AND X.Type = '.ITEMS_TYPE_MEAL.') AS MealCount, (SELECT COUNT(*) FROM '.CATEGORIES_TABLE.' X WHERE X.ParentID = C.ID) AS SubcatCount FROM '.CATEGORIES_TABLE.' C WHERE C.menuID = ?'.$filter.$order;
+        else                
+            $sql = 'SELECT menuID, parentID, ID, Name FROM '.CATEGORIES_TABLE.' WHERE menuID = ?'.$filter.$order;
+        return $this->db->query($sql, array($menuID, $only_children_of))->result_array();
     }
     
-    function rename($menuID, $id, $name) {
-        $this->db->query('UPDATE Category SET Name = ? WHERE ID = ? AND menuID = ?', array($name, $id, $menuID));
-    }
-    
-    function add($menuID, $name) {
-        $this->db->query('UPDATE Category SET Name = ? WHERE ID = ? AND menuID = ?', array($this->db->escape($name), $id, $menuID));
-=======
-        return $this->db->query('SELECT menuID, parentID, ID, Name FROM Category WHERE menuID = ?', array($menuID))->result_array();
+    function getAllIDs($menuID) {
+        $arr = $this->db->query('SELECT ID FROM '.CATEGORIES_TABLE.' WHERE menuID = ? ORDER BY SortOrder ASC', array($menuID))->result_array();
+        if (count($arr) > 0)
+            return current(call_user_func_array('array_merge_recursive', $arr));
+        return $arr;
     }
     
     function getCat($catID) {
-        return $this->db->query('SELECT menuID, parentID, ID, Name FROM Category WHERE ID = ?', array($catID))->row_array();
+        return $this->db->query('SELECT menuID, parentID, ID, Name FROM '.CATEGORIES_TABLE.' WHERE ID = ?', array($catID))->row_array();
     }
     
     function getCategoriesInSameMenu($catID) {
-        return $this->db->query('SELECT C1.menuID, C1.parentID, C1.ID, C1.Name FROM Category C1 INNER JOIN Category C2 ON C2.menuID = C1.menuID AND C2.ID = ?', array($catID))->result_array();
+        return $this->db->query('SELECT C1.menuID, C1.parentID, C1.ID, C1.Name FROM '.CATEGORIES_TABLE.' C1 INNER JOIN '.CATEGORIES_TABLE.' C2 ON C2.menuID = C1.menuID AND C2.ID = ? ORDER BY C1.ParentID ASC, C1.SortOrder ASC', array($catID))->result_array();
     }
     
     // RETURNS: Array in which the keys are catIDs, and the values are either the name of the category / item, or an array with 'Name' and 'Data' keys, the 'Data' value being a sub-tree
     // If $include_items = TRUE, all leaves are items; Categories with no items will have an empty array for 'Data'.
     // If $include_items = FALSE, all leaves are categories with no sub-categories.
-    function getTreeFromCurrentMenu($catID, $include_items = FALSE) {
+    function getTreeFromCurrentMenu($catID, $include_items = FALSE, $only_descendants = FALSE) {
         $cats = $this->getCategoriesInSameMenu($catID);
         $nodes = array('Root');
         
         $parentNode = $catNode = NULL;
+        
+        $root = $only_descendants ? $catID : 0;
         
         foreach ($cats as $cat) {
             $catID = $cat['ID'];
@@ -65,7 +73,7 @@ class Categories_model extends CI_Model {
         }
         
         if (!$include_items)
-            return $nodes[0];
+            return $nodes[$root];
             
         $this->load->model('Items_model');
         
@@ -79,16 +87,35 @@ class Categories_model extends CI_Model {
             $node = array('Name' => $node, 'Data' => $subtree);
         }
                                         
-        return $nodes[0];
+        return $nodes[$root];
     }
     
-    function rename($id, $name) {
-        $this->db->query('UPDATE Category SET Name = ? WHERE ID = ?', array($name, $id));
+    function update($catID, $name = NULL, $parentID = NULL) {
+        $fields = array('Name', 'ParentID');
+        $args = func_get_args();
+        $update = array();
+        for ($i = 0; $i < count($fields); ++$i)
+            if (isset($args[$i + 1]))
+                $update[$fields[$i]] = $args[$i + 1];
+        $this->db->update(CATEGORIES_TABLE, $update, array('ID' => $catID));
     }
     
-    function add($menuID, $name) {
-        $this->db->query('INSERT INTO Category(Name, menuID) VALUES (?, ?)', array($name, $menuID));
+    function add($menuID, $name, $parentID) {
+        $this->db->query('INSERT INTO '.CATEGORIES_TABLE.'(Name, menuID, parentID, SortOrder) VALUES (?, ?, ?, ?)', array($name, $menuID, $parentID,
+                            current($this->db->query('SELECT MAX(SortOrder) + 1 FROM '.CATEGORIES_TABLE.' WHERE parentID = ?', array($parentID))->row_array())));
         return $this->db->insert_id();
->>>>>>> 3906273a185c52301204fa2ae33367037d468a3a
+    }
+    
+    function remove($catID) {
+        $subcatIDs = array_merge(array((int)$catID), $this->_flatten($this->getTreeFromCurrentMenu($catID, FALSE, TRUE)));
+        
+        $this->db->query('DELETE C, I, P1 FROM '.CATEGORIES_TABLE.' C LEFT JOIN '.ITEMS_TABLE.' I ON I.CategoryID = C.ID LEFT JOIN '.PARENTS_TABLE.' P ON P.ParentID = I.ID WHERE C.ID IN (?'.str_repeat(',?', count($subcatIDs) - 1).')', $subcatIDs);
+    }
+    
+    private static function _flatten($tree) {
+        if (!is_array($tree))
+            return array();
+        
+        return array_merge(array_keys($tree['Data']), call_user_func_array('array_merge', array_map('Categories_model::_flatten', $tree['Data'])));
     }
 }

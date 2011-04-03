@@ -1,39 +1,36 @@
 <?php if ( ! defined('BASEPATH')) exit ('No direct script access allowed');
 
-define('ITEMS_TABLE', 'Item');
-define('PARENTS_TABLE', 'ItemParents');
-define('ITEM_FIELDS', 'ID, ParentID, CategoryID, Name, ShortDescription, LongDescription, Price, Type, ImageSmall, ImageMedium, ImageLarge');
-
 class Items_model extends CI_Model {
 
 	function __construct() {
 		parent::__construct();
         $this->load->database();
+        $this->load->helper('constants');
 	}
     
+    static function tableName() {
+        return ITEMS_TABLE;
+    }
+    
     function getAll($catID, $typeFilter = NULL, $start = NULL, $count = NULL) {
-//        $this->db->select('ID, ParentID, CategoryID, Name, ShortDescription, LongDescription, Price, Type, ImageSmall, ImageMedium, ImageLarge');
-//        $this->db->where('CategoryID', $catID);                
-//        if (!is_null($typeFilter))
-//            $this->db->where('type', $typeFilter);
-//        $this->db->get(ITEMS_TABLE, $count, $start);
-//        return $this->db->get(ITEMS_TABLE, $count, $start)->result_array();
         $limit_str = '';
         if (is_numeric($start)) {
-            $limit_str = sprintf('LIMIT %d, %d', $start, is_numeric($count) ? $count : PHP_INT_MAX);
+            $limit_str = sprintf(' LIMIT %d, %d', $start, is_numeric($count) ? $count : PHP_INT_MAX);
         } else if (is_numeric($count)) {
-            $limit_str = sprintf('LIMIT %d', $count);
+            $limit_str = sprintf(' LIMIT %d', $count);
         }
-        return $this->db->query('SELECT '.ITEM_FIELDS.' FROM '.ITEMS_TABLE.' WHERE CategoryID = ?'.(isset($typeFilter) ? ' AND Type = ?' : '').$limit_str, array($catID, $typeFilter))->result_array();
+        $order = ' ORDER BY SortOrder ASC';
+        return $this->db->query('SELECT '.ITEM_FIELDS.' FROM '.ITEMS_TABLE.' WHERE CategoryID = ?'.(isset($typeFilter) ? ' AND Type = ?' : '').$order.$limit_str, array($catID, $typeFilter))->result_array();
     }
     
     function getItem($itemID) {
         return $this->db->query('SELECT '.ITEM_FIELDS.' FROM '.ITEMS_TABLE.' WHERE ID = ?', array($itemID))->row_array();
     }
     
-    function addItem($catID, $name, $description, $shortDesc = '', $price = 0, $type = ITEMS_TYPE_ITEM, $imageSmall = '', $imageMed = '', $imageLarge = '') {
-        $this->db->query('INSERT INTO '.ITEMS_TABLE.'(CategoryID, Name, LongDescription, ShortDescription, Price, Type, ImageSmall, ImageMedium, ImageLarge) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                        array($catID, $name, $description, $shortDesc, $price, $type, $imageSmall, $imageMed, $imageLarge));
+    function addItem($catID, $name, $description, $shortDesc = '', $price = 0, $type = ITEMS_TYPE_ITEM, $imageSmall = '', $imageMed = '', $imageLarge = '', $mealItems = NULL) {
+        $this->db->query('INSERT INTO '.ITEMS_TABLE.'(CategoryID, Name, LongDescription, ShortDescription, Price, Type, ImageSmall, ImageMedium, ImageLarge, SortOrder) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                        array($catID, $name, $description, $shortDesc, $price, $type, $imageSmall, $imageMed, $imageLarge,
+                        current($this->db->query('SELECT MAX(SortOrder) + 1 FROM '.ITEMS_TABLE.' WHERE CategoryID = ?', array($catID))->row_array())));
         return $this->db->insert_id();
     }
     
