@@ -88,7 +88,10 @@ class Organization extends CI_Model{
 	{
 		$query = $this->db->query('SELECT MenuId, created FROM InviteKey WHERE InviteKey=?', array($invite_key));
 		$row = $query->row_array();
-		if($row['MenuId']) 
+		if(count($row)==0)
+			return False;
+		
+		if($row['MenuId'])
 		{
 			return $row['MenuId'];
 		}
