@@ -31,11 +31,13 @@ class Items_model extends CI_Model {
         $this->db->query('INSERT INTO '.ITEMS_TABLE.'(CategoryID, Name, LongDescription, ShortDescription, Price, Type, ImageSmall, ImageMedium, ImageLarge, SortOrder) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
                         array($catID, $name, $description, $shortDesc, $price, $type, $imageSmall, $imageMed, $imageLarge,
                         current($this->db->query('SELECT MAX(SortOrder) + 1 FROM '.ITEMS_TABLE.' WHERE CategoryID = ?', array($catID))->row_array())));
-        return $this->db->insert_id();
+        $id = $this->db->insert_id();
+        $this->setMealItems($id, $mealItems);
+        return $id;
     }
     
     function removeItem($itemID) {
-        $this->db->query('DELETE FROM '.ITEMS_TABLE.' WHERE ID = ?', array($itemID));
+        $this->db->query('DELETE I, P1, P2 FROM ('.ITEMS_TABLE.' I LEFT JOIN '.PARENTS_TABLE.' P1 ON I.ID = P1.ParentID) LEFT JOIN '.PARENTS_TABLE.' P2 ON I.ID = P2.ItemID WHERE I.ID = ?', array($itemID));
     }
 
     function updateItem($itemID, $catID = NULL, $name = NULL, $description = NULL, $shortDesc = NULL, $price = NULL, $type = NULL, $imageSmall = NULL, $imageMed = NULL, $imageLarge = NULL, $mealItems = NULL) {
@@ -63,6 +65,9 @@ class Items_model extends CI_Model {
     }
     
     function setMealItems($itemID, $newItemIDArray) {
+        if (!is_array($newItemIDArray))
+            return;
+        
         $oldarr = $this->getMealItems($itemID, TRUE);
         $to_del = array_diff($oldarr, $newItemIDArray);
         $to_ins = array_diff($newItemIDArray, $oldarr);

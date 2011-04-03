@@ -31,3 +31,62 @@ body{
 
 #image{
 }
+
+tr:nth-child(odd){
+    background-color:#EEE;
+}
+img.zooming {
+    max-height: 50px;
+    max-width: 50px;
+}
+div.form-item {
+    display:block;
+}
+div.form-item label {
+    display:block;
+    font-weight:bold;
+}
+span.form-required {
+    color: #FFAE00;
+}
+#simplemodal-overlay {
+    background-color:#000;
+}
+#simplemodal-container {
+    background-color:#333;
+    border:8px solid #444;
+    padding:12px;
+}
+#modalprompt {
+    display:none;
+    overflow:visible;
+    color:#BBB;
+}
+#modalprompt h2 {
+    color:#5F87AE;
+}
+.simplemodal-close {
+    background-color:#5F87AE;
+    color:white;
+    cursor:pointer;
+    font-variant:small-caps;
+    line-height: 150%;
+    font-size:16px;
+    font-weight:bold;
+}
+#modalcancel.simplemodal-close {
+    padding:2px 4px;
+}
+#modalconfirm.simplemodal-close {
+    text-decoration:underline;
+    padding:2px 4px;
+}
+
+.reorderSave {
+    border:1px gray;
+    margin:auto;
+    line-height: 150%;
+    padding:1px;
+    background:#EEF;
+    cursor:pointer;
+}

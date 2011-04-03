@@ -1,24 +1,30 @@
-function handleReOrder (reorderPostAdd) {
+function handleReOrder (orderTable, reorderPostAdd) {
     $(document).ready(function () {
         var orderData;
-        $("#order-save").hide();
-        $("#order").find("thead > tr").first().attr("id", "header").addClass("nodrag");
-        $("#order").find("tbody > tr").each(function(idx, Elem) {
+        var tableName = "#" + orderTable;
+        var saveName = tableName + "-save";
+        $(tableName).after("<span id='" + orderTable + "-save' class='reorderSave'></span>");
+        $(saveName).hide();
+        $(tableName).find("thead > tr").first().attr("id", "header").addClass("nodrag");
+        $(tableName).find("tbody > tr").each(function(idx, Elem) {
             var href = $(Elem).find("td > a").first().attr("href");
             $(Elem).attr("id", href.substr(href.lastIndexOf("/") + 1));
         });
-        $("#order").tableDnD({
+        $(tableName).tableDnD({
             onDragStart:function(table, row) {
                 orderData = "";
-                $("#order-save").show("slow");
+                $(saveName).text("Save");                
+                $(saveName).show("slow");
             },
             onDrop:function(table, row) {
                 orderData = $.tableDnD.serialize();
             }
         });
-        $("#order-save").click(function(e){
+        $(saveName).click(function(e){
+            $(this).text("Saving...");            
             $.post(reorderPostAdd, orderData, function(data) {
-                $("#order-save").hide("fast");
+                $(saveName).hide("fast");
+                $(saveName).text("Saved");
             })
         });
     });

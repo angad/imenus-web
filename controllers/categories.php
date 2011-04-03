@@ -7,7 +7,10 @@
 define('CATPREFIX', 'cat');
 define('PLACEHOLDER', 'Add New Category');
 define('EDITTITLE', 'Click to Edit');
-define('CATDELPROMPT', 'Are you sure you want to delete this category? If you do, %d Item(s) and %d Set Meal(s) will also be deleted!');
+define('CATDELPROMPT', 'Are you sure you want to delete this category?');
+define('CATDELPROMPTI', 'Are you sure you want to delete this category? If you do, %d Item(s) and %d Set Meal(s) will also be deleted!');
+define('CATDELPROMPTS', 'Are you sure you want to delete this category? If you do, you will lose %d Sub-Categories and ALL their Items and Set Meals!');
+
 
  class Categories extends CI_Controller {
     
@@ -40,19 +43,28 @@ define('CATDELPROMPT', 'Are you sure you want to delete this category? If you do
         if (count($this->Items_model->getAll($parentID, NULL, NULL, 1)) == 0)
             $note .= anchor('categories/add/'.$parentID, 'Add Sub-Category');
         
-        $this->table->set_template(array('table_open' => '<table id="order" border="0" cellpadding="4" cellspacing="0">', 'table_close' => '</table><span id="order-save">Save</span>'));
+        $this->table->set_template(array('table_open' => '<table id="order" border="0" cellpadding="4" cellspacing="0">'));
         $this->table->set_heading('Category', 'Edit', 'Sub-Categories', 'Items', 'Delete');
         
         foreach ($this->Categories_model->getAll($menuID, TRUE, $parentID) as $cat) {
-            $this->table->add_row(anchor('categories/view/'.$cat['ID'], $cat['Name']), anchor('categories/edit/'.$cat['ID'], 'Edit Category'), $cat['ItemCount'] ? '' : anchor('categories/index/'.$cat['ID'], 'View Sub-Categories'), $cat['SubcatCount'] ? '' : anchor('items/view/'.$cat['ID'], 'View Items'), anchor('categories/delete/'.$cat['ID'], 'Delete Category', array('class' => 'modalconfirm', 'data-modaltext' => sprintf(CATDELPROMPT, $cat['ItemCount'], $cat['MealCount'], $cat['SubcatCount']))));
+            if ($cat['ItemCount'] != 0)
+                $prompt = sprintf(CATDELPROMPTI, $cat['ItemCount'], $cat['MealCount']);
+            else if ($cat['SubcatCount'] != 0)
+                $prompt = sprintf(CATDELPROMPTS, $cat['SubcatCount']);
+            else
+                $prompt = CATDELPROMPT;
+            $this->table->add_row(anchor('categories/view/'.$cat['ID'], $cat['Name']), anchor('categories/edit/'.$cat['ID'], 'Edit Category'), $cat['ItemCount'] ? '' : anchor('categories/index/'.$cat['ID'], 'View Sub-Categories'), $cat['SubcatCount'] ? '' : anchor('items/view/'.$cat['ID'], 'View Items'), anchor('categories/delete/'.$cat['ID'], 'Delete Category', array('class' => 'modalconfirm', 'data-modaltext' => $prompt)));
         }
         $data = array('title' => 'Categories', 'content' => $note.$this->table->generate(), 'include_scripts' => array(site_url('../scripts/jquery.tablednd_0_5.js'), site_url('../scripts/reorder.js')));
-        $data['document_ready'] = 'handleReOrder("../reorder/'.$parentID.'");';
+        $data['document_ready'] = 'handleReOrder("order", "'.site_url('categories/reorder/'.$parentID).'");';
         $this->load->view('content_view', $data);
  	}
     
     public function add($parentID) {
-        $this->_detail(NULL, FALSE, $parentID);
+        if ($this->input->post())
+            $this->_handlesubmit($parentID);
+        else
+            $this->_detail(NULL, FALSE, $parentID);
     }
     
     public function view($catID) {
@@ -60,17 +72,12 @@ define('CATDELPROMPT', 'Are you sure you want to delete this category? If you do
     }
     
     public function edit($catID) {
-        $this->_detail($catID);
+        if ($this->input->post())
+            $this->_handlesubmit(null, $catID);
+        eles
+            $this->_detail($catID);
     }
-    
-    public function submitadd($parentID) {
-        $this->_handlesubmit($parentID);
-    }
-    
-    public function submitedit($catID) {
-        $this->_handlesubmit(NULL, $catID);
-    }
-    
+        
     private function _detail($catID, $readonly = FALSE, $parentID = NULL) {
         $this->load->model('User_model');
         $this->load->helper(array('url', 'form', 'html'));
@@ -89,11 +96,7 @@ define('CATDELPROMPT', 'Are you sure you want to delete this category? If you do
         
         $this->_checkAccess($parentID);
        
-        $submit_url = substr(current_url(), strlen(base_url().index_page()) + 1);
-        $slash_pos = strpos($submit_url, '/');
-        $submit_url = substr($submit_url, 0, $slash_pos + 1).'submit'.substr($submit_url, $slash_pos + 1);
-        
-        $output = form_open($submit_url);
+        $output = form_open();
         
         $readonly_text = $readonly ? 'readonly="readonly"' : '';
         
