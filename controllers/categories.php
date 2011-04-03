@@ -1,7 +1,10 @@
 <?php if ( ! defined('BASEPATH')) exit ('No direct script access allowed');
-
 /**
- * @author patrick
+ * iMenus Categories Controller
+ *
+ * @package		iMenus
+ * @category	Controllers
+ * @author		Patrick
  */
 
 define('CATPREFIX', 'cat');
@@ -27,7 +30,15 @@ define('CATDELPROMPTS', 'Are you sure you want to delete this category? If you d
         else if ($catID != 0 && !in_array($catID, $this->Categories_model->getAllIDs($menuID)))
             show_error(ACCESS_DENIED_MSG, 403, ACCESS_DENIED);
     }
- 
+    
+    /**
+     * Index / Default Page
+     *
+     * Lists Categories in a Table, allowing them to be reordered  
+     *
+     * @access	public
+     * @param	int   parentID
+     */
  	public function index($parentID = 0) {   
         $this->load->model('User_model');
         $this->load->helper(array('form', 'url'));
@@ -60,6 +71,12 @@ define('CATDELPROMPTS', 'Are you sure you want to delete this category? If you d
         $this->load->view('content_view', $data);
  	}
     
+    /**
+     * Add Cat page / form  
+     *
+     * @access	public
+     * @param	int   parentID
+     */
     public function add($parentID) {
         if ($this->input->post())
             $this->_handlesubmit($parentID);
@@ -67,17 +84,37 @@ define('CATDELPROMPTS', 'Are you sure you want to delete this category? If you d
             $this->_detail(NULL, FALSE, $parentID);
     }
     
+    /**
+     * View Cat page / form
+     *
+     * @access	public
+     * @param	int   catID
+     */
     public function view($catID) {
         $this->_detail($catID, TRUE);
     }
     
+    /**
+     * Edit Cat page / form
+     *
+     * @access	public
+     * @param	int   catID
+     */
     public function edit($catID) {
         if ($this->input->post())
             $this->_handlesubmit(null, $catID);
         else
             $this->_detail($catID);
     }
-        
+    
+    /**
+     * Cat Form Generator
+     *
+     * @access	private
+     * @param	int
+     * @param   boolean
+     * @param   int
+     */
     private function _detail($catID, $readonly = FALSE, $parentID = NULL) {
         $this->load->model('User_model');
         $this->load->helper(array('url', 'form', 'html'));
@@ -101,8 +138,7 @@ define('CATDELPROMPTS', 'Are you sure you want to delete this category? If you d
         $readonly_text = $readonly ? 'readonly="readonly"' : '';
         
         $output .= '<div class="form-item"><label for="edit-parentID">Parent Category: <span class="form-required" title="This field is required">*</span></label>'.$this->load->view('tree_select_view', array('tree' => $this->Categories_model->getTreeFromCurrentMenu($parentID), 'selected' => $parentID, 'name' => 'parentID', 'readonly' => $readonly, 'allselectable' => TRUE), TRUE).'</div>';
-        
-        $output .= '<div class="form-item"><label for="edit-name">Name: <span class="form-required" title="This field is required">*</span></label>'.form_input('name', $name, $readonly_text).'</div>';
+        $output .= $this->load->view('text_item_view', array('name' => 'name', 'label' => 'Name', 'required' => TRUE, 'value' => $name), TRUE);
         
         if (!$readonly)
             $output .= form_submit('submit', $mode);
@@ -113,6 +149,13 @@ define('CATDELPROMPTS', 'Are you sure you want to delete this category? If you d
         $this->load->view('content_view', $data);
     }
     
+    /**
+     * Cat Form Submission Handler
+     *
+     * @access	private
+     * @param	int
+     * @param   int
+     */
     private function _handlesubmit($parentID, $catID = NULL) {
         $this->_checkAccess(isset($catID) ? $catID : $parentID);
         
@@ -142,6 +185,12 @@ define('CATDELPROMPTS', 'Are you sure you want to delete this category? If you d
         }       
     }
     
+    /**
+     * Cat Reordering AJAX handler
+     *
+     * @access	public
+     * @param	int
+     */
     public function reorder($parentID) {
         $this->load->model('User_model');
         $this->load->helper('url');
@@ -158,6 +207,12 @@ define('CATDELPROMPTS', 'Are you sure you want to delete this category? If you d
                 $this->db->query('UPDATE '.CATEGORIES_TABLE.' SET SortOrder = ? WHERE ID = ?', array($i++, $cat));
     }
     
+    /**
+     * Cat Delete Callback
+     *
+     * @access	public
+     * @param	int
+     */
     public function delete($catID) {
         $this->load->model('User_model');
         $this->load->helper('url');

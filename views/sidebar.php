@@ -37,9 +37,6 @@ if ( ! defined('BASEPATH')) exit ('No direct script access allowed');
 		<a href = "<?php echo site_url('categories');?>">Categories</a><br/>
 	</div>
 	<div id = "sidebaritem">
-		<a href = "<?php echo site_url('items');?>">Items</a><br/>
-	</div>
-	<div id = "sidebaritem">
 		<a href = "<?php echo site_url('user/invitekey');?>">Request InviteKey</a><br/>
 	</div>
 	<div id = "sidebaritem">

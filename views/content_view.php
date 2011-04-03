@@ -1,4 +1,19 @@
 <?php if ( ! defined('BASEPATH')) exit ('No direct script access allowed');
+/**
+ * iMenus Content View
+ *
+ * @package		iMenus
+ * @category	View
+ * @author		Patrick
+ * @var         include_css      (optional) Array of CSS to be included 
+ * @var         include_scripts  (optional) Array of scripts to be included
+ * @var         document_ready   (optional) String to be included in jQuery's $(document).ready
+ * @var         title            String for the page title
+ * @var         back             (optional) Back-link URL
+ * @var         content          HTML content
+ * 
+ */
+
 require_once 'sidebar.php';
 ?>
         <script src="http://code.jquery.com/jquery-1.5.2.min.js"></script>
@@ -25,7 +40,7 @@ require_once 'sidebar.php';
                     window.location.href = $(this).attr('data-href');
                 })
                 $("img.zooming").click(function() {
-                    $.modal("<img src='" + $(this).src + "'>", {overlayClose : true, overlayCss: {backgroundColor:"black"}});
+                    $.modal("<img src='" + $(this).attr('src') + "'>", {overlayClose : true, overlayCss: {backgroundColor:"black"}});
                 })
             });
         </script>
@@ -36,11 +51,11 @@ require_once 'sidebar.php';
             <span id="modalconfirm" class="simplemodal-close">Continue</span> <span id="modalcancel" class="simplemodal-close">Cancel</span>
         </div>
         
-        <h1><?php echo $title;?></h1>
-        
-        <?php if (isset($back)) echo anchor($back, '< Back').br(); echo validation_errors();?>
-        
-        <?php echo $content;?>
-</body>
-
-</html>
+        <div id="contentarea">
+            <h1><?php echo $title;?></h1>
+            
+            <?php if (isset($back)) echo anchor($back, '< Back').br(); echo validation_errors();?>
+            
+            <?php echo $content;?>
+        </div>
+<?php require_once 'footer.php';

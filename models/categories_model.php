@@ -3,10 +3,10 @@
  * iMenus Categories Model
  *
  * @package		iMenus
- * @subpackage	Models
  * @category	Models
  * @author		Patrick
  */
+
 class Categories_model extends CI_Model {
 
 	function __construct() {
@@ -19,6 +19,20 @@ class Categories_model extends CI_Model {
         return CATEGORIES_TABLE;
     }
 
+
+    /**
+     * Get All Categories
+     *
+     * Retrieves all Categories for a given Menu. Item, Set Meal and Subcategory
+     * Counts can be included, and the retrieved Categories can be restricted only
+     * to the direct children of a specified Category.
+     *
+     * @access	public
+     * @param	int      menuID
+     * @param   boolean  include_counts
+     * @param   boolean  Parent Category (specify if only its children are required)
+     * @return	array    
+     */
     function getAll($menuID, $include_counts = FALSE, $only_children_of = NULL) {
         $filter = isset($only_children_of) ? ' AND ParentID = ?' : '';
         $order = ' ORDER BY SortOrder ASC';
@@ -29,6 +43,15 @@ class Categories_model extends CI_Model {
         return $this->db->query($sql, array($menuID, $only_children_of))->result_array();
     }
     
+    /**
+     * Get All CategoryIDs
+     *
+     * Retrieves all CategoryIDs of a Menu's Categories 
+     *
+     * @access	public
+     * @param	int   menuID
+     * @return	array
+     */
     function getAllIDs($menuID) {
         $arr = $this->db->query('SELECT ID FROM '.CATEGORIES_TABLE.' WHERE menuID = ? ORDER BY SortOrder ASC', array($menuID))->result_array();
         if (($size = count($arr)) > 1)
@@ -39,17 +62,46 @@ class Categories_model extends CI_Model {
             return $arr;
     }
     
+    /**
+     * Get Category Details
+     *
+     * Retrieves details of a single Category 
+     *
+     * @access	public
+     * @param	int   catID
+     * @return	array
+     */
     function getCat($catID) {
         return $this->db->query('SELECT menuID, parentID, ID, Name FROM '.CATEGORIES_TABLE.' WHERE ID = ?', array($catID))->row_array();
     }
     
+    /**
+     * Get All CategoryIDs
+     *
+     * Retrieves all CategoryIDs of a Menu's Categories 
+     *
+     * @access	public
+     * @param	int
+     * @return	array
+     */
     function getCategoriesInSameMenu($catID) {
         return $this->db->query('SELECT C1.menuID, C1.parentID, C1.ID, C1.Name FROM '.CATEGORIES_TABLE.' C1 INNER JOIN '.CATEGORIES_TABLE.' C2 ON C2.menuID = C1.menuID AND C2.ID = ? ORDER BY C1.ParentID ASC, C1.SortOrder ASC', array($catID))->result_array();
     }
     
-    // RETURNS: Array in which the keys are catIDs, and the values are either the name of the category / item, or an array with 'Name' and 'Data' keys, the 'Data' value being a sub-tree
-    // If $include_items = TRUE, all leaves are items; Categories with no items will have an empty array for 'Data'.
-    // If $include_items = FALSE, all leaves are categories with no sub-categories.
+    /**
+     * Get Tree from the specified Category's Menu
+     *
+     * RETURNS: Array in which the keys are catIDs, and the values are either the name of the category / item,
+     * or an array with 'Name' and 'Data' keys, the 'Data' value being a sub-tree.
+     * If $include_items = TRUE, all leaves are items; Categories with no items will have an empty array for 'Data'.
+     * If $include_items = FALSE, all leaves are categories with no sub-categories.
+     *
+     * @access	public
+     * @param	int       catID
+     * @param   boolean   include_items
+     * @param   boolean   TRUE if only specified Category's subtree is required
+     * @return	array
+     */
     function getTreeFromCurrentMenu($catID, $include_items = FALSE, $only_descendants = FALSE) {
         $cats = $this->getCategoriesInSameMenu($catID);
         $nodes = array('Root');
@@ -99,6 +151,16 @@ class Categories_model extends CI_Model {
         return $nodes[$root];
     }
     
+    /**
+     * Update Category
+     *
+     * Updates the Database, updating fields if they are specified 
+     *
+     * @access	public
+     * @param	int
+     * @param   string
+     * @param   string
+     */
     function update($catID, $name = NULL, $parentID = NULL) {
         $fields = array('Name', 'ParentID');
         $args = func_get_args();
@@ -109,18 +171,47 @@ class Categories_model extends CI_Model {
         $this->db->update(CATEGORIES_TABLE, $update, array('ID' => $catID));
     }
     
+    /**
+     * Adds a Category
+     *
+     * Updates the Database, adding a Category 
+     *
+     * @access	public
+     * @param	int   menuID
+     * @param   string
+     * @param   int   parentID; Specify 0 for root
+     * @return	int
+     */
     function add($menuID, $name, $parentID) {
         $this->db->query('INSERT INTO '.CATEGORIES_TABLE.'(Name, menuID, parentID, SortOrder) VALUES (?, ?, ?, ?)', array($name, $menuID, $parentID,
                             current($this->db->query('SELECT MAX(SortOrder) + 1 FROM '.CATEGORIES_TABLE.' WHERE parentID = ?', array($parentID))->row_array())));
         return $this->db->insert_id();
     }
     
+    /**
+     * Removes a Category
+     *
+     * Removes a Category, its Sub-Categories, its Items and Set Meals 
+     *
+     * @access	public
+     * @param	int
+     */
     function remove($catID) {
         $subcatIDs = array_merge(array((int)$catID), $this->_flatten($this->getTreeFromCurrentMenu($catID, FALSE, TRUE)));
         
         $this->db->query('DELETE C, I, P1 FROM '.CATEGORIES_TABLE.' C LEFT JOIN '.ITEMS_TABLE.' I ON I.CategoryID = C.ID LEFT JOIN '.PARENTS_TABLE.' P ON P.ParentID = I.ID WHERE C.ID IN (?'.str_repeat(',?', count($subcatIDs) - 1).')', $subcatIDs);
     }
     
+    /**
+     * Flattens a Category Tree
+     *
+     * Takes in a tree from getTreeFromCurrentMenu, and returns an array of CategoryIDs
+     *
+     * @access	private
+     * @static
+     * @param	array
+     * @return	array
+     */
     private static function _flatten($tree) {
         if (!is_array($tree))
             return array();

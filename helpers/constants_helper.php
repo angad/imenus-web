@@ -21,4 +21,8 @@ define('ROOT_CATEGORY', '(Top Level)');
 
 define('ACCESS_DENIED_MSG', 'You do not have permission to access this!');
 define('ACCESS_DENIED', 'Access Denied');
+
+define('ITEM_IMAGE_SMALL', 'imageSmall');
+define('ITEM_IMAGE_MEDIUM', 'imageMedium');
+define('ITEM_IMAGE_LARGE', 'imageLarge');
 ?>

@@ -1,7 +1,25 @@
-<?php
+<?php if ( ! defined('BASEPATH')) exit ('No direct script access allowed');
+/**
+ * iMenus Tree Select View Helper
+ *
+ * @package		iMenus
+ * @category	View
+ * @author		Patrick
+ */
 
 define('LEVELINDENT', 4);
 
+/**
+ * Generates the optgroup /option tree structure
+ *
+ * @access	public
+ * @param	int     key
+ * @param   array   tree
+ * @param   int     level
+ * @param   mixed   selected
+ * @param   int     leaffilter
+ * @param   boolean allselectable
+ */
 function optgrouptree($key, $tree, $level, $selected, $leaffilter = NULL, $allselectable = FALSE) {
     if ($allselectable || !is_array($tree) || !isset($tree['Data'])) {
         if (!isset($leaffilter, $tree['Type']) || $leaffilter == $tree['Type']) {
