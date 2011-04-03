@@ -1,6 +1,12 @@
 <?php if ( ! defined('BASEPATH')) exit ('No direct script access allowed');
-
-
+/**
+ * iMenus Categories Model
+ *
+ * @package		iMenus
+ * @subpackage	Models
+ * @category	Models
+ * @author		Patrick
+ */
 class Categories_model extends CI_Model {
 
 	function __construct() {
@@ -25,9 +31,12 @@ class Categories_model extends CI_Model {
     
     function getAllIDs($menuID) {
         $arr = $this->db->query('SELECT ID FROM '.CATEGORIES_TABLE.' WHERE menuID = ? ORDER BY SortOrder ASC', array($menuID))->result_array();
-        if (count($arr) > 0)
+        if (($size = count($arr)) > 1)
             return current(call_user_func_array('array_merge_recursive', $arr));
-        return $arr;
+        else if ($size == 1)
+            return array($arr[0]['ID']);
+        else
+            return $arr;
     }
     
     function getCat($catID) {
