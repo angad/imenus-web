@@ -1,6 +1,14 @@
 <?php
 
+if ( ! defined('BASEPATH')) exit ('No direct script access allowed');
+
+/**
+ * @author angad
+ */
+
+
 class Image extends CI_Model{
+	//Image generator class
 
 	public function small($file_path, $raw_name, $file_ext)
 	{

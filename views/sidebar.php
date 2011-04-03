@@ -1,3 +1,13 @@
+<?php
+if ( ! defined('BASEPATH')) exit ('No direct script access allowed');
+
+/**
+ * @author angad
+ */
+?>
+
+
+
 <html>
 <head>
 	<title><?php echo $title ?></title>

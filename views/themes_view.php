@@ -1,3 +1,10 @@
+<?php
+if ( ! defined('BASEPATH')) exit ('No direct script access allowed');
+
+/**
+ * @author angad
+ */
+?>
 	<?php
 	
 	for($i=1; $i<4; $i++)

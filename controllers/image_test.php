@@ -1,4 +1,9 @@
 <?php
+if ( ! defined('BASEPATH')) exit ('No direct script access allowed');
+
+/**
+ * @author angad
+ */
 
 class Image_test extends CI_Controller{
 	
@@ -6,7 +11,6 @@ class Image_test extends CI_Controller{
 	public function __construct()
 	{
 		parent::__construct();
-		
 	}
 	
 	public function index()
@@ -19,7 +23,8 @@ class Image_test extends CI_Controller{
 	{
 		$n = rand(10e16, 10e20);
 		$file_name =  base_convert($n, 10, 36);
-				//Logo upload configuration
+		
+		//upload configuration
 		$config['file_name'] = $file_name;
 		$config['upload_path'] = './uploads/raw/';
 		$config['allowed_types'] = 'gif|jpg|png';
@@ -48,3 +53,5 @@ class Image_test extends CI_Controller{
 		echo $small; //the full path to the image
 	}
 }
+
+?>

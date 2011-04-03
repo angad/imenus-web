@@ -1,10 +1,17 @@
 <?php
+if ( ! defined('BASEPATH')) exit ('No direct script access allowed');
+
+/**
+ * @author angad
+ */
 
 class Designer extends CI_Controller
 {
 
 	public function __construct()
 	{
+		//Initializes menu and user model
+		//Loads form and uri helper
 		parent::__construct();
 		$this->load->model('menu_model');
 		$this->load->model('user_model');
@@ -14,7 +21,8 @@ class Designer extends CI_Controller
 
 	public function index()
 	{
-		$username = $this->user_model->isLoggedIn();
+		//Checks if user is logged in
+		//Loads the menu_view with the sidebar
 		
 		//get the menu id from the session
 		$menu_id = $this->user_model->getMenuId();
@@ -32,8 +40,10 @@ class Designer extends CI_Controller
 	
 	function theme($select)
 	{
+		//http://imenus.tk/index.php/designer/theme
 		$menu_id = $this->user_model->getMenuId();
 
+		//if session does not exist, load the login form
 		if(!$menu_id)
 		{
 			$this->load->view('login_form');
@@ -45,6 +55,8 @@ class Designer extends CI_Controller
 	
 	function selectTheme()
 	{
+		//http://imenus.tk/index.php/designer/selectTheme
+		
 		$menu_id = $this->user_model->getMenuId();
 		
 		//if session does not exist, load the login form

@@ -74,7 +74,7 @@ define('CATDELPROMPTS', 'Are you sure you want to delete this category? If you d
     public function edit($catID) {
         if ($this->input->post())
             $this->_handlesubmit(null, $catID);
-        eles
+        else
             $this->_detail($catID);
     }
         

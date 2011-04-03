@@ -1,3 +1,12 @@
+<?php
+if ( ! defined('BASEPATH')) exit ('No direct script access allowed');
+
+/**
+ * @author angad
+ */
+
+?>
+
 <?php echo $error;?>
 File Size should not exceed 2MB<br/>
 Gif, PNG or JPEG only

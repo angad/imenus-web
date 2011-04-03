@@ -1,43 +1,43 @@
 <?php
+if ( ! defined('BASEPATH')) exit ('No direct script access allowed');
+
+/**
+ * @author angad
+ */
 
 class Organization extends CI_Model{
 	
 	
-	function Organization()
+	public function __construct()
 	{
-			$this->load_db();
-	}
-	
-	function load_db()
-	{
+		parent::__construct();
 		$this->load->database();
 	}
 	
 	function get_all()
 	{
+		//Get a database dump
 		$query = $this->db->query('SELECT * from Organization');
 		return $query->result_array();
 	}
 	
 	function newOrganization($data)
 	{
+		//add a new organization
 		$this->db->insert('Organization', $data);
 	}
 	
 	function getMenuId($username)
 	{
-		$query = $this->db->query('SELECT MenuId from Organization WHERE Username=\'' . $username . '\'');
-		$result = $query->result_array();
-		
-		foreach($result as $row)
-		{
-			return $row['MenuId'];
-		}
-		return False;
+		//Gets the MenuId associated with the username
+		$query = $this->db->query('SELECT MenuId from Organization WHERE Username=?', array($username));
+		$row = $query->row_array();
+		return $row['Theme'];
 	}
 	
 	function menuid()
 	{
+		//checks session for menu_id
 		if($this->session->userdata('logged_in'))
 		{
 			return $this->session->userdata('menu_id');
@@ -47,7 +47,8 @@ class Organization extends CI_Model{
 	
 	function checkPassword($username, $password)
 	{
-		$query = $this->db->query('SELECT Password from Organization WHERE Username=\'' . $username . '\'');
+		//checks password for login
+		$query = $this->db->query('SELECT Password from Organization WHERE Username=?', array($username));
 		$result = $query->result_array();
 				
 		foreach($result as $row)
@@ -59,7 +60,8 @@ class Organization extends CI_Model{
 	
 	function username_exists($username)
 	{
-		$query = $this->db->query('SELECT Username from Organization WHERE Username=\'' . $username . '\'');
+		//if username exists
+		$query = $this->db->query('SELECT Username from Organization WHERE Username=?', array($username));
 		$user = $query->result_array();
 		foreach($user as $row)
 		{
@@ -71,6 +73,7 @@ class Organization extends CI_Model{
 	
 	function getMaxMenuId()
 	{
+		//get max menu id
 		$query = $this->db->query('SELECT MAX(MenuId) AS a from Organization');
 		$row = $query->row_array();
 		return $row['a'];
@@ -82,9 +85,6 @@ class Organization extends CI_Model{
 		$row = $query->row_array();
 		if($row['MenuId']) 
 		{
-			echo $row['created'];
-			echo time();
-			
 			return $row['MenuId'];
 		}
 		else return False;

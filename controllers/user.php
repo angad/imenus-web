@@ -1,10 +1,18 @@
 <?php
 
+if ( ! defined('BASEPATH')) exit ('No direct script access allowed');
+
+/**
+ * @author angad
+ */
+
 class User extends CI_Controller{
 	
 	
 	public function __construct()
-	{
+	{	
+		//Initializes menu and user model
+		//Loads form and uri helper
 		parent::__construct();
 		$this->load->helper('form');
 		$this->load->helper('url');
@@ -14,6 +22,8 @@ class User extends CI_Controller{
 	
 	public function index()
 	{
+		//Checks if logged in
+		//Loads the designer
 		$username=$this->user_model->isLoggedIn();
 		if($username)
 		{
@@ -24,6 +34,9 @@ class User extends CI_Controller{
 	
 	function login()
 	{	
+		//http://imenus.tk/index.php/user/login
+		//Login post URL
+		
 		$password = $this->input->post('password');
 		$username = $this->input->post('username');
 		$this->load->model('organization');
@@ -38,11 +51,7 @@ class User extends CI_Controller{
 							);
 		
 			$this->session->set_userdata($newdata);
-
-			//put redirect call from here to the designer
-			//redirect('designer', 'refresh');
 			redirect('/designer/', 'refresh');
-	
 		}
 		else 
 		{
@@ -53,19 +62,24 @@ class User extends CI_Controller{
 	
 	function logout()
 	{
+		//http://imenus.tk/index.php/user/logout
+		//Destroys the session and loads the login form
 		$this->session->sess_destroy();
 		$this->load->view('login_form');
 	}
 	
 	function inviteKey()
 	{		
+		//http://imenus.tk/index.php/user/inviteKey
+		//Generates an invite key for the menu_id
+		
 		$menu_id = $this->user_model->getMenuId();
 		
-		if(!$menu_id){
+		if(!$menu_id)
+		{
 			$this->load->view('login_form');
 		}
 		else{
-		
 			//Generating a random key of ~11 characters
 			$n = rand(10e16, 10e20);
 			$key =  base_convert($n, 10, 36);
@@ -82,7 +96,7 @@ class User extends CI_Controller{
 			$this->load->view('sidebar.php', array('title'=>"InviteKey"));
 			$this->load->view('invite_key.php', array('key'=>$key));	
 		}
-		
 	}
-
 }
+
+?>
