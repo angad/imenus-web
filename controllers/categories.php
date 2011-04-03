@@ -125,13 +125,14 @@ define('CATDELPROMPTS', 'Are you sure you want to delete this category? If you d
         
         $this->load->model('Categories_model');
         
-        if (isset($catID)) {
-            $cat = $this->Categories_model->getCat($catID);
-            $parentID = $cat['parentID'];
-            $name = $cat['Name'];
+        if (isset($catID) && $cat = $this->Categories_model->getCat($catID)) {
+            if (!empty($cat)) {
+                $parentID = $cat['parentID'];
+                $name = $cat['Name'];
+            }
         }
         
-        $this->_checkAccess($parentID);
+        $this->_checkAccess(isset($catID) ? $catID : $parentID);
        
         $output = form_open();
         
