@@ -36,6 +36,7 @@ class Designer extends CI_Controller
 		
 		$this->load->view('sidebar', array('title'=>'Menu'));
 		$this->load->view('menu_view');
+		$this->load->view('footer');
 	}
 	
 	function theme($select)
@@ -72,6 +73,7 @@ class Designer extends CI_Controller
 		$current_theme = $this->menu_model->getTheme($menu_id);
 		$data = array('current'=>$current_theme);
 		$this->load->view('themes_view', $data);
+		$this->load->view('footer');
 	}
 }	
 ?>

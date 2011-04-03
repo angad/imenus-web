@@ -18,11 +18,9 @@ if ( ! defined('BASEPATH')) exit ('No direct script access allowed');
 		{
 			echo '<div id = "notselected">';
 		}
-		echo '<a href = "theme/' . $i .  '">';
-		echo '<center><img id = "image" src = "/themes/' . $i . '.png"/></center';
-		echo '</a>';
-		echo '</div>';
+		echo '<center><a href = "theme/' . $i .  '">';
+		echo '<img id = "image" width = "300px" height = "200px" src = "/themes/' . $i . '.png"/>';
+		echo '</a></center>';
+		echo '</div><br/>';
 	}
-	?>
-</body>
-</html>
+?>

@@ -94,7 +94,8 @@ class User extends CI_Controller{
 			$this->organization->setInviteKey($data);
 
 			$this->load->view('sidebar.php', array('title'=>"InviteKey"));
-			$this->load->view('invite_key.php', array('key'=>$key));	
+			$this->load->view('invite_key.php', array('key'=>$key));
+			$this->load->view('footer');	
 		}
 	}
 }
