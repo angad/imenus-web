@@ -6,7 +6,7 @@
 <body>
         <?php echo validation_errors(); ?>
 		<?php echo $error;?>		
-        <?php echo form_open_multipart('register\newOrganization'); ?>		
+        <?php echo form_open_multipart('register/newOrganization'); ?>		
 
         <p>Restaurant Name <input type = "text" name = "name" value = "<?php echo set_value('name'); ?>" size = "50" /></p>
 		
@@ -22,6 +22,7 @@
 
 		<p>Password <input type = "password" name = "password" value = "" size = "50"/></p>
 		<p>Repeat Password <input type = "password" name = "repeat" value = "" size = "50"/></p>
+		<p>Invite Key (Optional) <input type = "text" name = "invite_key" value = "" size = "50"/> </p>
 		
 		Upload Logo <br/>
 		GIF, PNG or JPEG only <br />

@@ -75,5 +75,24 @@ class Organization extends CI_Model{
 		$row = $query->row_array();
 		return $row['a'];
 	}
+	
+	function checkInviteKey($invite_key)
+	{
+		$query = $this->db->query('SELECT MenuId, created FROM InviteKey WHERE InviteKey=?', array($invite_key));
+		$row = $query->row_array();
+		if($row['MenuId']) 
+		{
+			echo $row['created'];
+			echo time();
+			
+			return $row['MenuId'];
+		}
+		else return False;
+	}
+	
+	function setInviteKey($data)
+	{
+		$this->db->insert('InviteKey', $data);
+	}
 }
 ?>

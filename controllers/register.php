@@ -1,11 +1,16 @@
 <?php
 class Register extends CI_Controller{
 
+		public function __construct()
+		{
+			parent::__construct();
+			$this->load->helper('form');
+		}
+
         public function index()
         {
-                $this->load->helper('form');
-				$data['error']='';
-                $this->load->view('register_form', $data);
+			$data['error']='';
+            $this->load->view('register_form', $data);
         }
 
         function newOrganization()
@@ -35,7 +40,9 @@ class Register extends CI_Controller{
 			$config['max_height']  = '768';
 
 			$this->load->library('upload', $config);
-			$path = $config['upload_path'] . $file_name;
+			
+			$file_data = $this->upload->data();
+			$path = $file_data['full_path'];
 			
 			//Getting Input post data
 			$data['Name'] = $this->input->post('name');
@@ -47,12 +54,30 @@ class Register extends CI_Controller{
 			$data['Logo'] = $path;
 			$data['Password'] = md5($this->input->post('password'));
 			
-			$n = rand(10e16, 10e20);
-			$invite_key =  base_convert($n, 10, 36);
-			$data['InviteKey'] = $invite_key;
 			
-			$data['MenuId'] = $this->organization->getMaxMenuId() + 1;
-
+			//Validate the invite key
+			if(!$this->input->post('invite_key') == '')
+			{
+				$invite_key = $this->input->post('invite_key');
+				if($menu_id = $this->organization->checkInviteKey($invite_key))
+				{
+					//if the invite key is correct, use an existing menu
+					$data['MenuId'] = $menu_id;
+				}
+				else
+				{
+					//bad invite key
+					$error = array('error' => 'Invite key bad or already expired.');
+					$this->load->view('register_form', $error);
+					return;
+				}
+			}
+			else
+			{
+				//if its empty, create a new menu
+				$data['MenuId'] = $this->organization->getMaxMenuId() + 1;
+			}
+			
 			//check if Username already exists
 			if ($this->organization->username_exists($data['Username']))
 			{
