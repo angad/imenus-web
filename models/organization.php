@@ -31,8 +31,13 @@ class Organization extends CI_Model{
 	{
 		//Gets the MenuId associated with the username
 		$query = $this->db->query('SELECT MenuId from Organization WHERE Username=?', array($username));
-		$row = $query->row_array();
-		return $row['Theme'];
+		$result = $query->result_array();
+		
+		foreach($result as $row)
+		{
+			return $row['MenuId'];
+		}
+		return False;
 	}
 	
 	function menuid()
