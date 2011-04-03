@@ -12,6 +12,7 @@ class Register extends CI_Controller{
 		{
 			parent::__construct();
 			$this->load->helper('form');
+			$this->load->helper('url');
 		}
 
         public function index()
@@ -103,9 +104,8 @@ class Register extends CI_Controller{
 			{				
 				//Call the model
 				$this->organization->newOrganization($data);
-
 				//Load the login screen
-				$this->load->view('login_form');
+				redirect('user', 'refresh');	
 			}
         }
 }
