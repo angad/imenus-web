@@ -126,7 +126,7 @@ class Items_model extends CI_Model {
     /**
      * Get All Meal Items
      *
-     * Retrieves all Meal Items of a Set Meal. If exclude_details is TRUE, only IDs are returned. 
+     * Retrieves all Meal Items of a Set Meal. If exclude_details is TRUE, only IDs and ItemQuantities are returned. 
      *
      * @access	public
      * @param	int
@@ -135,16 +135,10 @@ class Items_model extends CI_Model {
      */
     function getMealItems($itemID, $exclude_details = FALSE) {
         if ($exclude_details)
-            $sql = 'SELECT ItemID FROM '.PARENTS_TABLE.' WHERE ParentID = ?';
+            $sql = 'SELECT ItemID, ItemQuantity FROM '.PARENTS_TABLE.' WHERE ParentID = ?';
         else
-            $sql = 'SELECT I.'.str_replace(', ', ', I.', ITEM_FIELDS).' FROM '.ITEMS_TABLE.' I INNER JOIN '.PARENTS_TABLE.' P ON P.ItemID = I.ID AND P.ParentID = ?';
-        $arr = $this->db->query($sql, array($itemID))->result_array();
-        if ($exclude_details && ($size = count($arr)) > 1)
-            return current(call_user_func_array('array_merge_recursive', $arr));
-        else if ($size == 1)
-            return array($arr[0]['ItemID']);
-        else
-            return $arr;
+            $sql = 'SELECT I.'.str_replace(', ', ', I.', ITEM_FIELDS).', P.ItemQuantity FROM '.ITEMS_TABLE.' I INNER JOIN '.PARENTS_TABLE.' P ON P.ItemID = I.ID AND P.ParentID = ?';
+        return $this->db->query($sql, array($itemID))->result_array();
     }
     
     /**
@@ -156,25 +150,38 @@ class Items_model extends CI_Model {
      * @param	int
      * @param   array
      */
-    function setMealItems($itemID, $newItemIDArray) {
-        if (!is_array($newItemIDArray))
+    function setMealItems($itemID, $newarr) {
+        if (!is_array($newarr))
             return;
         
         $oldarr = $this->getMealItems($itemID, TRUE);
-        $to_del = array_diff($oldarr, $newItemIDArray);
-        $to_ins = array_diff($newItemIDArray, $oldarr);
+        $newmap = array();
+        $oldmap = array();
+        
+        foreach ($newarr as $newItem)
+            $newmap[$newItem['ItemID']] = $newItem['ItemQuantity'];
+        foreach ($oldarr as $oldItem)
+            $oldmap[$oldItem['ItemID']] = $oldItem['ItemQuantity'];
+        
+        $to_del = array_diff_key($oldmap, $newmap);
+        $to_ins = array_diff_key($newmap, $oldmap);
+        $to_upd = array_intersect_key($oldmap, $newmap);
         
         if (count($to_del) > 0) {
             array_unshift($to_del, 'DELETE FROM '.PARENTS_TABLE.' WHERE ParentID = %d AND ItemID IN (%d'.str_repeat(', %d', count($to_del) - 1).')');
             $this->db->query(call_user_func_array('sprintf', $to_del));
         }
         if (count($to_ins) > 0) {
-            $ins_args = array('INSERT INTO '.PARENTS_TABLE.'(ParentID, ItemID) VALUES (%d, %d)'.str_repeat(', (%d, %d)', count($to_ins) - 1));
-        	foreach($to_ins as $item) {
+            $ins_args = array('INSERT INTO '.PARENTS_TABLE.'(ParentID, ItemID, ItemQuantity) VALUES (%d, %d, %d)'.str_repeat(', (%d, %d, %d)', count($to_ins) - 1));
+        	foreach($to_ins as $item => $qty) {
         		$ins_args[] = $itemID;
         		$ins_args[] = $item;
+                $ins_args[] = $qty;
         	}
             $this->db->query(call_user_func_array('sprintf', $ins_args));
+        }
+        foreach ($to_upd as $item => $qty) {
+            $this->db->query('UPDATE '.PARENTS_TABLE.' SET ItemQuantity = ? WHERE ParentID = ? AND ItemID = ?', array($qty, $itemID, $item));
         }
     }
     

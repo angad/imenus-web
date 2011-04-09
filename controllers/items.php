@@ -8,6 +8,7 @@
  */
 
 define('PAGESIZE_ITEMS', 10);
+define('ITEMLIST_SIZE', 10);
 
 
 class Items extends CI_Controller {
@@ -206,7 +207,7 @@ class Items extends CI_Controller {
     private function _details($itemID, $readonly, $itemType = NULL, $catID = NULL) {
         $this->load->model('Items_model');
         $item = $this->Items_model->getItem($itemID);
-        $this->load->helper(array('url', 'html', 'form'));
+        $this->load->helper(array('url', 'html', 'form', 'form_items'));
         
         $mode = isset($catID) ? 'Add' : ($readonly ? 'View' : 'Edit');
         
@@ -231,10 +232,11 @@ class Items extends CI_Controller {
         
         $readonly_text = $readonly ? 'readonly="readonly"' : '';
         
-        $output .= '<div class="form-item"><label for="edit-catID">Category: <span class="form-required" title="This field is required">*</span></label>'.$this->load->view('tree_select_view', array('tree' => $this->Categories_model->getTreeFromCurrentMenu($catID), 'selected' => $catID, 'name' => 'catID', 'readonly' => $readonly), TRUE).'</div>';
+        // $output .= '<div class="form-item"><label for="edit-catID">Category: <span class="form-required" title="This field is required">*</span></label>'.$this->load->view('tree_select_view', array('tree' => $this->Categories_model->getTreeFromCurrentMenu($catID), 'selected' => $catID, 'name' => 'catID', 'readonly' => $readonly), TRUE).'</div>';
+        $output .= tree_select_item('catID', 'Category', $this->Categories_model->getTreeFromCurrentMenu($catID), $catID, TRUE, $readonly);
         
-        $output .= $this->load->view('text_item_view', array('name' => 'name', 'label' => 'Name', 'required' => TRUE, 'readonly' => $readonly, 'value' => isset($item['Name']) ? $item['Name'] : ''), TRUE);
-        $output .= $this->load->view('text_item_view', array('name' => 'shortdesc', 'label' => 'Short Description', 'required' => FALSE, 'value' => isset($item['ShortDescription']) ? $item['ShortDescription'] : ''), TRUE);
+        $output .= text_item('name', 'Name', isset($item['Name']) ? $item['Name'] : '', TRUE, $readonly);
+        $output .= text_item('shortdesc', 'Short Description', isset($item['ShortDescription']) ? $item['ShortDescription'] : '', FALSE, $readonly);
         
         $output .= '<div class="form-item"><label for="edit-longdesc">Long Description: <span class="form-required" title="This field is required">*</span></label>'.form_textarea('longdesc', isset($item['LongDescription']) ? $item['LongDescription'] : '', 'id="edit-longdesc"'.$readonly_text).'</div>';
         
@@ -244,19 +246,27 @@ class Items extends CI_Controller {
         $output .= '<div class="form-item"><label for="edit-imageMedium">Medium Image:</label>'.($readonly ? '' : form_upload('imageMedium', '', 'id="edit-imageMedium"')).(!empty($item['ImageMedium']) ? img(array('src' => $item['ImageMedium'], 'class' => 'zooming')) : '').'</div>';
         $output .= '<div class="form-item"><label for="edit-imageLarge">Large Image:</label>'.($readonly ? '' : form_upload('imageLarge', '', 'id="edit-imageLarge"')).(!empty($item['ImageLarge']) ? img(array('src' => $item['ImageLarge'], 'class' => 'zooming')) : '').'</div>';
     
-        if (isset($itemType) && $itemType == ITEMS_TYPE_MEAL)
-            $output .= '<div class="form-item"><label for="edit-items[]">Meal Items: <span class="form-required" title="This field is required">*</span></label>'.$this->load->view('tree_select_view', array('tree' => $this->Categories_model->getTreeFromCurrentMenu($catID, TRUE), 'selected' => isset($itemID) ? $this->Items_model->getMealItems($itemID, TRUE) : array(), 'name' => 'items[]', 'readonly' => $readonly, 'leaffilter' => ITEMS_TYPE_ITEM), TRUE).'</div>';
+        $seljs = '[]';
+        if (isset($itemType) && $itemType == ITEMS_TYPE_MEAL) {
+            $sel = isset($itemID) ? $this->Items_model->getMealItems($itemID, TRUE) : array();
+            $seljs = '';
+            foreach ($sel as $selItem)
+                $seljs .= ',['.$selItem['ItemID'].','.$selItem['ItemQuantity'].']';
+            $seljs = '['.substr($seljs, 1).']';
+            $output .= tree_select_item('itemSelect', 'Meal Items', $this->Categories_model->getTreeFromCurrentMenu($catID, TRUE), NULL, TRUE, $readonly, FALSE, ITEMS_TYPE_ITEM, 'size="'.ITEMLIST_SIZE.'"');
+            $output .= '<table id="itemListTable"><tbody></tbody></table>';
+            //$output .= '<div class="form-item"><label for="edit-items[]">Meal Items: <span class="form-required" title="This field is required">*</span></label>'.$this->load->view('tree_select_view', array('tree' => $this->Categories_model->getTreeFromCurrentMenu($catID, TRUE), 'selected' => isset($itemID) ? $this->Items_model->getMealItems($itemID, TRUE) : array(), 'name' => 'items[]', 'readonly' => $readonly, 'leaffilter' => ITEMS_TYPE_ITEM), TRUE).'</div>';
+        }
         
         if (!$readonly)
-            $output .= form_submit('submit', $mode);
+            $output .= form_submit('submit', 'Save');
             
         $output .= form_close();
      
         $data = array('title' => $mode.' Item', 'content' => $output, 'back' => 'items/view/'.$catID);
         if ($itemType == ITEMS_TYPE_MEAL) {
-            $data['include_scripts'] = array('https://github.com/odyniec/selectlist/raw/master/jquery.selectlist.dev.js');
-            $data['include_css'] = array('https://github.com/odyniec/selectlist/raw/master/distfiles/css/selectlist.css');
-            $data['document_ready'] = '$("select[multiple=\'multiple\']").selectList();';
+            $data['include_scripts'] = array(site_url('../scripts/setmeal.js'));
+            $data['document_ready'] = 'handleSetMeal("edit-itemSelect", "itemListTable", '.$seljs.');';
         }
         $this->load->view('content_view', $data);
     }

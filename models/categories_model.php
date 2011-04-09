@@ -76,9 +76,9 @@ class Categories_model extends CI_Model {
     }
     
     /**
-     * Get All CategoryIDs
+     * Get CategoryIDs from the same Menu 
      *
-     * Retrieves all CategoryIDs of a Menu's Categories 
+     * Retrieves all CategoryIDs in the same menu as the given ID 
      *
      * @access	public
      * @param	int
@@ -86,6 +86,36 @@ class Categories_model extends CI_Model {
      */
     function getCategoriesInSameMenu($catID) {
         return $this->db->query('SELECT C1.menuID, C1.parentID, C1.ID, C1.Name FROM '.CATEGORIES_TABLE.' C1 INNER JOIN '.CATEGORIES_TABLE.' C2 ON C2.menuID = C1.menuID AND C2.ID = ? ORDER BY C1.ParentID ASC, C1.SortOrder ASC', array($catID))->result_array();
+    }
+    
+    /**
+     * Get CategoryIDs from specified Menu
+     *
+     * Retrieves all CategoryIDs in the specified menu 
+     *
+     * @access	public
+     * @param	int
+     * @return	array
+     */
+    function getCategoriesInMenu($menuID) {
+        return $this->db->query('SELECT menuID, parentID, ID, Name FROM '.CATEGORIES_TABLE.' WHERE menuID = ? ORDER BY ParentID ASC, SortOrder ASC', array($menuID))->result_array();
+    }
+    
+    /**
+     * Get Tree from the specified Menu
+     *
+     * RETURNS: Array in which the keys are catIDs, and the values are either the name of the category / item,
+     * or an array with 'Name' and 'Data' keys, the 'Data' value being a sub-tree.
+     * If $include_items = TRUE, all leaves are items; Categories with no items will have an empty array for 'Data'.
+     * If $include_items = FALSE, all leaves are categories with no sub-categories.
+     *
+     * @access	public
+     * @param	int       menuID
+     * @param   boolean   include_items
+     * @return	array
+     */
+    function getTreeFromMenu($menuID, $include_items = FALSE) {
+        return $this->_getTree($this->getCategoriesInMenu($menuID), $include_items);
     }
     
     /**
@@ -103,12 +133,27 @@ class Categories_model extends CI_Model {
      * @return	array
      */
     function getTreeFromCurrentMenu($catID, $include_items = FALSE, $only_descendants = FALSE) {
-        $cats = $this->getCategoriesInSameMenu($catID);
+        return $this->_getTree($this->getCategoriesInSameMenu($catID), $include_items, $only_descendants ? $catID : 0);
+    }
+    
+    /**
+     * Get Tree from provided Categories
+     *
+     * RETURNS: Array in which the keys are catIDs, and the values are either the name of the category / item,
+     * or an array with 'Name' and 'Data' keys, the 'Data' value being a sub-tree.
+     * If $include_items = TRUE, all leaves are items; Categories with no items will have an empty array for 'Data'.
+     * If $include_items = FALSE, all leaves are categories with no sub-categories.
+     *
+     * @access	private
+     * @param	array     Categories (as returned by getCategoriesInSameMenu)
+     * @param   boolean   include_items
+     * @param   int       The root of the required subtree. Specify 0 for the whole tree
+     * @return	array
+     */
+    private function _getTree($cats, $include_items = FALSE, $root = 0) {
         $nodes = array('Root');
         
         $parentNode = $catNode = NULL;
-        
-        $root = $only_descendants ? $catID : 0;
         
         foreach ($cats as $cat) {
             $catID = $cat['ID'];
@@ -184,7 +229,7 @@ class Categories_model extends CI_Model {
      */
     function add($menuID, $name, $parentID) {
         $this->db->query('INSERT INTO '.CATEGORIES_TABLE.'(Name, menuID, parentID, SortOrder) VALUES (?, ?, ?, ?)', array($name, $menuID, $parentID,
-                            current($this->db->query('SELECT MAX(SortOrder) + 1 FROM '.CATEGORIES_TABLE.' WHERE parentID = ?', array($parentID))->row_array())));
+                            ($order = current($this->db->query('SELECT MAX(SortOrder) + 1 FROM '.CATEGORIES_TABLE.' WHERE parentID = ?', array($parentID))->row_array()) ? $order : 0)));
         return $this->db->insert_id();
     }
     

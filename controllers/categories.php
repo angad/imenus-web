@@ -117,7 +117,7 @@ define('CATDELPROMPTS', 'Are you sure you want to delete this category? If you d
      */
     private function _detail($catID, $readonly = FALSE, $parentID = NULL) {
         $this->load->model('User_model');
-        $this->load->helper(array('url', 'form', 'html'));
+        $this->load->helper(array('url', 'form', 'html', 'form_items'));
         
         $mode = isset($parentID) ? 'Add' : ($readonly ? 'View' : 'Edit');
         
@@ -138,11 +138,13 @@ define('CATDELPROMPTS', 'Are you sure you want to delete this category? If you d
         
         $readonly_text = $readonly ? 'readonly="readonly"' : '';
         
-        $output .= '<div class="form-item"><label for="edit-parentID">Parent Category: <span class="form-required" title="This field is required">*</span></label>'.$this->load->view('tree_select_view', array('tree' => $this->Categories_model->getTreeFromCurrentMenu($parentID), 'selected' => $parentID, 'name' => 'parentID', 'readonly' => $readonly, 'allselectable' => TRUE), TRUE).'</div>';
-        $output .= $this->load->view('text_item_view', array('name' => 'name', 'label' => 'Name', 'required' => TRUE, 'value' => $name), TRUE);
+        $output .= tree_select_item('parentID', 'Parent Category', $this->Categories_model->getTreeFromMenu($this->User_model->getMenuId()), $parentID, TRUE, $readonly, TRUE);
+        // $output .= '<div class="form-item"><label for="edit-parentID">Parent Category: <span class="form-required" title="This field is required">*</span></label>'.$this->load->view('tree_select_view', array('tree' => $this->Categories_model->getTreeFromCurrentMenu($parentID), 'selected' => $parentID, 'name' => 'parentID', 'readonly' => $readonly, 'allselectable' => TRUE), TRUE).'</div>';
+        $output .= text_item('name', 'Name', $name, TRUE, $readonly);
+        // $output .= $this->load->view('text_item_view', array('name' => 'name', 'label' => 'Name', 'required' => TRUE, 'value' => $name), TRUE);
         
         if (!$readonly)
-            $output .= form_submit('submit', $mode);
+            $output .= form_submit('submit', 'Save');
             
         $output .= form_close();
      
