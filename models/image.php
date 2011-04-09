@@ -15,8 +15,8 @@ class Image extends CI_Model{
 		$config['image_library'] = 'gd2';
 		$config['source_image']	= $file_path . $raw_name . $file_ext;
 		$config['maintain_ratio'] = TRUE;
-		$config['width'] = 75;
-		$config['height'] = 50;
+		$config['width'] = 200;
+		$config['height'] = 150;
 		$config['new_image'] = $file_path . $raw_name . '_small' . $file_ext;
 
 		$this->load->library('image_lib', $config); 
@@ -50,7 +50,7 @@ class Image extends CI_Model{
 		$this->load->library('image_lib', $config); 
 		$this->image_lib->resize();
 		return $config['new_image'];
-	}	
+	}
 }
 
 ?>

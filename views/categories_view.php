@@ -15,8 +15,8 @@
         </script>
         
         <h1>Categories</h1>
-        
         <?php echo $table;?>
+
 </body>
 
 </html>

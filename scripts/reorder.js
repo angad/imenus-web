@@ -3,7 +3,7 @@ function handleReOrder (orderTable, reorderPostAdd) {
         var orderData;
         var tableName = "#" + orderTable;
         var saveName = tableName + "-save";
-        $(tableName).after("<span id='" + orderTable + "-save' class='reorderSave'></span>");
+        $(tableName).before("<br/><span id='" + orderTable + "-save' class='reorderSave'></span>");
         $(saveName).hide();
         $(tableName).find("thead > tr").first().attr("id", "header").addClass("nodrag");
         $(tableName).find("tbody > tr").each(function(idx, Elem) {

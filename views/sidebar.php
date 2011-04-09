@@ -20,7 +20,7 @@ if ( ! defined('BASEPATH')) exit ('No direct script access allowed');
         ?>
 </head>
 
-<body>
+<body onload = "load()">
 
 <div id = "outer-wrapper">
 <div id = "header">

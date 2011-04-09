@@ -52,10 +52,9 @@ require_once 'sidebar.php';
         </div>
         
         <div id="contentarea">
-            <h1><?php echo $title;?></h1>
+            <h2 class = "title"><?php echo $title;?></h2>
             
             <?php if (isset($back)) echo anchor($back, '< Back').br(); echo validation_errors();?>
-            
             <?php echo $content;?>
         </div>
 <?php require_once 'footer.php';

@@ -7,7 +7,8 @@ body{
 	margin:0 auto;
 }
 
-#sidebar{
+#sidebar
+{
 	float:left;
 	margin:50px 40px 100px 50px;
 	padding-right:20px;
@@ -17,7 +18,8 @@ body{
 	height:130px;
 }
 
-#outer-wrapper {
+#outer-wrapper 
+{
 	width:1024px;
 	margin:50px auto;
 	-moz-box-shadow: 0px 0px 10px #888888; /* Firefox */
@@ -35,9 +37,14 @@ body{
 	margin:10px 0px 0px 70px;
 }
 
-#content{
+#content
+{
 	float:right;
-	margin:50px 450px 0px 50px;
+	margin:50px 300px 0px 50px;
+}
+
+#contentarea {
+	margin:0px 80px 0px 50px;
 }
 
 #header{
@@ -58,11 +65,25 @@ h2{
 	color:#f05b16;
 }
 
+h2.title{
+	margin:20px 0px 10px 0px;
+	font-family:'Ubuntu', arial, serif;
+	font-size:26px;
+	color:#f05b16;
+}
+
 h3{
 	margin:-10px 40px 0px 100px;
 	font-family:serif;
 	font-siz:16px;
 	color:#989898;
+}
+
+h3.note{
+	margin:0px 0px 15px 0px;
+	font-family:serif;
+	font-size:14px;
+	color:#888888;
 }
 
 #sidebaritem{
@@ -199,7 +220,7 @@ span.form-required {
     padding:2px 4px;
 }
 
-	.reorderSave {
+.reorderSave {
     border:1px gray;
     margin:auto;
     line-height: 150%;

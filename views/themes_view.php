@@ -5,9 +5,11 @@ if ( ! defined('BASEPATH')) exit ('No direct script access allowed');
  * @author angad
  */
 ?>
+
+<div id = "content">
 	<?php
 	
-	for($i=1; $i<4; $i++)
+	for($i=1; $i<3; $i++)
 	{
 		if($current == $i)
 		{
@@ -24,3 +26,4 @@ if ( ! defined('BASEPATH')) exit ('No direct script access allowed');
 		echo '</div><br/>';
 	}
 ?>
+</div>
