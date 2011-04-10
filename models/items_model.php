@@ -72,12 +72,13 @@ class Items_model extends CI_Model {
      * @param   array   Meal Items
      * @return	int
      */
-    function addItem($catID, $name, $description, $shortDesc = '', $price = 0, $type = ITEMS_TYPE_ITEM, $imageSmall = '', $imageMed = '', $imageLarge = '', $mealItems = NULL) {
+    function addItem($catID, $name, $description, $shortDesc = '', $price = 0, $type = ITEMS_TYPE_ITEM, $imageSmall = '', $imageMed = '', $imageLarge = '', $mealItems = NULL, $features = NULL) {
         $this->db->query('INSERT INTO '.ITEMS_TABLE.'(CategoryID, Name, LongDescription, ShortDescription, Price, Type, ImageSmall, ImageMedium, ImageLarge, SortOrder) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
                         array($catID, $name, $description, $shortDesc, $price, $type, $imageSmall, $imageMed, $imageLarge,
                         ($order = current($this->db->query('SELECT MAX(SortOrder) + 1 FROM '.ITEMS_TABLE.' WHERE CategoryID = ?', array($catID))->row_array())) ? $order : 0));
         $id = $this->db->insert_id();
         $this->setMealItems($id, $mealItems);
+        $this->setItemFeatures($itemID, $features);
         return $id;
     }
     
@@ -111,7 +112,7 @@ class Items_model extends CI_Model {
      * @param   string  Large Image Path
      * @param   array   Meal Items
      */
-    function updateItem($itemID, $catID = NULL, $name = NULL, $description = NULL, $shortDesc = NULL, $price = NULL, $type = NULL, $imageSmall = NULL, $imageMed = NULL, $imageLarge = NULL, $mealItems = NULL) {
+    function updateItem($itemID, $catID = NULL, $name = NULL, $description = NULL, $shortDesc = NULL, $price = NULL, $type = NULL, $imageSmall = NULL, $imageMed = NULL, $imageLarge = NULL, $mealItems = NULL, $features = NULL) {
         $fields = array('CategoryID', 'Name', 'LongDescription', 'ShortDescription', 'Price', 'Type', 'ImageSmall', 'ImageMedium', 'ImageLarge');
         $args = func_get_args();
         $update = array();
@@ -121,6 +122,7 @@ class Items_model extends CI_Model {
         $this->db->update(ITEMS_TABLE, $update, array('ID' => $itemID));
         
         $this->setMealItems($itemID, $mealItems);
+        $this->setItemFeatures($itemID, $features);
     }
     
     /**
@@ -152,7 +154,7 @@ class Items_model extends CI_Model {
      */
     function setMealItems($itemID, $newarr) {
         if (!is_array($newarr))
-            return;
+            $newarr = array();
         
         $oldarr = $this->getMealItems($itemID, TRUE);
         $newmap = array();
@@ -168,7 +170,7 @@ class Items_model extends CI_Model {
         $to_upd = array_intersect_key($oldmap, $newmap);
         
         if (count($to_del) > 0) {
-            array_unshift($to_del, 'DELETE FROM '.PARENTS_TABLE.' WHERE ParentID = %d AND ItemID IN (%d'.str_repeat(', %d', count($to_del) - 1).')');
+            array_unshift($to_del, 'DELETE FROM '.PARENTS_TABLE.' WHERE ParentID = %d AND ItemID IN (%d'.str_repeat(', %d', count($to_del) - 1).')', $itemID);
             $this->db->query(call_user_func_array('sprintf', $to_del));
         }
         if (count($to_ins) > 0) {
@@ -182,6 +184,68 @@ class Items_model extends CI_Model {
         }
         foreach ($to_upd as $item => $qty) {
             $this->db->query('UPDATE '.PARENTS_TABLE.' SET ItemQuantity = ? WHERE ParentID = ? AND ItemID = ?', array($qty, $itemID, $item));
+        }
+    }
+
+    /**
+     * Get All Item Features
+     *
+     * Retrieves all Features of an Item. If exclude_details is TRUE, only IDs and Values are returned. 
+     *
+     * @access	public
+     * @param	int
+     * @param   boolean
+     * @return	array
+     */
+    function getItemFeatures($itemID, $exclude_details = FALSE) {
+        if ($exclude_details)
+            $sql = 'SELECT FeatureID, Value FROM '.ITEMFEATURES_TABLE.' WHERE ItemID = ?';
+        else
+            $sql = 'SELECT F.'.str_replace(', ', ', F.', FEATURE_FIELDS).', IF.Value FROM '.ITEMFEATURES_TABLE.' IF INNER JOIN '.FEATURES_TABLE.' F ON IF.FeatureID = F.ID AND F.ItemID = ?';
+        return $this->db->query($sql, array($itemID))->result_array();
+    }
+    
+    /**
+     * Set Meal Items
+     *
+     * Updates Database, updates a Set Meal's Meal Items 
+     *
+     * @access	public
+     * @param	int
+     * @param   array
+     */
+    function setItemFeatures($itemID, $newarr) {
+        if (!is_array($newarr))
+            $newarr = array();
+        
+        $oldarr = $this->getItemFeatures($itemID, TRUE);
+        $newmap = array();
+        $oldmap = array();
+        
+        foreach ($newarr as $newItem)
+            $newmap[$newItem['FeatureID']] = $newItem['Value'];
+        foreach ($oldarr as $oldItem)
+            $oldmap[$oldItem['FeatureID']] = $oldItem['Value'];
+        
+        $to_del = array_diff_key($oldmap, $newmap);
+        $to_ins = array_diff_key($newmap, $oldmap);
+        $to_upd = array_intersect_key($oldmap, $newmap);
+        
+        if (count($to_del) > 0) {
+            array_unshift($to_del, 'DELETE FROM '.ITEMFEATURES_TABLE.' WHERE ItemID = %d AND FeatureID IN (%d'.str_repeat(', %d', count($to_del) - 1).')', $itemID);
+            $this->db->query(call_user_func_array('sprintf', $to_del));
+        }
+        if (count($to_ins) > 0) {
+            $ins_args = array('INSERT INTO '.ITEMFEATURES_TABLE.'(ItemID, FeatureID, Value) VALUES (%d, %d, %d)'.str_repeat(', (%d, %d, %d)', count($to_ins) - 1));
+        	foreach($to_ins as $feat => $val) {
+        		$ins_args[] = $itemID;
+        		$ins_args[] = $feat;
+                $ins_args[] = $val;
+        	}
+            $this->db->query(call_user_func_array('sprintf', $ins_args));
+        }
+        foreach ($to_upd as $feat => $val) {
+            $this->db->query('UPDATE '.ITEMFEATURES_TABLE.' SET Value = ? WHERE ItemID = ? AND FeatureID = ?', array($val, $itemID, $feat));
         }
     }
     

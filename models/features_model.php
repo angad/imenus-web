@@ -12,4 +12,8 @@ class Features_model extends CI_Model
 	{
 		$this->db->insert('Feature', $data);
 	}
+    
+    public function getFeaturesFromMenu($menuID) {
+        return $this->db->query('SELECT '.FEATURE_FIELDS.' FROM '.FEATURES_TABLE.' WHERE MenuID = ?', array($menuID))->result_array();
+    }
 }
