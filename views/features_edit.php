@@ -64,8 +64,12 @@
 		element.setAttribute("type", "text");
 	    element.setAttribute("class", "formelem");
 	    element.setAttribute("name", "option" +i);
+		element.setAttribute("style", "margin:5px 0px 5px 0px;")
 		
 		options.appendChild(element);
+		
+		var br = document.createElement("br");
+		options.appendChild(br);
 		
 		var count = document.getElementById("count");
 		count.setAttribute("value", i);
@@ -78,23 +82,23 @@
 	<?php echo $error;?>
     <?php echo form_open_multipart('features/newfeature'); ?>		
 
-        <p><h4>Name</h4> <input type = "text" class = "formelem" name = "name" value = "<?php echo set_value('name'); ?>" size = "50" /></p>
+        <p><h4>Name</h4> <input type = "text" name = "name" value = "<?php echo set_value('name'); ?>" size = "50" /></p>
 		
         <p><h4>Type</h4>
-			<input onclick = "numeric()" type="radio" name="rad" value="Numeric Value"/>Numeric<br/>
-			<input onclick = "options()" type="radio" name="rad" value="Options"/>Options
+			<p><input onclick = "numeric()" type="radio" name="rad" value="Numeric Value" style ="width:20px;"/>Numeric<br/></p>
+			<p><input onclick = "options()" type="radio" name="rad" value="Options" style ="width:20px;"/>Options</p>
 		</p>
 		
 		<div id = "numeric">
 		<p>
-			<h4>MinValue</h4><input type = "text" class = "formelem" name = "minvalue"/><br/>
-			<h4>MaxValue</h4><input type = "text" class = "formelem" name = "maxvalue"/>
+			<h4>MinValue</h4><input type = "text" name = "minvalue"/><br/>
+			<h4>MaxValue</h4><input type = "text" name = "maxvalue"/>
 		</p>
 		</div>
 		<div id = "options">
 		<p>
-			<a href = "javascript:addTextBox()">+</a>
-			<input type = "text" class = "formelem" name = "option1" size = "50"/>
+			<a href = "javascript:addTextBox()">+</a><br/><br/>
+			<input type = "text" name = "option1" size = "50"/>
 		</p>
 		</div>
 		

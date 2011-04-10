@@ -158,6 +158,23 @@ h4{
 box-shadow: 1px 1px 5px #888888 inset;
 }
 
+#content input,
+#registration input
+{
+	margin:0px 0px 0px 0px;
+	border:0px;
+	font-size:150%;
+	height:38px;
+	padding:5px 0px 0px 10px;
+	vertical-align:middle;
+	width:200px;
+	font-family: 'Ubuntu', arial, serif;
+	-moz-box-shadow: 1px 1px 5px #888888 inset; /* Firefox */
+	-webkit-box-shadow: 1px 1px 5px #888888 inset; /* Safari and Chrome */
+	box-shadow: 1px 1px 5px #888888 inset;
+}
+
+
 
 tr:nth-child(odd){
     background-color:#EEE;
