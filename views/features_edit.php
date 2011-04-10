@@ -27,6 +27,7 @@
 	function numeric()
 	{
 		var elem, vis;
+		
 		elem = document.getElementById('numeric');
 	    vis = elem.style;
 		vis.display = 'block';
@@ -34,24 +35,19 @@
 		elem = document.getElementById('options');
 		vis = elem.style;
 		vis.display = 'none';
-		
-		var count = document.getElementById("numeric");
-		count.setAttribute("value", 0);
 	}
 	
 	function options()
 	{
 		var elem, vis;
+		
 		elem = document.getElementById('options');
 	    vis = elem.style;
 		vis.display = 'block';
 		 
 		elem = document.getElementById('numeric');
 		vis = elem.style;
-		vis.display = 'none';		
-		
-		var type = document.getElementById("t");
-		count.setAttribute("value", 1);
+		vis.display = 'none';
 	}
 	
 	var i = 1;
@@ -76,17 +72,17 @@
 	}
 </script>
 
-<div id = "content">
+<div id = "contentarea">
 
     <?php echo validation_errors(); ?>
-	<?php echo $error;?>
+	<?php echo $error ?>
     <?php echo form_open_multipart('features/newfeature'); ?>		
 
         <p><h4>Name</h4> <input type = "text" name = "name" value = "<?php echo set_value('name'); ?>" size = "50" /></p>
 		
         <p><h4>Type</h4>
-			<p><input onclick = "numeric()" type="radio" name="rad" value="Numeric Value" style ="width:20px;"/>Numeric<br/></p>
-			<p><input onclick = "options()" type="radio" name="rad" value="Options" style ="width:20px;"/>Options</p>
+			<p><input onclick = "numeric()" type="radio" name="rad" value="0" style ="width:20px;"/>Numeric<br/></p>
+			<p><input onclick = "options()" type="radio" name="rad" value="1" style ="width:20px;"/>Options</p>
 		</p>
 		
 		<div id = "numeric">
@@ -103,7 +99,6 @@
 		</div>
 		
 		<input type = "hidden" id = "count" name = "count" value = "0"/>
-		<input type = "hidden" id = "t" name = "type" value = "0"/>
 		
 		<h4>Choose Icon</h4> Show Icons here
 		
