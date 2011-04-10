@@ -75,7 +75,7 @@ h2.title{
 h3{
 	margin:-10px 40px 0px 100px;
 	font-family:serif;
-	font-siz:16px;
+	font-size:16px;
 	color:#989898;
 }
 
@@ -144,7 +144,7 @@ h4{
 }
 
 
-#formelem{
+.formelem{
  margin:0px 0px 0px 0px;
  border:0px;
  font-size:150%;

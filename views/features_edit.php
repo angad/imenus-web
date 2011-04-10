@@ -62,7 +62,7 @@
 		var element = document.createElement("input");
 
 		element.setAttribute("type", "text");
-	    element.setAttribute("id", "formelem");
+	    element.setAttribute("class", "formelem");
 	    element.setAttribute("name", "option" +i);
 		
 		options.appendChild(element);
@@ -78,7 +78,7 @@
 	<?php echo $error;?>
     <?php echo form_open_multipart('features/newfeature'); ?>		
 
-        <p><h4>Name</h4> <input type = "text" id = "formelem" name = "name" value = "<?php echo set_value('name'); ?>" size = "50" /></p>
+        <p><h4>Name</h4> <input type = "text" class = "formelem" name = "name" value = "<?php echo set_value('name'); ?>" size = "50" /></p>
 		
         <p><h4>Type</h4>
 			<input onclick = "numeric()" type="radio" name="rad" value="Numeric Value"/>Numeric<br/>
@@ -87,14 +87,14 @@
 		
 		<div id = "numeric">
 		<p>
-			<h4>MinValue</h4><input type = "text" id = "formelem" name = "minvalue"/><br/>
-			<h4>MaxValue</h4><input type = "text" id = "formelem" name = "maxvalue"/>
+			<h4>MinValue</h4><input type = "text" class = "formelem" name = "minvalue"/><br/>
+			<h4>MaxValue</h4><input type = "text" class = "formelem" name = "maxvalue"/>
 		</p>
 		</div>
 		<div id = "options">
 		<p>
 			<a href = "javascript:addTextBox()">+</a>
-			<input type = "text" id = "formelem" name = "option1" size = "50"/>
+			<input type = "text" class = "formelem" name = "option1" size = "50"/>
 		</p>
 		</div>
 		
