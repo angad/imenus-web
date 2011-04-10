@@ -12,7 +12,7 @@ class Features extends CI_Controller{
 	
 	public function index()
 	{
-		$this->load->view('sidebar');
+		$this->load->view('sidebar', array('title' => "Add Item Feature"));
 		$this->load->view('features_edit', array('error'=>''));
 		$this->load->view('footer');
 	}
@@ -45,26 +45,33 @@ class Features extends CI_Controller{
 		$data['MaxValue'] = $this->input->post('maxvalue');
 		$count = $this->input->post('count');
 		$data['StringValues'] = "";
-		$data['Type'] = $this->input->post('t');
-		
-		echo $data['Type'];
-		
+		$data['Type'] = $this->input->post('rad');
+	
 		for($i=1; $i<=$count; $i++)
 		{
 			$data['StringValues'] = $data['StringValues']  . $this->input->post('option' . $i) . ';';
 		}
 		
+		if(strstr($data['StringValues'], ';'))
+		{
+			$error = "Options cannot contain anything apart from alphabets or numbers.";
+			$this->load->view('sidebar', array('title' => "Add Item Feature"));
+			$this->load->view('features_edit', array('error'=>$error));
+			$this->load->view('footer');
+			return;
+		}
+		
 		
 		if ($this->form_validation->run() == FALSE)
 		{
+			$error = '';
 			//Reload the form if there is any error with the inputs
-			$error = array('error' => $this->upload->display_errors());			
-			$this->load->view('sidebar');
-			$this->load->view('features_edit', $error);
+			$this->load->view('sidebar', array('title' => "Add Item Feature"));
+			$this->load->view('features_edit', array('error'=>$error));
 			$this->load->view('footer');
 		}
 		else
-		{				
+		{
 			//Call the model
 			$this->features_model->newFeature($data);
 			

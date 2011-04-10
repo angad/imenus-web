@@ -14,6 +14,18 @@ class Organization extends CI_Model{
 		$this->load->database();
 	}
 	
+	function getOrganization()
+	{
+		$this->load->library('session');
+		if($username = $this->session->userdata('username'))
+		{
+			$query = $this->db->query('SELECT Id from Organization where username=?', array($username));
+			$row = $query->row_array();
+			return $row['Id'];
+		}
+		else return False;
+	}
+	
 	function get_all()
 	{
 		//Get a database dump

@@ -10,12 +10,28 @@ body{
 #sidebar
 {
 	float:left;
-	margin:50px 40px 100px 50px;
+	margin:50px 0px 100px 20px;
 	padding-right:20px;
 	border-right-style:dotted;
 	border-right-width:2px;
 	border-right-color:#F05B16;
 	height:130px;
+	width:170px;
+}
+
+#sidebaritem
+{
+	font-family:serif;
+	font-size:16px;
+	color:#EAEAEA;
+	margin:4px 20px 4px 10px;
+}
+
+#sidebar a
+{
+	text-decoration:none;
+	color:#F05B16;
+	font-size:16px;
 }
 
 #outer-wrapper 
@@ -43,8 +59,11 @@ body{
 	margin:50px 300px 0px 50px;
 }
 
-#contentarea {
-	margin:0px 80px 0px 50px;
+#contentarea 
+{
+	float:right;
+	margin:0px 80px 40px 0px;
+	width:700px;
 }
 
 #header{
@@ -86,18 +105,6 @@ h3.note{
 	color:#888888;
 }
 
-#sidebaritem{
-	font-family:serif;
-	font-size:16px;
-	color:#EAEAEA;
-	margin:4px 20px 4px 10px;
-}
-
-#sidebar a{
-	text-decoration:none;
-	color:#F05B16;
-	font-size:16px;
-}
 
 a{
 	text-decoration:none;
@@ -143,22 +150,7 @@ h4{
 	font-family: 'Molengo', arial, serif;
 }
 
-
-.formelem{
- margin:0px 0px 0px 0px;
- border:0px;
- font-size:150%;
- height:38px;
- padding:5px 0px 0px 10px;
- vertical-align:middle;
- width:300px;
- font-family: 'Ubuntu', arial, serif;
--moz-box-shadow: 1px 1px 5px #888888 inset; /* Firefox */
--webkit-box-shadow: 1px 1px 5px #888888 inset; /* Safari and Chrome */
-box-shadow: 1px 1px 5px #888888 inset;
-}
-
-#content input,
+#contentarea input,
 #registration input
 {
 	margin:0px 0px 0px 0px;
@@ -173,8 +165,6 @@ box-shadow: 1px 1px 5px #888888 inset;
 	-webkit-box-shadow: 1px 1px 5px #888888 inset; /* Safari and Chrome */
 	box-shadow: 1px 1px 5px #888888 inset;
 }
-
-
 
 tr:nth-child(odd){
     background-color:#EEE;
