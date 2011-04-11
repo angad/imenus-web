@@ -37,7 +37,13 @@ if ( ! defined('BASEPATH')) exit ('No direct script access allowed');
 		<a href = "<?php echo site_url('categories');?>">Categories</a><br/>
 	</div>
 	<div id = "sidebaritem">
-		<a href = "<?php echo site_url('user/invitekey');?>">Request InviteKey</a><br/>
+		<a href = "<?php echo site_url('user/invitekey');?>">User Account</a><br/>
+	</div>
+	<div id = "sidebaritem">
+		<a href = "<?php echo site_url('Kitchen/orders');?>">Orders</a><br/>
+	</div>
+	<div id = "sidebaritem">
+		<a href = "<?php echo site_url('features');?>">Item Features</a><br/>
 	</div>
 	<div id = "sidebaritem">
 		<a href = "<?php echo site_url('user/logout');?>">Logout</a><br/>
