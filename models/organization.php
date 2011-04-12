@@ -25,6 +25,14 @@ class Organization extends CI_Model{
 		}
 		else return False;
 	}
+    
+    function getOrganizationData($orgID) {
+        return $this->db->query('SELECT ID, MenuID, Name, Username, OwnerName, Email FROM Organization WHERE ID = ?', array($orgID))->row_array();
+    }
+    
+    function getOrganizationDataFromUsername($username) {
+        return $this->db->query('SELECT ID, MenuID, Name, Username, OwnerName, Email FROM Organization WHERE Username = ?', array($username))->row_array();
+    }
 	
 	function get_all()
 	{

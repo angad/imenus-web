@@ -22,6 +22,13 @@ class User_model extends CI_Model{
 		}
 		return False;
 	}
+    
+    function getOrgID()
+    {
+        if ($this->session->userdata('logged_in'))
+            return $this->session->userdata('org_id');
+        return FALSE;
+    }
 
 	function isLoggedIn()
 	{		

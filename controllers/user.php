@@ -42,12 +42,13 @@ class User extends CI_Controller{
 		$this->load->model('organization');
 		if($this->organization->checkPassword($username, md5($password)))
 		{
-			$menu_id = $this->organization->getMenuId($username);
+			$orgData = $this->organization->getOrganizationDataFromUsername($username);
 						
 			$newdata = array(
+                            'org_id' => $orgData['ID'],
 		                    'username'  => $username,
 							'logged_in' => TRUE,
-							'menu_id'=> $menu_id
+							'menu_id'=> $orgData['MenuID']
 							);
 		
 			$this->session->set_userdata($newdata);

@@ -37,11 +37,9 @@ class Features extends CI_Controller{
 		
 		//Input validation rules
         $this->form_validation->set_rules('name', 'Name', 'required|min_length[5]');
-		$this->form_validation->set_rules('minvalue', 'Minimum Value', '');
 		$this->form_validation->set_rules('maxvalue', 'Maximum Value', '');
 
 		$data['Name'] = $this->input->post('name');
-		$data['MinValue'] = $this->input->post('minvalue');
 		$data['MaxValue'] = $this->input->post('maxvalue');
 		$count = $this->input->post('count');
 		$data['StringValues'] = "";

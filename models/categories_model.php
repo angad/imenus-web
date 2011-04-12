@@ -12,7 +12,7 @@ class Categories_model extends CI_Model {
 	function __construct() {
 		parent::__construct();
         $this->load->database();
-        $this->load->helper('constants');
+        $this->load->helper('globals');
 	}
     
     static function tableName() {

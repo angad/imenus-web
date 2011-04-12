@@ -13,6 +13,10 @@ class Orders_model extends CI_Model{
 		$query = $this->db->query('SELECT * FROM `Order` WHERE OrganizationId=?', array($organization));
 		return $query->result_array();
 	}
+    
+    function getOrderDetails($orderID) {
+        return $this->db->query('SELECT ID, OrganizationID, Remarks, TableNumber FROM `Order` WHERE ID = ?', array($orderID))->row_array();
+    }
 	
 	function getOrderItem($orderId)
 	{

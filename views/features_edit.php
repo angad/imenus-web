@@ -87,7 +87,6 @@
 		
 		<div id = "numeric">
 		<p>
-			<h4>MinValue</h4><input type = "text" name = "minvalue"/><br/>
 			<h4>MaxValue</h4><input type = "text" name = "maxvalue"/>
 		</p>
 		</div>
