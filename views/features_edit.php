@@ -70,10 +70,13 @@
 		var count = document.getElementById("count");
 		count.setAttribute("value", i);
 	}
+	
 </script>
 
 <div id = "contentarea">
 
+    <h2 class = "title">Add/Edit an Item Option</h2>
+    
     <?php echo validation_errors(); ?>
 	<?php echo $error ?>
     <?php echo form_open_multipart('features/newfeature'); ?>		

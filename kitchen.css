@@ -1,0 +1,20 @@
+body{
+	width:1024px;
+	margin:0 auto;
+}
+
+#order 
+{
+	font-size:40px;
+	font-family:serif;
+}
+
+#order .item_name,
+#order .remarks,
+#order .quantity,
+#order .table_number
+#order .time
+{
+	display:block;
+	width:100px;
+}

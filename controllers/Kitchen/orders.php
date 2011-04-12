@@ -4,7 +4,7 @@ class Orders extends CI_Controller{
 	
 	public function __construct()
 	{
-		parent::__construct();	
+		parent::__construct();
 	}
 	
 	public function index()
@@ -12,19 +12,25 @@ class Orders extends CI_Controller{
 		$this->load->model('Kitchen/orders_model');
 		$this->load->model('organization');
 		$this->load->model('items_model');
+		
 		$organization_id = $this->organization->getOrganization();
 		
 		$orders = $this->orders_model->getOrders($organization_id);
 
-		//$this->load->view('Kitchen/kitchen_header.php');
+		$this->load->view('Kitchen/kitchen_header.php');		
 		
 		foreach($orders as $order)
 		{
 			$order_item = $this->orders_model->getOrderItem($order['Id']);
-			$item = $this->items_model->getItem($order_item['ItemId']);
 			
+			if(!$order_item) {
+				echo "No Orders"; return;
+			}
+			
+			$item = $this->items_model->getItem($order_item['ItemId']);
+						
 			$data['item_name'] = $item['Name'];
-			$data['tablenumber'] = $order['TableNumber'];
+			$data['table_number'] = $order['TableNumber'];
 			$data['quantity'] = $order_item['Quantity'];
 			$data['remarks'] = $order_item['Remarks'];
 			$data['time'] = $order_item['Timestamp'];
