@@ -1,3 +1,7 @@
+<?php 
+$fetch_time = 5;
+?>
+
 <html>
 <head>
 	<title>Orders</title>
@@ -42,7 +46,7 @@ body{
 <script>
 
 window.onload = function(){
-  interval = setInterval('fetch()', 5*1000);// 5 secs between requests
+  interval = setInterval('fetch()', <?php echo $fetch_time ?> *1000);// 5 secs between requests
 };
 
 function fetch()

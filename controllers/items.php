@@ -156,45 +156,33 @@ class Items extends CI_Controller {
 
 		$this->load->library('upload', $config);
         $this->load->model('image');
-
-		if ($this->upload->do_upload(ITEM_IMAGE_SMALL))
-		{
-
-    		$file_data = $this->upload->data();
-    		$full_path = $file_data['full_path'];
-    		$file_path = $file_data['file_path'];
-    		$raw_name = $file_data['raw_name'];
-    		$file_ext = $file_data['file_ext'];
-    		
-    		$this->Items_model->updateItemImage($itemID, ITEM_IMAGE_SMALL, $this->image->small($file_path, $raw_name, $file_ext));
-        }
-        
-        if ($this->upload->do_upload(ITEM_IMAGE_MEDIUM))
-		{
-
-    		$file_data = $this->upload->data();
-    		$full_path = $file_data['full_path'];
-    		$file_path = $file_data['file_path'];
-    		$raw_name = $file_data['raw_name'];
-    		$file_ext = $file_data['file_ext'];
-    		
-    		$this->Items_model->updateItemImage($itemID, ITEM_IMAGE_MEDIUM, $this->image->medium($file_path, $raw_name, $file_ext));
-        }
         
         if ($this->upload->do_upload(ITEM_IMAGE_LARGE))
 		{
     		$file_data = $this->upload->data();
-    		$full_path = $file_data['full_path'];
-    		$file_path = $file_data['file_path'];
-    		$raw_name = $file_data['raw_name'];
-    		$file_ext = $file_data['file_ext'];
-    		
-    		$this->Items_model->updateItemImage($itemID, ITEM_IMAGE_LARGE, $this->image->large($file_path, $raw_name, $file_ext));
+			$this->image_resize($file_data);
         }
         
         redirect ('items/view/'.$catID);
     }
     
+	function image_resize($file_data)
+	{
+		$full_path = $file_data['full_path'];
+   		$file_path = $file_data['file_path'];
+   		$raw_name = $file_data['raw_name'];
+   		$file_ext = $file_data['file_ext'];
+    		
+		$path_large = $this->image->large($file_path, $raw_name, $file_ext);
+		$this->Items_model->updateItemImage($itemID, ITEM_IMAGE_LARGE, $path_large);
+
+		$path_medium = $this->image->medium($file_path, $raw_name, $file_ext);			
+		$this->Items_model->updateItemImage($itemID, ITEM_IMAGE_MEDIUM, $path_medium);
+
+		$path_small = $this->image->small($file_path, $raw_name, $file_ext);			
+		$this->Items_model->updateItemImage($itemID, ITEM_IMAGE_SMALL, $path_small);
+	}
+
     /**
      * Cat Form Generator
      *
@@ -242,9 +230,7 @@ class Items extends CI_Controller {
         
         $output .= text_item('price', 'Price', isset($item['Price']) ? $item['Price'] : '', TRUE, $readonly, '$ ');
         
-        $output .= '<div class="form-item"><label for="edit-imageSmall">Small Image:</label>'.($readonly ? '' : form_upload('imageSmall', '', 'id="edit-imageSmall"')).(!empty($item['ImageSmall']) ? img(array('src' => $item['ImageSmall'], 'class' => 'zooming')) : '').'</div>';
-        $output .= '<div class="form-item"><label for="edit-imageMedium">Medium Image:</label>'.($readonly ? '' : form_upload('imageMedium', '', 'id="edit-imageMedium"')).(!empty($item['ImageMedium']) ? img(array('src' => $item['ImageMedium'], 'class' => 'zooming')) : '').'</div>';
-        $output .= '<div class="form-item"><label for="edit-imageLarge">Large Image:</label>'.($readonly ? '' : form_upload('imageLarge', '', 'id="edit-imageLarge"')).(!empty($item['ImageLarge']) ? img(array('src' => $item['ImageLarge'], 'class' => 'zooming')) : '').'</div>';
+        $output .= '<div id = "fileupload" class="form-item"><label for="edit-imageLarge">Image:</label>'.($readonly ? '' : form_upload('imageLarge', '', 'id="edit-imageLarge"')).(!empty($item['ImageLarge']) ? img(array('src' => $item['ImageLarge'], 'class' => 'zooming')) : '').'</div>';
     
         $seljs = '[]';
         if (isset($itemType) && $itemType == ITEMS_TYPE_MEAL) {

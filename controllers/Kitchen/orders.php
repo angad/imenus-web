@@ -21,6 +21,47 @@ class Orders extends CI_Controller{
 		else return "&nbsp;";
 	}
 	
+	
+	public function getOrder($order)
+	{
+		//get the order items
+		$order_item = $this->orders_model->getOrderItem($order['Id']);
+				
+		if(!$order_item) {
+			echo "No Orders"; return;
+		}
+	
+		//get the order item features
+		$orderItemFeatures = $this->features_model->getOrderItemFeatures($order_item['Id']);
+			//get the feature names and values
+		$i=0;
+		foreach($orderItemFeatures as $orderItemFeature)
+		{
+			$feature = $this->features_model->getFeatureById($orderItemFeature['FeatureId']);
+						
+			$data['feature_names'][$i] = $feature['Name'];
+			$data['feature_values'][$i] = $orderItemFeature['Value'];
+			$i++;
+		}
+		
+		if($i==0)
+		{
+			$data['feature_names'] = NULL;
+			$data['feature_value'] = NULL;
+		}
+		
+		//get the order item
+		$item = $this->items_model->getItem($order_item['ItemId']);
+		
+		$data['item_name'] = $this->checknil($item['Name']);
+		$data['table_number'] = $this->checknil($order['TableNumber']);
+		$data['quantity'] = $this->checknil($order_item['Quantity']);
+		$data['remarks'] = $this->checknil($order_item['Remarks']);
+		$data['time'] = $this->checknil($order_item['Timestamp']);
+		
+		return $data;
+	}
+	
 	public function index()
 	{		
 		$organization_id = $this->organization->getOrganization();
@@ -31,50 +72,14 @@ class Orders extends CI_Controller{
 			
 		foreach($orders as $order)
 		{
-			//get the order items
-			$order_item = $this->orders_model->getOrderItem($order['Id']);
-					
-			if(!$order_item) {
-				echo "No Orders"; return;
-			}
-		
-			//get the order item features
-			$orderItemFeatures = $this->features_model->getOrderItemFeatures($order_item['Id']);
-
-			//get the feature names and values
-			$i=0;
-			foreach($orderItemFeatures as $orderItemFeature)
-			{
-				$feature = $this->features_model->getFeatureById($orderItemFeature['FeatureId']);
-							
-				$data['feature_names'][$i] = $feature['Name'];
-				$data['feature_values'][$i] = $orderItemFeature['Value'];
-				$i++;
-			}
-			
-			if($i==0)
-			{
-				$data['feature_names'] = NULL;
-				$data['feature_value'] = NULL;
-			}
-			
-			//get the order item
-			$item = $this->items_model->getItem($order_item['ItemId']);
-			
-			$data['item_name'] = $this->checknil($item['Name']);
-			$data['table_number'] = $this->checknil($order['TableNumber']);
-			$data['quantity'] = $this->checknil($order_item['Quantity']);
-			$data['remarks'] = $this->checknil($order_item['Remarks']);
-			$data['time'] = $this->checknil($order_item['Timestamp']);
+			$data = $this->getOrder($order);
 				
 			$this->load->view('Kitchen/kitchen_order.php', $data);
-			
-			print_r($data);
-			echo "<br/><br/>";
-			$data = NULL;
 		}		
 		$this->load->view('Kitchen/kitchen_footer.php');
 	}
+
+
 
 	public function getorders()
 	{
@@ -84,26 +89,26 @@ class Orders extends CI_Controller{
 		
 		foreach($orders as $order)
 		{
-			$order_item = $this->orders_model->getOrderItem($order['Id']);
-			
-			if(!$order_item) {
-				echo "No Orders"; return;
-			}
-			
-			$item = $this->items_model->getItem($order_item['ItemId']);
-						
-			$data['item_name'] = $this->checknil($item['Name']);
-			$data['table_number'] = $this->checknil($order['TableNumber']);
-			$data['quantity'] = $this->checknil($order_item['Quantity']);
-			$data['remarks'] = $this->checknil($order_item['Remarks']);
-			$data['time'] = $this->checknil($order_item['Timestamp']);
+			$data = $this->getOrder($order);
 
-		echo '<div class = "item_name">' . $data["item_name"] . '</div>';
-		echo '<div class = "quantity">' . $data["quantity"] .'</div>';
-		echo '<div class = "remarks">' . $data["remarks"] . '</div>';
-		echo '<div class = "time">' . $data["time"] . '</div>';
-		echo '<div class = "table_number">' . $data["table_number"] . '</div>';
-		echo '<br/>';
+			echo '<div class = "item_name">' . $data["item_name"] . '</div>';
+			echo '<div class = "quantity">' . $data["quantity"] .'</div>';
+			echo '<div class = "remarks">' . $data["remarks"] . '</div>';
+			echo '<div class = "time">' . $data["time"] . '</div>';
+			echo '<div class = "table_number">' . $data["table_number"] . '</div>';
+			echo '<br/>';
+			if($data['feature_names'])
+			{
+				echo 'Features : ';		
+			foreach($data['feature_names'] as $feature_name)
+			{
+				echo $feature_name;
+			}
+			foreach($data['feature_values'] as $feature_value)
+			{
+				echo $feature_value;
+			}
+			}
 		}
 	}
 	
