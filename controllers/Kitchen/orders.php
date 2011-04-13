@@ -6,40 +6,10 @@ class Orders extends CI_Controller{
 	{
 		parent::__construct();
 		
-			$this->load->model('Kitchen/orders_model');
-			$this->load->model('organization');
-			$this->load->model('items_model');
-
-	}
-	
-	public function index()
-	{		
-		$organization_id = $this->organization->getOrganization();
-		
-		$orders = $this->orders_model->getOrders($organization_id);
-		
-		$this->load->view('Kitchen/kitchen_header.php');		
-		
-		foreach($orders as $order)
-		{
-			$order_item = $this->orders_model->getOrderItem($order['Id']);
-			
-			if(!$order_item) {
-				echo "No Orders"; return;
-			}
-			
-			$item = $this->items_model->getItem($order_item['ItemId']);
-						
-			$data['item_name'] = $this->checknil($item['Name']);
-			$data['table_number'] = $this->checknil($order['TableNumber']);
-			$data['quantity'] = $this->checknil($order_item['Quantity']);
-			$data['remarks'] = $this->checknil($order_item['Remarks']);
-			$data['time'] = $this->checknil($order_item['Timestamp']);
-			
-			$this->load->view('Kitchen/kitchen_order.php', $data);
-		}
-
-		$this->load->view('Kitchen/kitchen_footer.php');
+		$this->load->model('Kitchen/orders_model');
+		$this->load->model('organization');
+		$this->load->model('items_model');
+		$this->load->model('features_model');
 	}
 	
 	function checknil($check)
@@ -51,6 +21,61 @@ class Orders extends CI_Controller{
 		else return "&nbsp;";
 	}
 	
+	public function index()
+	{		
+		$organization_id = $this->organization->getOrganization();
+		
+		$orders = $this->orders_model->getOrders($organization_id);
+		
+		$this->load->view('Kitchen/kitchen_header.php');
+			
+		foreach($orders as $order)
+		{
+			//get the order items
+			$order_item = $this->orders_model->getOrderItem($order['Id']);
+					
+			if(!$order_item) {
+				echo "No Orders"; return;
+			}
+		
+			//get the order item features
+			$orderItemFeatures = $this->features_model->getOrderItemFeatures($order_item['Id']);
+
+			//get the feature names and values
+			$i=0;
+			foreach($orderItemFeatures as $orderItemFeature)
+			{
+				$feature = $this->features_model->getFeatureById($orderItemFeature['FeatureId']);
+							
+				$data['feature_names'][$i] = $feature['Name'];
+				$data['feature_values'][$i] = $orderItemFeature['Value'];
+				$i++;
+			}
+			
+			if($i==0)
+			{
+				$data['feature_names'] = NULL;
+				$data['feature_value'] = NULL;
+			}
+			
+			//get the order item
+			$item = $this->items_model->getItem($order_item['ItemId']);
+			
+			$data['item_name'] = $this->checknil($item['Name']);
+			$data['table_number'] = $this->checknil($order['TableNumber']);
+			$data['quantity'] = $this->checknil($order_item['Quantity']);
+			$data['remarks'] = $this->checknil($order_item['Remarks']);
+			$data['time'] = $this->checknil($order_item['Timestamp']);
+				
+			$this->load->view('Kitchen/kitchen_order.php', $data);
+			
+			print_r($data);
+			echo "<br/><br/>";
+			$data = NULL;
+		}		
+		$this->load->view('Kitchen/kitchen_footer.php');
+	}
+
 	public function getorders()
 	{
 		$organization_id = $this->organization->getOrganization();
@@ -78,8 +103,7 @@ class Orders extends CI_Controller{
 		echo '<div class = "remarks">' . $data["remarks"] . '</div>';
 		echo '<div class = "time">' . $data["time"] . '</div>';
 		echo '<div class = "table_number">' . $data["table_number"] . '</div>';
-		echo '<br/>'
-
+		echo '<br/>';
 		}
 	}
 	

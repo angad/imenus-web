@@ -47,7 +47,6 @@ window.onload = function(){
 
 function fetch()
 {
-	alert("something");
 	document.getElementById("orders").innerHTML="<div></div>";
 		
 	var xmlhttp;
