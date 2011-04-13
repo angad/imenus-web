@@ -66,6 +66,12 @@ class Orders extends CI_Controller{
 	{		
 		$organization_id = $this->organization->getOrganization();
 		
+		if(!$organization_id)
+		{
+			$this->load->view('login_form');
+			return;
+		}
+		
 		$orders = $this->orders_model->getOrders($organization_id);
 		
 		$this->load->view('Kitchen/kitchen_header.php');

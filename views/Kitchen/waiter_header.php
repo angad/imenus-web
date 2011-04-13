@@ -60,6 +60,30 @@ body{
 		xmlhttp.open("POST","http://imenus.tk/index.php/Kitchen/waiter/getRequests/", true);
 		xmlhttp.send();
 	}
+	
+	function removeCall(id)
+	{
+		var xmlhttp;
+		if (window.XMLHttpRequest)
+		{
+			xmlhttp=new XMLHttpRequest();
+		}
+		else
+		{
+			xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+		}
+		xmlhttp.onreadystatechange=function()
+		{
+			if (xmlhttp.readyState==4 && xmlhttp.status==200)
+			{
+				document.getElementById("button"+id).innerHTML = "";
+			}
+		}
+		xmlhttp.open("POST","http://imenus.tk/index.php/Kitchen/waiter/removeCall/", true);
+		xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+		xmlhttp.send("id="+id);
+	}
+	
 
 </script>
 

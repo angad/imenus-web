@@ -23,13 +23,20 @@ class Waiter extends CI_Controller {
 		if($call['Status']==2) 
 			$data['status'] = "Bill request";
 		else $data['status'] = "Attended";
-		
+		$data['id'] = $call['Id'];
 		return $data;
 	}
 	
 	public function index()
 	{		
 		$organization_id = $this->organization->getOrganization();
+		
+		if(!$organization_id)
+		{
+			$this->load->view('login_form');
+			return;
+		}
+	
 		$waiter_calls = $this->waiter_model->getWaiter($organization_id);
 
 		$this->load->view('Kitchen/waiter_header');
@@ -55,9 +62,17 @@ class Waiter extends CI_Controller {
 			echo '<div class = "time">' . $data['time'] . '</div>';
 			echo '<div class = "table_number">' .  $data['table_number'] . '</div>';
 			echo '<div class = "status">' . $data['status'] . '</div>';
+			echo '<div id = "button"><button type = "button" onclick= \'removeCall('. $data['id'] .  ')\'>Clear</button></div>';
 			echo '</div>';
 			echo '<br style = "clear:both"/>';
 		}
+	}
+	
+	public function removeCall()
+	{
+		$id = $this->input->post('id');
+		$this->waiter_model->removeCall($id);
+		$this->getRequests();
 	}
 	
 }

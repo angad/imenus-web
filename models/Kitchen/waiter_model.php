@@ -14,9 +14,9 @@ class Waiter_model extends CI_Controller
 		return $query->result_array();
 	}
 	
-	public function WaiterAnswered($call_id)
+	public function removeCall($call_id)
 	{
-		$this->db->query('UPDATE CallWaiter SET Status = \'0\' WHERE Id=?', array($call_id));
+		$this->db->query('DELETE FROM CallWaiter WHERE Id=?', array($call_id));
 	}
 }
 
