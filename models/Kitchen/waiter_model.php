@@ -19,3 +19,5 @@ class Waiter_model extends CI_Controller
 		$this->db->query('UPDATE CallWaiter SET Status = \'0\' WHERE Id=?', array($call_id));
 	}
 }
+
+?>

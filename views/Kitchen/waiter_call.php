@@ -7,7 +7,6 @@
 	</div>
 	<div class = "status">
 		<?php echo $status ?>
-	</div>
-	
+	</div>	
 </div>
 <br style = "clear:both"/>

@@ -79,8 +79,6 @@ class Orders extends CI_Controller{
 		$this->load->view('Kitchen/kitchen_footer.php');
 	}
 
-
-
 	public function getorders()
 	{
 		$organization_id = $this->organization->getOrganization();
@@ -90,7 +88,8 @@ class Orders extends CI_Controller{
 		foreach($orders as $order)
 		{
 			$data = $this->getOrder($order);
-
+			
+			echo '<div id = "order">';
 			echo '<div class = "item_name">' . $data["item_name"] . '</div>';
 			echo '<div class = "quantity">' . $data["quantity"] .'</div>';
 			echo '<div class = "remarks">' . $data["remarks"] . '</div>';
@@ -109,6 +108,7 @@ class Orders extends CI_Controller{
 				echo $feature_value;
 			}
 			}
+			echo '</div>';
 		}
 	}
 	
