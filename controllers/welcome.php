@@ -6,7 +6,7 @@ class Welcome extends CI_Controller{
 	{
 		parent::__construct();
 		$this->load->helper('url');
-		redirect('/user');
+		redirect('/user', 'location', '301');
 	}
 
 }

@@ -27,7 +27,7 @@ class User extends CI_Controller{
 		$username=$this->user_model->isLoggedIn();
 		if($username)
 		{
-			redirect('/designer/', 'refresh');
+			redirect('/designer/', 'location', '301');
 		}
 		else $this->load->view('login_form');
 	}
