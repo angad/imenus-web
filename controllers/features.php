@@ -27,20 +27,30 @@ class Features extends CI_Controller{
 		$menu_id = $this->checkAccess();
 		
 		$features = $this->features_model->getFeaturesFromMenu($menu_id);
-		$i=0;
-		$data = NULL;
+        
+        $this->load->library('table');
+        $this->load->helper('html');
+        $this->table->set_heading('Name', 'Type', 'Values');
+		
 		foreach($features as $feature)
 		{
-			$data['features'][$i]['Name'] = $feature['Name'];
-			$data['features'][$i]['Type'] = $feature['Type'];
-			$data['features'][$i]['MaxValue'] = $feature['MaxValue'];
-			$data['features'][$i]['Icon'] = $feature['Icon'];
-			$data['features'][$i]['Value'] = $feature['StringValues'];
-			$i++;
+		    $items = '';
+            if ($feature['Type'])
+                $items = ul(explode(';', $feature['StringValues']));
+            else
+                $items = '<ul><li>Icon: '.img($feature['Icon']).'</li><li>Maximum: '.$feature['MaxValue'];
+          
+            $this->table->add_row(anchor('features/editFeature/'.$feature['ID'], $feature['Name']), $feature['Type'] ? 'Strings' : 'Icons', $items);
+//			$data['features'][$i]['Name'] = $feature['Name'];
+//			$data['features'][$i]['Type'] = $feature['Type'];
+//			$data['features'][$i]['MaxValue'] = $feature['MaxValue'];
+//			$data['features'][$i]['Icon'] = $feature['Icon'];
+//			$data['features'][$i]['Value'] = $feature['StringValues'];
+//			$i++;
 		}
 		
 		$this->load->view('sidebar', array('title' => "Item Features"));
-		$this->load->view('features_view', $data);
+		$this->load->view('features_view', array('features' => $this->table->generate()));
 		$this->load->view('footer');
 	}
 	
