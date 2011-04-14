@@ -252,9 +252,12 @@ define('CATDELPROMPTS', 'Are you sure you want to delete this category? If you d
  		if (($menuID = $this->User_model->getMenuId()) === FALSE)
             redirect('/user');
         else if (!in_array($catID, $this->Categories_model->getAllIDs($menuID)))
-            redirect('/user');
+            show_error(ACCESS_DENIED_MSG, 403, ACCESS_DENIED);
         
+        $cat = $this->Categories_model->getCat($catID);
         $this->Categories_model->remove($catID);
+        
+        redirect('categories/index/'.$cat['parentID']);
     }
  
  }
