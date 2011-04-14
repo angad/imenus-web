@@ -8,6 +8,8 @@
 	<div class = "status">
 		<?php echo $status ?>
 	</div>
-	
+	<div id = "button">
+		<button type = "button" onclick="removeCall(<?php echo $id ?>)">Clear</button>
+	</div>
 </div>
 <br style = "clear:both"/>

@@ -10,6 +10,13 @@ if ( ! defined('BASEPATH')) exit ('No direct script access allowed');
 class Image extends CI_Model{
 	//Image generator class
 
+	public function __construct()
+	{
+		parent::__construct();
+		$this->load->library('image_lib');
+		
+	}
+	
 	public function small($file_path, $raw_name, $file_ext)
 	{
 		$config['image_library'] = 'gd2';
@@ -19,7 +26,9 @@ class Image extends CI_Model{
 		$config['height'] = 150;
 		$config['new_image'] = $file_path . $raw_name . '_small' . $file_ext;
 
-		$this->load->library('image_lib', $config); 
+		$this->image_lib->clear();
+		$this->image_lib->initialize($config);
+
 		$this->image_lib->resize();
 		return $config['new_image'];
 	}
@@ -33,7 +42,9 @@ class Image extends CI_Model{
 		$config['height'] = 600;
 		$config['new_image'] = $file_path . $raw_name . '_medium' . $file_ext;
 		
-		$this->load->library('image_lib', $config);
+		$this->image_lib->clear();
+		$this->image_lib->initialize($config);
+		
 		$this->image_lib->resize();
 		return $config['new_image'];
 	}
@@ -47,7 +58,9 @@ class Image extends CI_Model{
 		$config['height'] = 768;
 		$config['new_image'] = $file_path . $raw_name . '_large' . $file_ext;
 
-		$this->load->library('image_lib', $config); 
+		$this->image_lib->clear();
+		$this->image_lib->initialize($config);
+		
 		$this->image_lib->resize();
 		return $config['new_image'];
 	}
