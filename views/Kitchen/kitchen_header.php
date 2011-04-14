@@ -141,4 +141,9 @@ function orderStarted(id)
 <body>
 
 <div id = "outer-wrapper">
+<div id = "header">
+	<h2><a href = "http://imenus.tk/"><img src = "http://imenus.tk/images/logo.png"/></a></h2><br/>
+</div>
+
+
 <div id = "orders">

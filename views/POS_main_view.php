@@ -10,6 +10,8 @@
 </script>
 
 <div id = "contentarea">
+	<h2 class = "title">Point-of-Sales</h2>
+
     <?php if (isset($back)) echo anchor($back, '< Back').'<br />';?>
 
     <div id="AJAXcontent">

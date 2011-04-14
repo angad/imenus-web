@@ -141,7 +141,7 @@ define('CATDELPROMPTS', 'Are you sure you want to delete this category? If you d
         
         $output .= tree_select_item('parentID', 'Parent Category', $this->Categories_model->getTreeFromMenu($this->User_model->getMenuId()), $parentID, TRUE, $readonly, TRUE);
         $output .= text_item('name', 'Name', $name, TRUE, $readonly);
-        $output .= '<div class="fileupload form-item"><label for="edit-catImage">Category Icon (Recommended 200x150):</label>'.($readonly ? '' : form_upload('catImage', '', 'id="edit-catImage"')).(!empty($item['Image']) ? img(array('src' => $item['Image'], 'class' => 'zooming')) : '').'</div>';
+        $output .= '<div class="fileupload form-item"><label for="edit-catImage">Category Icon (Recommended 200x150):</label>'.($readonly ? '' : form_upload('catImage', '', 'id="edit-catImage"')).(!empty($cat['Image']) ? img(array('src' => $cat['Image'], 'class' => 'zooming')) : '').'</div>';
         
         if (!$readonly)
             $output .= form_submit('submit', 'Save');
@@ -212,7 +212,7 @@ define('CATDELPROMPTS', 'Are you sure you want to delete this category? If you d
           
 	   }
         
-        // redirect ('categories/index/'.$parentID);
+         redirect ('categories/index/'.$parentID);
     }
     
     /**

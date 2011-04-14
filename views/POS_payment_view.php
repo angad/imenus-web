@@ -24,7 +24,8 @@
 </div>
 
 <div id = "contentarea">
-    <span id="controls"><a id="print">Print Receipt</a> / <a href="<?php echo site_url('POS/clear/'.$OrderID);?>" class="modalconfirm" data-modaltext="Are you sure you want to Clear this Bill? If you have not printed it, please do so first.">Clear Bill</a></span>
+    <span id="controls"><h2 class = "title">Bill</h2>
+    <a id="print">Print Receipt</a> / <a href="<?php echo site_url('POS/clear/'.$OrderID);?>" class="modalconfirm" data-modaltext="Are you sure you want to Clear this Bill? If you have not printed it, please do so first.">Clear Bill</a></span>
 
     <?php echo $table;?>
 

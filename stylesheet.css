@@ -117,13 +117,13 @@ a{
 
 #notselected img
 {
-	width:350px;
+	width:450px;
 	margin:10px 0px 10px 10px;
 }
 
 #selected img
 {
-	width:350px;
+	width:450px;
 	margin:10px 0px 10px 10px;
 	border-style:solid;
 	border-width:5px;

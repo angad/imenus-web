@@ -6,7 +6,7 @@ if ( ! defined('BASEPATH')) exit ('No direct script access allowed');
  */
 ?>
 
-<div id = "content">
+<div id = "contentarea">
 	<?php
 	
 	for($i=1; $i<3; $i++)
@@ -21,7 +21,7 @@ if ( ! defined('BASEPATH')) exit ('No direct script access allowed');
 			echo '<div id = "notselected">';
 		}
 		echo '<center><a href = "theme/' . $i .  '">';
-		echo '<img id = "image" width = "300px" height = "200px" src = "/themes/' . $i . '.png"/>';
+		echo '<img id = "image" width = "400px" height = "300px" src = "/themes/' . $i . '.jpg"/>';
 		echo '</a></center>';
 		echo '</div><br/>';
 	}
