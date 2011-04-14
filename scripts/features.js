@@ -1,3 +1,16 @@
+/**
+ * Features Listing script file
+ * @author Patrick
+ */
+
+
+/**
+ * Handle Features Listing
+ * @param   featureSelect   Select Form Item that has all the Features as its options
+ * @param   featureTable    ID of table to use for displaying selected features
+ * @param   curValues       2D Array of current values. Index 0 should correspond to Feature ID, Index 1 the current Value, and Index 2 the Fixed flag (currently unused)
+ * @param   allowableRanges Array of either Maximum values for numeric features, or semi-colon delimited String Values 
+ */
 function handleFeatures (featureSelect, featureTable, curValues, allowableRanges) {
     var count = 0;
     addToFeatures = function(id, value) {

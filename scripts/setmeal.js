@@ -1,3 +1,15 @@
+/**
+ * Set Meal Listing script file
+ * @author Patrick
+ */
+
+
+/**
+ * Handle Set Meal Items Listing
+ * @param   itemSelect      Select Form Item that has all the Items as its options
+ * @param   itemTable       ID of table to use for displaying selected items and their quantities
+ * @param   curValues       2D Array of current values. Index 0 should correspond to Item ID, and Index 1 should correspond to selected quantity.
+ */
 function handleSetMeal (itemSelect, itemTable, curValues) {
     var count = 0;
     addToItems = function(id, value) {

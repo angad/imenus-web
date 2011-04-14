@@ -3,14 +3,16 @@
 <script> 
  $(document).ready(function() {
  	var refreshId = setInterval(function() {
-      $("#contentarea").load('<?php echo site_url($AJAXUpdate);?>?randval='+ Math.random());
+      $("#AJAXcontent").load('<?php echo site_url($AJAXUpdate);?>?randval='+ Math.random());
    }, 9000);
    $.ajaxSetup({ cache: false });
 });
 </script>
 
 <div id = "contentarea">
+    <?php if (isset($back)) echo anchor($back, '< Back').'<br />';?>
 
+    <div id="AJAXcontent">
     <?php echo $table;?>
-
+    </div>
 </div>

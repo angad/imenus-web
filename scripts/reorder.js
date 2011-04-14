@@ -1,3 +1,16 @@
+/**
+ * Categories and Items reordering script file
+ * To use with jquery.tablednd library
+ * @author Patrick
+ */
+
+
+/**
+ * Handle Re-Ordering
+ * @param   orderTable      Table of items that can be re-ordered. First cell of each row should contain an <a> element,
+                                with the last portion of the href corresponding to the ID of each item.
+ * @param   reorderPostAdd  Address to POST the sorted array to
+ */
 function handleReOrder (orderTable, reorderPostAdd) {
     $(document).ready(function () {
         var orderData;

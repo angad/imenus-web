@@ -1,0 +1,76 @@
+/* @author patrick
+*/
+
+#contentarea > table tr {
+    vertical-align: top;
+    text-align: left;
+}
+
+#contentarea > table ul {
+    margin: 0px;
+}
+
+#headQty {
+    width: 10px;
+}
+
+#headItem {
+    width: 320px;
+}
+
+#headPrice {
+    width: 75px;
+}
+
+#headAmt {
+    width: 75px;
+}
+
+#headDisc {
+    text-align: center;
+}
+
+@media print {
+    body {
+        visibility: hidden;
+    }
+    #contentarea {
+        position: absolute;
+        visibility: visible;
+        top: 0px;
+        left: 0px;
+    }
+    #contentarea .info {
+        display: inline;
+        visibility: visible;
+        text-align: left;
+        width: 100%;
+    }
+    #contentarea > table tr {
+        background: none;
+        text-align: left;
+    }
+    #contentarea > table .options {
+        display: none;
+    }
+}
+
+@media screen {
+    #contentarea .info {
+        display:none;
+    }
+    #contentarea > table input
+    {
+    	margin:0px 0px 0px 0px;
+    	border:0px;
+    	font-size:100% !important;
+    	height:auto !important;
+    	padding:inherit;
+    	vertical-align:middle;
+    	width:auto !important;
+    	font-family: 'Ubuntu', arial, serif;
+    	-moz-box-shadow: 1px 1px 5px #888888 inset; /* Firefox */
+    	-webkit-box-shadow: 1px 1px 5px #888888 inset; /* Safari and Chrome */
+    	box-shadow: 1px 1px 5px #888888 inset;
+    }
+}

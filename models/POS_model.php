@@ -28,7 +28,7 @@ class POS_model extends CI_Model {
         GROUP BY OrganizationID, TableNumber', array($orgID))->result_array();
     }
 
-    function getOrderItems($orderID) {
+    function getOrderItemETAs($orderID) {
         return $this->db->query(
         'SELECT O.ID AS OrderID, OI.ID AS OrderItemID, I.ID AS ItemID, I.Name, OI.Quantity * I.iQty AS Quantity,
           I.Duration, UNIX_TIMESTAMP( OI.Timestamp ) AS Timestamp, UNIX_TIMESTAMP(OI.Started) AS Started,
@@ -60,6 +60,12 @@ class POS_model extends CI_Model {
          WHERE O.ID = ?
          GROUP BY OI.ID, I.ID, I.iID', array($orderID))->result_array();
     }
+    
+    
+    function getOrderItemDetails($orderID) {
+        return $this->db->query('SELECT OI.OrderID, OI.ID AS OrderItemID, OI.ItemID, OI.Quantity, OI.Remarks, OI.Timestamp, OI.Started, I.'.str_replace(', ', ', I.', ITEM_FIELDS).'
+                                 FROM '.ORDERITEMS_TABLE.' OI INNER JOIN '.ITEMS_TABLE.' I ON OI.ItemID = I.ID AND OI.OrderID = ?', array($orderID))->result_array();
+    } 
     
     function removeOrder($orderID) {
         $this->db->query('DELETE O, OI FROM '.ORDERS_TABLE.' O INNER JOIN '.ORDERITEMS_TABLE.' OI ON O.ID = OI.OrderID AND O.ID = ?', array($orderID));
