@@ -6,6 +6,6 @@ if ( ! defined('BASEPATH')) exit ('No direct script access allowed');
  */
 ?>
 
-<div id = "content">
+<div id = "contentarea">
 	Please use the side bar to navigate.
 </div>

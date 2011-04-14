@@ -12,6 +12,10 @@ body{
 	margin:0 auto;
 }
 
+table{
+	font-size:24px;
+}
+
 #order,
 #header,
 #orders 
@@ -21,24 +25,16 @@ body{
 	margin:20px 0px 10px 0px;
 }
 
-.item_name,
-.time
-{
-	float:left;
-	width:200px;
+.odd{
+	background-color:white;
 }
 
-.quantity,
-.table_number
-{
-	float:left;
-	width:140px;
+.even{
+	background-color:#94B8FF;
 }
 
-.remarks
-{
-	float:left;
-	width:300px
+.started{
+	background-color:#F05B16;
 }
 
 </style>
@@ -46,6 +42,7 @@ body{
 <script>
 
 window.onload = function(){
+	addClicks();
   interval = setInterval('fetch()', <?php echo $fetch_time ?> *1000);// 5 secs between requests
 };
 
@@ -67,10 +64,74 @@ function fetch()
 		if (xmlhttp.readyState==4 && xmlhttp.status==200)
 		{
 			document.getElementById("orders").innerHTML=xmlhttp.responseText;
+			dh=document.body.scrollHeight;
+			ch=document.body.clientHeight;
+			if(dh>ch)
+			{
+				moveme=dh-ch;
+				window.scrollTo(0,moveme);
+			}
+			addClicks();
 		}
 	}
-
+	
 	xmlhttp.open("POST","http://imenus.tk/index.php/Kitchen/orders/getorders/", true);
+	xmlhttp.send();
+}
+
+function addClicks()
+{
+	var table = document.getElementsByTagName("table")[0];
+	var rows = table.getElementsByTagName("tr");
+	
+	for (i = 0; i < rows.length; i++) 
+	{
+		var currentRow = table.rows[i];
+		
+		if(i % 2 == 0)
+		{
+			rows[i].className = "even";
+		}
+		else
+		{
+			rows[i].className = "odd";
+		}
+		
+		var createClickHandler = 
+			function(row) 
+			{
+				return function() 
+				{ 
+					var cell = row.getElementsByTagName("td")[0];
+					var id = cell.innerHTML;
+					orderStarted(id);
+					row.className = "started";
+				};
+			}
+		currentRow.onclick = createClickHandler(currentRow);
+	}
+}
+
+function orderStarted(id)
+{
+	var xmlhttp;
+	if (window.XMLHttpRequest)
+	{
+		xmlhttp=new XMLHttpRequest();
+	}
+	else
+	{
+		xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+	}
+	xmlhttp.onreadystatechange=function()
+	{
+		if (xmlhttp.readyState==4 && xmlhttp.status==200)
+		{
+			
+		}
+	}
+	
+	xmlhttp.open("POST","http://imenus.tk/index.php/Kitchen/orders/orderStarted/"+id, true);
 	xmlhttp.send();
 }
 
@@ -80,24 +141,4 @@ function fetch()
 <body>
 
 <div id = "outer-wrapper">
-
-<div id = "header">
-<b>	<div class = "item_name">
-		Name
-	</div>
-	<div class = "quantity">
-		Quantity
-	</div>
-	<div class = "remarks">
-		Remarks
-	</div>
-	<div class = "time">
-		Time
-	</div>
-	<div class = "table_number">
-		Table Number
-	</div>
-</b>	
-</div>
-<br style = "clear:both"/>
 <div id = "orders">

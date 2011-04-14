@@ -24,7 +24,7 @@ if ( ! defined('BASEPATH')) exit ('No direct script access allowed');
 
 <div id = "outer-wrapper">
 <div id = "header">
-	<h2><a href = "http://imenus.tk/">iMenus</a></h2><br/>
+	<h2><a href = "http://imenus.tk/"><img src = "http://imenus.tk/images/logo.png"/></a></h2><br/>
 	<h3>Restaurant Menu Designer</h3>
 </div>
 

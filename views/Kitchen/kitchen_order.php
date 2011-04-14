@@ -16,10 +16,10 @@
 	<div class = "table_number">
 		<?php echo $table_number ?>
 	</div>
+	<div class = "feature">
 		<?php 
 		if(isset($feature_names))
 		{
-			echo "Feature";
 			foreach($feature_names as $feature_name)
 			{
 				echo $feature_name;
@@ -30,6 +30,11 @@
 				echo $feature_value;
 			}
 		}
+		else echo "&nbsp;";
 		?>
+	</div>
+	<div class = "start">
+		
+	</div>
 </div>
 <br style = "clear:both"/>

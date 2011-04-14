@@ -20,10 +20,16 @@ class Orders_model extends CI_Model{
 	
 	function getOrderItem($orderId)
 	{
-		$query = $this->db->query('SELECT * FROM OrderItem WHERE OrderId=?', array($orderId));
+		$query = $this->db->query('SELECT * FROM OrderItem WHERE OrderId=? AND Started = ?', array($orderId, 0));
 		$order = $query->row_array();
 		return $order;
 	}
+	
+	function orderStarted($order_item_id)
+	{
+		$this->db->query('UPDATE OrderItem SET Started = CURRENT_TIMESTAMP WHERE Id=?', array($order_item_id));
+	}
+	
 }
 
 ?>

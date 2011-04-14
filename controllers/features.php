@@ -57,6 +57,12 @@ class Features extends CI_Controller{
 		$menu_id = $this->checkAccess();
 		
 		$feature = $this->features_model->getFeatureById($id);
+		
+		if(!$feature)
+		{
+			echo "Invalid Feature edit.";
+			return;
+		}
 		$this->load->view('sidebar', array('title'=>"Edit Item Feature"));
 		$this->load->view('features_edit', array('error'=>'', 'feature'=>$feature));
 		$this->load->view('footer');
@@ -81,7 +87,8 @@ class Features extends CI_Controller{
 		$count = $this->input->post('count');
 		$data['StringValues'] = "";
 		$data['Type'] = $this->input->post('rad');
-		$data['Icon'] = $this->input->post('icon');
+		$data['Icon'] = 'images/' . $this->input->post('icon') . '.gif';
+		$data['Fixed'] = $this->input->post('fixed');
 	
 		for($i=1; $i<=$count; $i++)
 		{
@@ -94,6 +101,11 @@ class Features extends CI_Controller{
 				return;
 			}
 			$data['StringValues'] = $data['StringValues']  . $this->input->post('option' . $i) . ';';
+		}
+		
+		if($count!=0)
+		{
+			$data['MaxValue'] = $count;
 		}
 	
 		if ($this->form_validation->run() == FALSE)
