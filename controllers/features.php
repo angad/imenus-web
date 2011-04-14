@@ -131,7 +131,7 @@ class Features extends CI_Controller{
 			//Call the model
 			$this->features_model->newFeature($data);
 			$data = NULL;
-			echo "Load the features list here now";
+			refresh('/features', 'refresh');
 		}
 	}
 }
