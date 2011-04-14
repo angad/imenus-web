@@ -49,7 +49,7 @@ function handleFeatures (featureSelect, featureTable, curValues, allowableRanges
     };
     
     $(document).ready(function() {
-        for (i = 0; i < curValues.length; ++i)
+        for (var i = 0; i < curValues.length; ++i)
             addToFeatures(curValues[i][0], curValues[i][1], curValues[i][2]);
         $('#' + featureSelect).change(function() {
             var selected = $('#' + featureSelect + ' option:selected');

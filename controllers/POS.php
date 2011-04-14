@@ -162,5 +162,7 @@ class POS extends CI_Controller {
             show_error(ACCESS_DENIED_MSG, 403, ACCESS_DENIED);
         
         $this->POS_model->removeOrder($orderID);
+        
+        redirect('POS');
     }
 }

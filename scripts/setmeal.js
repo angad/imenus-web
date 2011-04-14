@@ -22,8 +22,7 @@ function handleSetMeal (itemSelect, itemTable, curValues) {
             removeFromItems(id);
           });
         $('#listItem' + id + ' > .listItemName').text(name.trim());
-        $('#listItem' + id + ' > .listItemQty').append('<input name="items[' + count + '][ItemID]" type="hidden" value="' + id + '"><input name="items[' + count + '][ItemQuantity]">');
-        $('#listItem' + id + ' > .listItemQty > input:last').attr('value', value);
+        $('#listItem' + id + ' > .listItemQty').append('<input name="items[' + count + '][ItemID]" type="hidden" value="' + id + '"><input name="items[' + count + '][ItemQuantity]">').children('input').last().attr('value', value);
         ++count;
     };
     
@@ -31,9 +30,8 @@ function handleSetMeal (itemSelect, itemTable, curValues) {
         $('#listItem' + id).remove();
         $('#' + itemSelect + ' option[value="' + id + '"]').removeAttr('disabled');
     }
-    
     $(document).ready(function() {
-        for (i = 0; i < curValues.length; ++i)
+        for (var i = 0; i < curValues.length; ++i)
             addToItems(curValues[i][0], curValues[i][1]);
         $('#' + itemSelect).change(function() {
             var selected = $('#' + itemSelect + ' option:selected');

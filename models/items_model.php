@@ -165,7 +165,7 @@ class Items_model extends CI_Model {
         foreach ($oldarr as $oldItem)
             $oldmap[$oldItem['ItemID']] = $oldItem['ItemQuantity'];
         
-        $to_del = array_diff_key($oldmap, $newmap);
+        $to_del = array_keys(array_diff_key($oldmap, $newmap));
         $to_ins = array_diff_key($newmap, $oldmap);
         $to_upd = array_intersect_key($oldmap, $newmap);
         
@@ -227,7 +227,7 @@ class Items_model extends CI_Model {
         foreach ($oldarr as $oldItem)
             $oldmap[$oldItem['FeatureID']] = $oldItem['Value'];
         
-        $to_del = array_diff_key($oldmap, $newmap);
+        $to_del = array_keys(array_diff_key($oldmap, $newmap));
         $to_ins = array_diff_key($newmap, $oldmap);
         $to_upd = array_intersect_key($oldmap, $newmap);
         
