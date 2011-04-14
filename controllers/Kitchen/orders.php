@@ -21,13 +21,13 @@ class Orders extends CI_Controller{
 		else return "&nbsp;";
 	}
 	
-	
 	public function getOrder($order)
 	{
 		//get the order items
 		$order_item = $this->orders_model->getOrderItem($order['Id']);
 				
-		if(!$order_item) {
+		if(!$order_item) 
+		{
 			echo "No Orders"; return;
 		}
 	
@@ -38,7 +38,9 @@ class Orders extends CI_Controller{
 		foreach($orderItemFeatures as $orderItemFeature)
 		{
 			$feature = $this->features_model->getFeatureById($orderItemFeature['FeatureId']);
-						
+			
+			if(!$feature) break;
+			
 			$data['feature_names'][$i] = $feature['Name'];
 			$data['feature_values'][$i] = $orderItemFeature['Value'];
 			$i++;

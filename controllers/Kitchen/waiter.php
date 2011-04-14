@@ -22,7 +22,6 @@ class Waiter extends CI_Controller {
 			$data['status'] = "Pending";
 		if($call['Status']==2) 
 			$data['status'] = "Bill request";
-		else $data['status'] = "Attended";
 		$data['id'] = $call['Id'];
 		return $data;
 	}
