@@ -55,7 +55,8 @@ define('CATDELPROMPTS', 'Are you sure you want to delete this category? If you d
             $note .= anchor('categories/add/'.$parentID, 'Add Sub-Category');
         
         $this->table->set_template(array('table_open' => '<table id="order" border="0" cellpadding="4" cellspacing="0">'));
-        $this->table->set_heading('Category', 'Edit', 'Sub-Categories', 'Items', 'Delete');
+        // $this->table->set_heading('Category', 'Edit', 'Sub-Categories', 'Items', 'Delete');
+        $this->table->set_heading('Category', 'Sub-Categories', 'Items', 'Delete');
         
         foreach ($this->Categories_model->getAll($menuID, TRUE, $parentID) as $cat) {
             if ($cat['ItemCount'] != 0)
@@ -64,7 +65,7 @@ define('CATDELPROMPTS', 'Are you sure you want to delete this category? If you d
                 $prompt = sprintf(CATDELPROMPTS, $cat['SubcatCount']);
             else
                 $prompt = CATDELPROMPT;
-            $this->table->add_row(anchor('categories/view/'.$cat['ID'], $cat['Name']), anchor('categories/edit/'.$cat['ID'], 'Edit Category'), $cat['ItemCount'] ? '' : anchor('categories/index/'.$cat['ID'], 'View Sub-Categories'), $cat['SubcatCount'] ? '' : anchor('items/view/'.$cat['ID'], 'View Items'), anchor('categories/delete/'.$cat['ID'], 'Delete Category', array('class' => 'modalconfirm', 'data-modaltext' => $prompt)));
+            $this->table->add_row(anchor('categories/edit/'.$cat['ID'], $cat['Name']), $cat['ItemCount'] ? '' : anchor('categories/index/'.$cat['ID'], 'View Sub-Categories'), $cat['SubcatCount'] ? '' : anchor('items/view/'.$cat['ID'], 'View Items'), anchor('categories/delete/'.$cat['ID'], 'Delete Category', array('class' => 'modalconfirm', 'data-modaltext' => $prompt)));
         }
         $data = array('title' => 'Categories', 'content' => $note.$this->table->generate(), 'include_scripts' => array(site_url('../scripts/jquery.tablednd_0_5.js'), site_url('../scripts/reorder.js')));
         $data['document_ready'] = 'handleReOrder("order", "'.site_url('categories/reorder/'.$parentID).'");';
@@ -134,14 +135,13 @@ define('CATDELPROMPTS', 'Are you sure you want to delete this category? If you d
         
         $this->_checkAccess(isset($catID) ? $catID : $parentID);
        
-        $output = form_open();
+        $output = form_open_multipart('');
         
         $readonly_text = $readonly ? 'readonly="readonly"' : '';
         
         $output .= tree_select_item('parentID', 'Parent Category', $this->Categories_model->getTreeFromMenu($this->User_model->getMenuId()), $parentID, TRUE, $readonly, TRUE);
-        // $output .= '<div class="form-item"><label for="edit-parentID">Parent Category: <span class="form-required" title="This field is required">*</span></label>'.$this->load->view('tree_select_view', array('tree' => $this->Categories_model->getTreeFromCurrentMenu($parentID), 'selected' => $parentID, 'name' => 'parentID', 'readonly' => $readonly, 'allselectable' => TRUE), TRUE).'</div>';
         $output .= text_item('name', 'Name', $name, TRUE, $readonly);
-        // $output .= $this->load->view('text_item_view', array('name' => 'name', 'label' => 'Name', 'required' => TRUE, 'value' => $name), TRUE);
+        $output .= '<div class="fileupload form-item"><label for="edit-catImage">Category Icon (Recommended 200x150):</label>'.($readonly ? '' : form_upload('catImage', '', 'id="edit-catImage"')).(!empty($item['Image']) ? img(array('src' => $item['Image'], 'class' => 'zooming')) : '').'</div>';
         
         if (!$readonly)
             $output .= form_submit('submit', 'Save');
@@ -178,14 +178,45 @@ define('CATDELPROMPTS', 'Are you sure you want to delete this category? If you d
         
         $parentID = $this->input->post('parentID');
         
-        if ($insert) {
-            //$this->Items_model->addItem($catID, $this->input->post('name'), $this->input->post('longdesc'), $this->input->post('shortdesc'), $this->input->post('price'), isset($_POST['items']) ? ITEMS_TYPE_MEAL : ITEMS_TYPE_ITEM, NULL, NULL, NULL, $this->input->post('items'));
-            $this->Categories_model->add($this->User_model->getMenuId(), $this->input->post('name'), $parentID);
-            redirect ('categories/index/'.$parentID);
-        } else {
+        if ($insert)
+            $catID = $this->Categories_model->add($this->User_model->getMenuId(), $this->input->post('name'), $parentID);
+        else
             $this->Categories_model->update($catID, $this->input->post('name'), $parentID);
-            redirect ('categories/index/'.$parentID);
-        }       
+        
+        $n = rand(10e16, 10e20);
+		$file_name =  base_convert($n, 10, 36);
+
+		//upload configuration
+		$config['file_name'] = $file_name;
+		$config['upload_path'] = BASEPATH.'../uploads/raw/';
+		$config['allowed_types'] = 'gif|jpg|png';
+		$config['max_size']	= '1024';	//Max 1MB
+		$config['max_width']  = '800';
+		$config['max_height']  = '600';
+
+		$this->load->library('upload', $config);
+        $this->load->model('image');
+        
+        
+        
+		if ($this->upload->do_upload('catImage'))
+		{
+            $file_data = $this->upload->data();
+            
+            print_r($file_data);
+    		
+    		$full_path = $file_data['full_path'];
+	   		$file_path = $file_data['file_path'];
+	   		$raw_name = $file_data['raw_name'];
+	   		$file_ext = $file_data['file_ext'];
+	
+			$path_small = $this->image->small($file_path, $raw_name, $file_ext);
+			$this->Categories_model->updateCategoryImage($catID, $path_small);
+
+          
+	   }
+        
+        // redirect ('categories/index/'.$parentID);
     }
     
     /**

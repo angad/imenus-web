@@ -162,8 +162,8 @@ class Items extends CI_Controller {
 		$config['upload_path'] = BASEPATH.'../uploads/raw/';
 		$config['allowed_types'] = 'gif|jpg|png';
 		$config['max_size']	= '1024';	//Max 1MB
-		$config['max_width']  = '500';
-		$config['max_height']  = '375';
+		$config['max_width']  = '800';
+		$config['max_height']  = '600';
 
 		$this->load->library('upload', $config);
         $this->load->model('image');
@@ -263,9 +263,9 @@ class Items extends CI_Controller {
             $data['document_ready'] .= 'AnyTime.picker("edit-dur", { format: "%H:%i:%s" });';
         }
         
-		$output .= '<div id = "fileupload" class="form-item"><label for="edit-imageSmall">Small Image(Max 200x150):</label>'.($readonly ? '' : form_upload('imageSmall', '', 'id="edit-imageSmall"')).(!empty($item['ImageSmall']) ? img(array('src' => $item['ImageSmall'], 'class' => 'zooming')) : '').'</div>';
+		$output .= '<div class="fileupload form-item"><label for="edit-imageSmall">Small Image (Recommended 200x150):</label>'.($readonly ? '' : form_upload('imageSmall', '', 'id="edit-imageSmall"')).(!empty($item['ImageSmall']) ? img(array('src' => $item['ImageSmall'], 'class' => 'zooming')) : '').'</div>';
 
-        $output .= '<div id = "fileupload" class="form-item"><label for="edit-imageLarge">Large Image(Max 500x375):</label>'.($readonly ? '' : form_upload('imageLarge', '', 'id="edit-imageLarge"')).(!empty($item['ImageLarge']) ? img(array('src' => $item['ImageLarge'], 'class' => 'zooming')) : '').'</div>';
+        $output .= '<div class="fileupload form-item"><label for="edit-imageLarge">Large Image (Recommended 500x375):</label>'.($readonly ? '' : form_upload('imageLarge', '', 'id="edit-imageLarge"')).(!empty($item['ImageLarge']) ? img(array('src' => $item['ImageLarge'], 'class' => 'zooming')) : '').'</div>';
     
         $seljs = '[]';
         if (isset($itemType) && $itemType == ITEMS_TYPE_MEAL) {

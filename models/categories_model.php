@@ -37,9 +37,9 @@ class Categories_model extends CI_Model {
         $filter = isset($only_children_of) ? ' AND ParentID = ?' : '';
         $order = ' ORDER BY SortOrder ASC';
         if ($include_counts)
-            $sql = 'SELECT C.menuID, C.parentID, C.ID, C.Name, (SELECT COUNT(*) FROM '.ITEMS_TABLE.' X WHERE X.CategoryID = C.ID AND X.Type = '.ITEMS_TYPE_ITEM.') AS ItemCount, (SELECT COUNT(*) FROM '.ITEMS_TABLE.' X WHERE X.CategoryID = C.ID AND X.Type = '.ITEMS_TYPE_MEAL.') AS MealCount, (SELECT COUNT(*) FROM '.CATEGORIES_TABLE.' X WHERE X.ParentID = C.ID) AS SubcatCount FROM '.CATEGORIES_TABLE.' C WHERE C.menuID = ?'.$filter.$order;
+            $sql = 'SELECT C.menuID, C.parentID, C.ID, C.Name, C.Image, (SELECT COUNT(*) FROM '.ITEMS_TABLE.' X WHERE X.CategoryID = C.ID AND X.Type = '.ITEMS_TYPE_ITEM.') AS ItemCount, (SELECT COUNT(*) FROM '.ITEMS_TABLE.' X WHERE X.CategoryID = C.ID AND X.Type = '.ITEMS_TYPE_MEAL.') AS MealCount, (SELECT COUNT(*) FROM '.CATEGORIES_TABLE.' X WHERE X.ParentID = C.ID) AS SubcatCount FROM '.CATEGORIES_TABLE.' C WHERE C.menuID = ?'.$filter.$order;
         else                
-            $sql = 'SELECT menuID, parentID, ID, Name FROM '.CATEGORIES_TABLE.' WHERE menuID = ?'.$filter.$order;
+            $sql = 'SELECT menuID, parentID, ID, Name, Image FROM '.CATEGORIES_TABLE.' WHERE menuID = ?'.$filter.$order;
         return $this->db->query($sql, array($menuID, $only_children_of))->result_array();
     }
     
@@ -72,7 +72,7 @@ class Categories_model extends CI_Model {
      * @return	array
      */
     function getCat($catID) {
-        return $this->db->query('SELECT menuID, parentID, ID, Name FROM '.CATEGORIES_TABLE.' WHERE ID = ?', array($catID))->row_array();
+        return $this->db->query('SELECT menuID, parentID, ID, Name, Image FROM '.CATEGORIES_TABLE.' WHERE ID = ?', array($catID))->row_array();
     }
     
     /**
@@ -85,7 +85,7 @@ class Categories_model extends CI_Model {
      * @return	array
      */
     function getCategoriesInSameMenu($catID) {
-        return $this->db->query('SELECT C1.menuID, C1.parentID, C1.ID, C1.Name FROM '.CATEGORIES_TABLE.' C1 INNER JOIN '.CATEGORIES_TABLE.' C2 ON C2.menuID = C1.menuID AND C2.ID = ? ORDER BY C1.ParentID ASC, C1.SortOrder ASC', array($catID))->result_array();
+        return $this->db->query('SELECT C1.menuID, C1.parentID, C1.ID, C1.Name, C1.Image FROM '.CATEGORIES_TABLE.' C1 INNER JOIN '.CATEGORIES_TABLE.' C2 ON C2.menuID = C1.menuID AND C2.ID = ? ORDER BY C1.ParentID ASC, C1.SortOrder ASC', array($catID))->result_array();
     }
     
     /**
@@ -98,7 +98,7 @@ class Categories_model extends CI_Model {
      * @return	array
      */
     function getCategoriesInMenu($menuID) {
-        return $this->db->query('SELECT menuID, parentID, ID, Name FROM '.CATEGORIES_TABLE.' WHERE menuID = ? ORDER BY ParentID ASC, SortOrder ASC', array($menuID))->result_array();
+        return $this->db->query('SELECT menuID, parentID, ID, Name, Image FROM '.CATEGORIES_TABLE.' WHERE menuID = ? ORDER BY ParentID ASC, SortOrder ASC', array($menuID))->result_array();
     }
     
     /**
@@ -245,6 +245,25 @@ class Categories_model extends CI_Model {
         $subcatIDs = array_merge(array((int)$catID), $this->_flatten($this->getTreeFromCurrentMenu($catID, FALSE, TRUE)));
         
         $this->db->query('DELETE C, I, P1 FROM '.CATEGORIES_TABLE.' C LEFT JOIN '.ITEMS_TABLE.' I ON I.CategoryID = C.ID LEFT JOIN '.PARENTS_TABLE.' P ON P.ParentID = I.ID WHERE C.ID IN (?'.str_repeat(',?', count($subcatIDs) - 1).')', $subcatIDs);
+    }
+    
+    /**
+     * Updates Image Path
+     *
+     * Updates Database, updates an Category's Image Path and Image Last Modified 
+     *
+     * @access	public
+     * @param	int     Category ID
+     * @param   string  Path
+     */
+    function updateItemImage($catID, $path) {
+        $root = substr(BASEPATH, 0, strrpos(rtrim(BASEPATH, '/'), '/'));
+        if (substr($path, 0, strlen($root)) != $root)
+            return;
+        if (($current = current($this->db->query('SELECT Image FROM '.CATEGORIES_TABLE .' WHERE ID = ?', array($itemID))->row_array())) && $current != '')
+            @unlink ($root.'/'.$current);
+        
+        $this->db->query('UPDATE '.CATEGORIES_TABLE.' SET Image = ? WHERE ID = ?', array(ltrim(str_replace($root, '', $path, $count = 1), '/'), $itemID));
     }
     
     /**

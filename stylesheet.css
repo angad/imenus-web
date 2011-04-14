@@ -167,7 +167,7 @@ h4{
 	box-shadow: 1px 1px 5px #888888 inset;
 }
 
-#fileupload input
+.fileupload input
 {
 	border:0px;
 	font-size:150%;
