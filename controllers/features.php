@@ -7,27 +7,64 @@ class Features extends CI_Controller{
 		parent::__construct();
 		$this->load->helper('form');
 		$this->load->helper('url');
+		$this->load->model('features_model');
+		$this->load->model('user_model');
 	}
 	
+	function checkAccess()
+	{
+		$menu_id = $this->user_model->getMenuId();
+		if(!$menu_id)
+		{
+			$this->load->view('login_form');
+			return False;
+		}
+		return $menu_id;
+	}
 	
 	public function index()
 	{
+		$menu_id = $this->checkAccess();
+		
+		$features = $this->features_model->getFeaturesFromMenu($menu_id);
+		$i=0;
+		$data = NULL;
+		foreach($features as $feature)
+		{
+			$data['features'][$i]['Name'] = $feature['Name'];
+			$data['features'][$i]['Type'] = $feature['Type'];
+			$data['features'][$i]['MaxValue'] = $feature['MaxValue'];
+			$data['features'][$i]['Icon'] = $feature['Icon'];
+			$data['features'][$i]['Value'] = $feature['StringValues'];
+			$i++;
+		}
+		
+		$this->load->view('sidebar', array('title' => "Item Features"));
+		$this->load->view('features_view', $data);
+		$this->load->view('footer');
+	}
+	
+	public function addFeature()
+	{
+		$menu_id = $this->checkAccess();
 		$this->load->view('sidebar', array('title' => "Add Item Feature"));
 		$this->load->view('features_edit', array('error'=>''));
 		$this->load->view('footer');
 	}
 	
+	public function editFeature($id)
+	{
+		$menu_id = $this->checkAccess();
+		
+		$feature = $this->features_model->getFeatureById($id);
+		$this->load->view('sidebar', array('title'=>"Edit Item Feature"));
+		$this->load->view('features_edit', array('error'=>'', 'feature'=>$feature));
+		$this->load->view('footer');
+	}
+
 	public function newFeature()
 	{
-		$this->load->model('user_model');
-		$menu_id = $this->user_model->getMenuId();
-
-		//if session does not exist, load the login form
-		if(!$menu_id)
-		{
-			$this->load->view('login_form');
-			return;
-		}
+		$menu_id = $this->checkAccess();
 		
 		$data['MenuId'] = $menu_id;
 		
@@ -44,22 +81,21 @@ class Features extends CI_Controller{
 		$count = $this->input->post('count');
 		$data['StringValues'] = "";
 		$data['Type'] = $this->input->post('rad');
+		$data['Icon'] = $this->input->post('icon');
 	
 		for($i=1; $i<=$count; $i++)
 		{
+			if(strstr($this->input->post('option'. $i), ';'))
+			{
+				$error = "Options cannot contain anything apart from alphabets or numbers.";
+				$this->load->view('sidebar', array('title' => "Add Item Feature"));
+				$this->load->view('features_edit', array('error'=>$error));
+				$this->load->view('footer');
+				return;
+			}
 			$data['StringValues'] = $data['StringValues']  . $this->input->post('option' . $i) . ';';
 		}
-		
-		if(strstr($data['StringValues'], ';'))
-		{
-			$error = "Options cannot contain anything apart from alphabets or numbers.";
-			$this->load->view('sidebar', array('title' => "Add Item Feature"));
-			$this->load->view('features_edit', array('error'=>$error));
-			$this->load->view('footer');
-			return;
-		}
-		
-		
+	
 		if ($this->form_validation->run() == FALSE)
 		{
 			$error = '';
@@ -72,8 +108,8 @@ class Features extends CI_Controller{
 		{
 			//Call the model
 			$this->features_model->newFeature($data);
-			
-			echo "Load the features list ehre now";
+			$data = NULL;
+			echo "Load the features list here now";
 		}
 	}
 }

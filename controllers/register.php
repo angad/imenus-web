@@ -44,13 +44,11 @@ class Register extends CI_Controller{
 			$config['upload_path'] = './uploads/logos/';
 			$config['allowed_types'] = 'gif|jpg|png';
 			$config['max_size']	= '1024';	//Max 1MB
-			$config['max_width']  = '1024';
-			$config['max_height']  = '768';
+			$config['max_width']  = '300';
+			$config['max_height']  = '300';
 
 			$this->load->library('upload', $config);
-			
-			$file_data = $this->upload->data();
-			$path = $file_data['full_path'];
+		
 			
 			//Getting Input post data
 			$data['Name'] = $this->input->post('name');
@@ -59,7 +57,6 @@ class Register extends CI_Controller{
 			$data['ContactNumber'] = $this->input->post('contact_number');
 			$data['Address'] = $this->input->post('address');
 			$data['Email'] = $this->input->post('email');
-			$data['Logo'] = $path;
 			$data['Password'] = md5($this->input->post('password'));
 			
 			
@@ -104,7 +101,14 @@ class Register extends CI_Controller{
 				$this->load->view('register_form', $error);
 			}
 			else
-			{				
+			{	
+				$file_data = $this->upload->data();
+				$full_path = $file_data['full_path'];
+		   		$file_path = $file_data['file_path'];
+		   		$orig_name = $file_data['orig_name'];
+				$path = substr($file_path . $orig_name, 9);
+				$data['Logo'] = $path;
+							
 				//Call the model
 				$this->organization->newOrganization($data);
 				//Load the login screen

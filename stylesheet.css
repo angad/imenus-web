@@ -5,6 +5,7 @@
 body{
 	width:1024px;
 	margin:0 auto;
+		background-image:url('imenu.jpg');
 }
 
 #sidebar

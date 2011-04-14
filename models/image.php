@@ -21,7 +21,7 @@ class Image extends CI_Model{
 	{
 		$config['image_library'] = 'gd2';
 		$config['source_image']	= $file_path . $raw_name . $file_ext;
-		$config['maintain_ratio'] = TRUE;
+		$config['maintain_ratio'] = FALSE;
 		$config['width'] = 200;
 		$config['height'] = 150;
 		$config['new_image'] = $file_path . $raw_name . '_small' . $file_ext;
@@ -39,7 +39,7 @@ class Image extends CI_Model{
 		$config['source_image']	= $file_path . $raw_name . $file_ext;
 		$config['maintain_ratio'] = TRUE;
 		$config['width'] = 800;
-		$config['height'] = 600;
+			$config['height'] = 600;
 		$config['new_image'] = $file_path . $raw_name . '_medium' . $file_ext;
 		
 		$this->image_lib->clear();
@@ -53,16 +53,16 @@ class Image extends CI_Model{
 	{
 		$config['image_library'] = 'gd2';
 		$config['source_image']	= $file_path . $raw_name . $file_ext;
-		$config['maintain_ratio'] = TRUE;
-		$config['width'] = 1024;
-		$config['height'] = 768;
+		$config['maintain_ratio'] = FALSE;
+		$config['width'] = 500;
+		$config['height'] = 375;
 		$config['new_image'] = $file_path . $raw_name . '_large' . $file_ext;
 
 		$this->image_lib->clear();
 		$this->image_lib->initialize($config);
 		
 		$this->image_lib->resize();
-		return $config['new_image'];
+			return $config['new_image'];
 	}
 }
 

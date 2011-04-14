@@ -151,8 +151,8 @@ class Items extends CI_Controller {
 		$config['upload_path'] = BASEPATH.'../uploads/raw/';
 		$config['allowed_types'] = 'gif|jpg|png';
 		$config['max_size']	= '1024';	//Max 1MB
-		$config['max_width']  = '1024';
-		$config['max_height']  = '768';
+		$config['max_width']  = '500';
+		$config['max_height']  = '375';
 
 		$this->load->library('upload', $config);
         $this->load->model('image');
@@ -162,7 +162,20 @@ class Items extends CI_Controller {
     		$file_data = $this->upload->data();
 			$this->image_resize($file_data);
         }
-        
+
+		if ($this->upload->do_upload(ITEM_IMAGE_SMALL))
+		{
+			$file_data = $this->upload->data();
+    		
+    		$full_path = $file_data['full_path'];
+	   		$file_path = $file_data['file_path'];
+	   		$raw_name = $file_data['raw_name'];
+	   		$file_ext = $file_data['file_ext'];
+	
+			$path_small = $this->image->small($file_path, $raw_name, $file_ext);
+			$this->Items_model->updateItemImage($itemID, ITEM_IMAGE_SMALL, $path_small);
+        }
+		
         redirect ('items/view/'.$catID);
     }
     
@@ -230,7 +243,9 @@ class Items extends CI_Controller {
         
         $output .= text_item('price', 'Price', isset($item['Price']) ? $item['Price'] : '', TRUE, $readonly, '$ ');
         
-        $output .= '<div id = "fileupload" class="form-item"><label for="edit-imageLarge">Image:</label>'.($readonly ? '' : form_upload('imageLarge', '', 'id="edit-imageLarge"')).(!empty($item['ImageLarge']) ? img(array('src' => $item['ImageLarge'], 'class' => 'zooming')) : '').'</div>';
+		$output .= '<div id = "fileupload" class="form-item"><label for="edit-imageSmall">Small Image(Max 200x150):</label>'.($readonly ? '' : form_upload('imageSmall', '', 'id="edit-imageSmall"')).(!empty($item['ImageSmall']) ? img(array('src' => $item['ImageSmall'], 'class' => 'zooming')) : '').'</div>';
+
+        $output .= '<div id = "fileupload" class="form-item"><label for="edit-imageLarge">Large Image(Max 500x375):</label>'.($readonly ? '' : form_upload('imageLarge', '', 'id="edit-imageLarge"')).(!empty($item['ImageLarge']) ? img(array('src' => $item['ImageLarge'], 'class' => 'zooming')) : '').'</div>';
     
         $seljs = '[]';
         if (isset($itemType) && $itemType == ITEMS_TYPE_MEAL) {

@@ -71,38 +71,55 @@
 		count.setAttribute("value", i);
 	}
 	
+	function selectIcon(t)
+	{
+		var elem = document.getElementById("icon"+t);
+		elem.style.borderColor = "#F05B16";
+		elem.style.borderWidth = "thick";
+		
+		var iconelem = document.getElementById("icon");
+		iconelem.value = t;
+	}
+	
 </script>
 
 <div id = "contentarea">
 
-    <h2 class = "title">Add/Edit an Item Option</h2>
+    <h2 class = "title">Item Feature</h2>
     
     <?php echo validation_errors(); ?>
 	<?php echo $error ?>
-    <?php echo form_open_multipart('features/newfeature'); ?>		
+    <?php echo form_open_multipart('features/newfeature'); ?>
 
-        <p><h4>Name</h4> <input type = "text" name = "name" value = "<?php echo set_value('name'); ?>" size = "50" /></p>
+        <p><h4>Name</h4> <input type = "text" name = "name" value = "<?php if(isset($feature)) echo $feature['Name']; else echo set_value('name'); ?>" size = "50" /></p>
 		
         <p><h4>Type</h4>
-			<p><input onclick = "numeric()" type="radio" name="rad" value="0" style ="width:20px;"/>Numeric<br/></p>
-			<p><input onclick = "options()" type="radio" name="rad" value="1" style ="width:20px;"/>Options</p>
+			<p><input onclick = "numeric()" type="radio" name="rad" value="<?php if(isset($feature)) echo $feature['Type']; ?>" style ="width:20px;"/>Numeric<br/></p>
+			<p><input onclick = "options()" type="radio" name="rad" value="<?php if(isset($feature)) echo $feature['Type']; ?>" style ="width:20px;"/>Options</p>
 		</p>
 		
 		<div id = "numeric">
 		<p>
-			<h4>MaxValue</h4><input type = "text" name = "maxvalue"/>
+			<h4>MaxValue</h4><input type = "text" name = "maxvalue" value = "<?php if(isset($feature)) echo $feature['MaxValue']; ?>"/>
 		</p>
 		</div>
 		<div id = "options">
 		<p>
 			<a href = "javascript:addTextBox()">+</a><br/><br/>
-			<input type = "text" name = "option1" size = "50"/>
+			<input type = "text" name = "option1" size = "50" value = "<?php if(isset($feature)) echo $feature['Type']; ?>"/>
 		</p>
 		</div>
 		
 		<input type = "hidden" id = "count" name = "count" value = "0"/>
 		
-		<h4>Choose Icon</h4> Show Icons here
+		<h4>Choose Icon</h4>
+		<div id = "icons" style = "#image {border-color:#f05b16; border-width:0px}">
+			<a href = "javascript:selectIcon(1)"><image id = "icon1" src = "http://imenus.tk/images/1.gif" width = "32px" height = "32px"/></a>
+			<a href = "javascript:selectIcon(2)"><image id = "icon2" src = "http://imenus.tk/images/2.gif" width = "32px" height = "32px"/></a>
+			<a href = "javascript:selectIcon(3)"><image id = "icon3" src = "http://imenus.tk/images/3.gif" width = "32px" height = "32px"/></a>
+		</div>
+
+		<input type = "hidden" id = "icon" name = "icon" value = "1"/>
 		
 		<p><input type = "submit" value = "Submit" /></p>
 		</form>

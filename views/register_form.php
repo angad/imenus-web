@@ -51,7 +51,7 @@ if ( ! defined('BASEPATH')) exit ('No direct script access allowed');
 		
 		<h4>Upload Logo</h4> <br/>
 		GIF, PNG or JPEG only <br />
-        Maximum Size: 1024 x 768 <br />
+        Maximum Size: 300 x 300 <br />
 		<input type="file" style = "-moz-box-shadow: 0px 0px 0px #888888 inset; 
 		-webkit-box-shadow: 0px 0px 0px #888888 inset;
 		box-shadow: 0px 0px 0px #888888 inset; font-size:12px" name="logo" size="20" />

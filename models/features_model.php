@@ -6,6 +6,8 @@ class Features_model extends CI_Model
 	{
 		parent::__construct();
 		$this->load->database();
+		$this->load->helper('globals');
+		
 	}
 	
 	public function newFeature($data)
