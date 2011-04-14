@@ -21,7 +21,7 @@ class Orders_model extends CI_Model{
 	function getOrderItem($orderId)
 	{
 		$query = $this->db->query('SELECT * FROM OrderItem WHERE OrderId=? AND Started = ?', array($orderId, 0));
-		$order = $query->row_array();
+		$order = $query->result_array();
 		return $order;
 	}
 	
