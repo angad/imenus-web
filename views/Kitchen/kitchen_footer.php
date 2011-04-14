@@ -1,3 +1,5 @@
+<?php echo $tab; ?>
+
 </div>
 </div>
 
