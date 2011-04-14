@@ -256,14 +256,14 @@ class Categories_model extends CI_Model {
      * @param	int     Category ID
      * @param   string  Path
      */
-    function updateItemImage($catID, $path) {
+    function updateCategoryImage($catID, $path) {
         $root = substr(BASEPATH, 0, strrpos(rtrim(BASEPATH, '/'), '/'));
         if (substr($path, 0, strlen($root)) != $root)
             return;
-        if (($current = current($this->db->query('SELECT Image FROM '.CATEGORIES_TABLE .' WHERE ID = ?', array($itemID))->row_array())) && $current != '')
+        if (($current = current($this->db->query('SELECT Image FROM '.CATEGORIES_TABLE .' WHERE ID = ?', array($catID))->row_array())) && $current != '')
             @unlink ($root.'/'.$current);
         
-        $this->db->query('UPDATE '.CATEGORIES_TABLE.' SET Image = ? WHERE ID = ?', array(ltrim(str_replace($root, '', $path, $count = 1), '/'), $itemID));
+        $this->db->query('UPDATE '.CATEGORIES_TABLE.' SET Image = ? WHERE ID = ?', array(ltrim(str_replace($root, '', $path, $count = 1), '/'), $catID));
     }
     
     /**

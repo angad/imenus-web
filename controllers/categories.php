@@ -59,13 +59,13 @@ define('CATDELPROMPTS', 'Are you sure you want to delete this category? If you d
         $this->table->set_heading('Category', 'Sub-Categories', 'Items', 'Delete');
         
         foreach ($this->Categories_model->getAll($menuID, TRUE, $parentID) as $cat) {
-            if ($cat['ItemCount'] != 0)
+            if ($cat['ItemCount'] + $cat['MealCount'] != 0)
                 $prompt = sprintf(CATDELPROMPTI, $cat['ItemCount'], $cat['MealCount']);
             else if ($cat['SubcatCount'] != 0)
                 $prompt = sprintf(CATDELPROMPTS, $cat['SubcatCount']);
             else
                 $prompt = CATDELPROMPT;
-            $this->table->add_row(anchor('categories/edit/'.$cat['ID'], $cat['Name']), $cat['ItemCount'] ? '' : anchor('categories/index/'.$cat['ID'], 'View Sub-Categories'), $cat['SubcatCount'] ? '' : anchor('items/view/'.$cat['ID'], 'View Items'), anchor('categories/delete/'.$cat['ID'], 'Delete Category', array('class' => 'modalconfirm', 'data-modaltext' => $prompt)));
+            $this->table->add_row(anchor('categories/edit/'.$cat['ID'], $cat['Name']), $cat['ItemCount'] + $cat['MealCount'] ? '' : anchor('categories/index/'.$cat['ID'], 'View Sub-Categories'), $cat['SubcatCount'] ? '' : anchor('items/view/'.$cat['ID'], 'View Items'), anchor('categories/delete/'.$cat['ID'], 'Delete Category', array('class' => 'modalconfirm', 'data-modaltext' => $prompt)));
         }
         $data = array('title' => 'Categories', 'content' => $note.$this->table->generate(), 'include_scripts' => array(site_url('../scripts/jquery.tablednd_0_5.js'), site_url('../scripts/reorder.js')));
         $data['document_ready'] = 'handleReOrder("order", "'.site_url('categories/reorder/'.$parentID).'");';
@@ -197,15 +197,11 @@ define('CATDELPROMPTS', 'Are you sure you want to delete this category? If you d
 		$this->load->library('upload', $config);
         $this->load->model('image');
         
-        
-        
 		if ($this->upload->do_upload('catImage'))
 		{
             $file_data = $this->upload->data();
             
-            print_r($file_data);
-    		
-    		$full_path = $file_data['full_path'];
+            $full_path = $file_data['full_path'];
 	   		$file_path = $file_data['file_path'];
 	   		$raw_name = $file_data['raw_name'];
 	   		$file_ext = $file_data['file_ext'];

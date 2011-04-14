@@ -126,7 +126,8 @@ class Items extends CI_Controller {
         
         if (isset($itemID)) {
             $item = $this->Items_model->getItem($itemID);
-            $catID = $item['CategoryID']; 
+            $catID = $item['CategoryID'];
+            $itemType = $item['Type']; 
         }
         
         $this->_checkAccess($catID);
