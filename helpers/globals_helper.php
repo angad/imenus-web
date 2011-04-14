@@ -15,8 +15,9 @@ define('ITEMFEATURES_TABLE', '`ItemFeatures`');
 define('FEATURES_TABLE', '`Feature`');
 define('ORDERS_TABLE', '`Order`');
 define('ORDERITEMS_TABLE', '`OrderItem`');
+define('ORDERITEMFEATURES_TABLE', '`OrderItemFeatures`');
 
-define('ITEM_FIELDS', 'ID, CategoryID, Name, ShortDescription, LongDescription, Price, Type, ImageSmall, ImageMedium, ImageLarge');
+define('ITEM_FIELDS', 'ID, CategoryID, Name, ShortDescription, LongDescription, Price, Duration, Type, ImageSmall, ImageMedium, ImageLarge');
 define('FEATURE_FIELDS', 'ID, Name, Type, MenuID, MaxValue, Icon, StringValues, Fixed');
 
 define('ITEMS_TYPE_ITEM', 0);

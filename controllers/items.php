@@ -48,17 +48,18 @@ class Items extends CI_Controller {
         $parentCat = $cat['parentID'];
         
         $note = '<h3 class="note">You may sort the Items and Set Meals by dragging them around.</h3>';
-        $note .= anchor('items/additem/'.$catID.'/'.ITEMS_TYPE_ITEM, 'Add Item').' '.anchor('items/additem/'.$catID.'/'.ITEMS_TYPE_MEAL, 'Add Meal');
+        $note .= anchor('items/additem/'.$catID.'/'.ITEMS_TYPE_ITEM, 'Add Item').' / '.anchor('items/additem/'.$catID.'/'.ITEMS_TYPE_MEAL, 'Add Meal');
         
         $this->table->set_template(array('table_open' => '<table id="order" border="0" cellpadding="4" cellspacing="0">'));
-        $this->table->set_heading('Pic', 'Name', 'Price', 'Edit', 'Delete');
+        // $this->table->set_heading('Pic', 'Name', 'Price', 'Edit', 'Delete');
+        $this->table->set_heading('Pic', 'Item', 'Price', 'Delete');
         
         foreach ($this->Items_model->getAll($catID) as $item) {
             $type = $item['Type'];
             $typeName = ($type == ITEMS_TYPE_MEAL ? 'Meal' : 'Item');
             $prompt = ($type == ITEMS_TYPE_MEAL ? 'Are you sure you want to delete this Set Meal? Don\'t worry, it will not delete the items.' :
                                                     'Are you sure you want to delete this Item? It\'ll be removed from any Set Meals that include it.');
-            $this->table->add_row($item['ImageSmall'] != '' ? img($item['ImageSmall']) : '', anchor('items/viewitem/'.$item['ID'], $item['Name']), $item['Price'], anchor('items/edititem/'.$item['ID'], 'Edit '.$typeName), anchor('items/deleteitem/'.$item['ID'], 'Delete '.$typeName, array('class' => 'modalconfirm', 'data-modaltext' => $prompt)));
+            $this->table->add_row($item['ImageSmall'] != '' ? img($item['ImageSmall']) : '', anchor('items/edititem/'.$item['ID'], htmlspecialchars($item['Name'])), sprintf('$%01.2f', $item['Price']), anchor('items/deleteitem/'.$item['ID'], 'Delete '.$typeName, array('class' => 'modalconfirm', 'data-modaltext' => $prompt)));
         }
         
         $data = array('title' => 'Items', 'content' => $note.$this->table->generate(), 'back' => 'categories/index/'.$parentCat, 'include_scripts' => array(site_url('../scripts/jquery.tablednd_0_5.js'), site_url('../scripts/reorder.js')));
@@ -103,6 +104,14 @@ class Items extends CI_Controller {
         $this->_details($itemID, TRUE);
     }
     
+    public function time_check($str) {
+        if (strtotime($str, 0) === FALSE) {
+            $this->form_validation->set_message('time_check', 'The %s field is not a valid time');
+            return FALSE;
+        }
+        return TRUE;
+    }
+    
     /**
      * Cat Form Generator
      *
@@ -127,6 +136,8 @@ class Items extends CI_Controller {
         $this->form_validation->set_rules('catID', 'Category', 'required')->set_rules('name', 'Name', 'required')->set_rules('longdesc', 'Long Description', 'required')->set_rules('price', 'Price', 'required|numeric');
         if ($itemType == ITEMS_TYPE_MEAL)
             $this->form_validation->set_rules('items[]', 'Meal Items', 'required');
+        else
+            $this->form_validation->set_rules('dur', 'Preparation Time', 'callback_time_check');
         
         if (!$this->form_validation->run())
             if ($insert)
@@ -136,11 +147,11 @@ class Items extends CI_Controller {
         
         
         if ($insert) {
-            $itemID = $this->Items_model->addItem($catID, $this->input->post('name'), $this->input->post('longdesc'), $this->input->post('shortdesc'), $this->input->post('price'), isset($_POST['items']) ? ITEMS_TYPE_MEAL : ITEMS_TYPE_ITEM, '', '', '', $this->input->post('items'), $this->input->post('features'));
+            $itemID = $this->Items_model->addItem($catID, $this->input->post('name'), $this->input->post('longdesc'), $this->input->post('shortdesc'), $this->input->post('price'), strtotime($this->input->post('dur'), 0), isset($_POST['items']) ? ITEMS_TYPE_MEAL : ITEMS_TYPE_ITEM, '', '', '', $this->input->post('items'), $this->input->post('features'));
             
         } else {
             $catID = $this->input->post('catID');
-            $this->Items_model->updateItem($itemID, $catID, $this->input->post('name'), $this->input->post('longdesc'), $this->input->post('shortdesc'), $this->input->post('price'), isset($_POST['items']) ? ITEMS_TYPE_MEAL : ITEMS_TYPE_ITEM, NULL, NULL, NULL, $this->input->post('items'), $this->input->post('features'));
+            $this->Items_model->updateItem($itemID, $catID, $this->input->post('name'), $this->input->post('longdesc'), $this->input->post('shortdesc'), $this->input->post('price'), strtotime($this->input->post('dur'), 0), isset($_POST['items']) ? ITEMS_TYPE_MEAL : ITEMS_TYPE_ITEM, NULL, NULL, NULL, $this->input->post('items'), $this->input->post('features'));
         }   
         
         $n = rand(10e16, 10e20);
@@ -220,6 +231,8 @@ class Items extends CI_Controller {
         
         $this->_checkAccess($catID);
         
+        $data['document_ready'] = '';
+        
         $output = '';
 
         
@@ -242,6 +255,13 @@ class Items extends CI_Controller {
         $output .= textarea_item('longdesc', 'Long Description', isset($item['LongDescription']) ? $item['LongDescription'] : '', TRUE, $readonly);
         
         $output .= text_item('price', 'Price', isset($item['Price']) ? $item['Price'] : '', TRUE, $readonly, '$ ');
+        
+        if (!isset($itemType) || $itemType == ITEMS_TYPE_ITEM) {
+            $output .= text_item('dur', 'Preparation Time', isset($item['Duration']) ? date('H:i:s', $item['Duration']) : '00:00:00', true, $readonly);
+            $data['include_scripts'][] = site_url('../scripts/anytimec.js');
+            $data['include_css'][] = site_url('../anytimec.css');
+            $data['document_ready'] .= 'AnyTime.picker("edit-dur", { format: "%H:%i:%s" });';
+        }
         
 		$output .= '<div id = "fileupload" class="form-item"><label for="edit-imageSmall">Small Image(Max 200x150):</label>'.($readonly ? '' : form_upload('imageSmall', '', 'id="edit-imageSmall"')).(!empty($item['ImageSmall']) ? img(array('src' => $item['ImageSmall'], 'class' => 'zooming')) : '').'</div>';
 
@@ -284,9 +304,9 @@ class Items extends CI_Controller {
             
         $output .= form_close();
      
-        $data = array('title' => $mode.' Item', 'content' => $output, 'back' => 'items/view/'.$catID);
-        
-        $data['document_ready'] = '';
+        $data['title'] = $mode.' Item';
+        $data['content'] = $output;
+        $data['back'] = 'items/view/'.$catID;
         
         if (!empty($allFeatures)) {
             $data['include_scripts'][] = site_url('../scripts/features.js');

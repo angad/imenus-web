@@ -30,10 +30,10 @@ class POS extends CI_Controller {
         $active = $this->POS_model->getActiveOrders($orgID);
         $this->load->library('table');
         
-        $this->table->set_heading('Table', 'Items Ordered', 'Total Payable', 'Orders');
+        $this->table->set_heading('Table', 'Items Ordered', 'Total Payable', 'Orders', 'Bill');
         
         foreach ($active as $order) {
-            $this->table->add_row($order['TableNumber'], $order['ItemsOrdered'], sprintf('$%01.2f', $order['TotalBill']), anchor('POS/view/'.$order['ID'], 'View Orders'));
+            $this->table->add_row($order['TableNumber'], $order['ItemsOrdered'], sprintf('$%01.2f', $order['TotalBill']), anchor('POS/view/'.$order['ID'], 'View Orders'), anchor('POS/bill/'.$order['ID'], 'Bill'));
         }
         $output = '<h4 class="updated">Updated: '.$updated."</h4>\n".$this->table->generate();
         
@@ -135,6 +135,7 @@ class POS extends CI_Controller {
         $this->load->model('Organization');
         $orgData = $this->Organization->getOrganizationData($orgID);
         
+        $data['OrderID'] = $orderID;
         $data['Time'] = date('d M Y, h:i:s A T');
         $data['Name'] = $orgData['Name'];
         $data['Address'] = $orgData['Address'];
@@ -150,4 +151,16 @@ class POS extends CI_Controller {
         $this->load->view('footer');
     }
     
+    function clear($orderID = NULL) {
+        if (!is_numeric($orderID))
+            show_404();
+        
+        $this->load->model('Kitchen/Orders_model');
+        
+        $det = $this->Orders_model->getOrderDetails($orderID);
+        if ($det['OrganizationID'] != ($orgID = $this->User_model->getOrgID()))
+            show_error(ACCESS_DENIED_MSG, 403, ACCESS_DENIED);
+        
+        $this->POS_model->removeOrder($orderID);
+    }
 }

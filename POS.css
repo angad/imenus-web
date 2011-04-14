@@ -34,6 +34,9 @@
     body {
         visibility: hidden;
     }
+    #print {
+        display: none;
+    }
     #contentarea {
         position: absolute;
         visibility: visible;

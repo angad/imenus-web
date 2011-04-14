@@ -55,16 +55,18 @@ define('CATDELPROMPTS', 'Are you sure you want to delete this category? If you d
             $note .= anchor('categories/add/'.$parentID, 'Add Sub-Category');
         
         $this->table->set_template(array('table_open' => '<table id="order" border="0" cellpadding="4" cellspacing="0">'));
-        $this->table->set_heading('Category', 'Edit', 'Sub-Categories', 'Items', 'Delete');
+        // $this->table->set_heading('Category', 'Edit', 'Sub-Categories', 'Items', 'Delete');
+        $this->table->set_heading('Category', 'Sub-Categories', 'Items', 'Delete');
         
         foreach ($this->Categories_model->getAll($menuID, TRUE, $parentID) as $cat) {
-            if ($cat['ItemCount'] != 0)
+            if ($cat['ItemCount'] + $cat['MealCount'] != 0)
                 $prompt = sprintf(CATDELPROMPTI, $cat['ItemCount'], $cat['MealCount']);
             else if ($cat['SubcatCount'] != 0)
                 $prompt = sprintf(CATDELPROMPTS, $cat['SubcatCount']);
             else
                 $prompt = CATDELPROMPT;
-            $this->table->add_row(anchor('categories/view/'.$cat['ID'], $cat['Name']), anchor('categories/edit/'.$cat['ID'], 'Edit Category'), $cat['ItemCount'] ? '' : anchor('categories/index/'.$cat['ID'], 'View Sub-Categories'), $cat['SubcatCount'] ? '' : anchor('items/view/'.$cat['ID'], 'View Items'), anchor('categories/delete/'.$cat['ID'], 'Delete Category', array('class' => 'modalconfirm', 'data-modaltext' => $prompt)));
+            // $this->table->add_row(anchor('categories/view/'.$cat['ID'], $cat['Name']), anchor('categories/edit/'.$cat['ID'], 'Edit Category'), $cat['ItemCount'] + $cat['MealCount'] ? '' : anchor('categories/index/'.$cat['ID'], 'View Sub-Categories'), $cat['SubcatCount'] ? '' : anchor('items/view/'.$cat['ID'], 'View Items'), anchor('categories/delete/'.$cat['ID'], 'Delete Category', array('class' => 'modalconfirm', 'data-modaltext' => $prompt)));
+            $this->table->add_row(anchor('categories/edit/'.$cat['ID'], $cat['Name']), $cat['ItemCount'] + $cat['MealCount'] ? '' : anchor('categories/index/'.$cat['ID'], 'View Sub-Categories'), $cat['SubcatCount'] ? '' : anchor('items/view/'.$cat['ID'], 'View Items'), anchor('categories/delete/'.$cat['ID'], 'Delete Category', array('class' => 'modalconfirm', 'data-modaltext' => $prompt)));
         }
         $data = array('title' => 'Categories', 'content' => $note.$this->table->generate(), 'include_scripts' => array(site_url('../scripts/jquery.tablednd_0_5.js'), site_url('../scripts/reorder.js')));
         $data['document_ready'] = 'handleReOrder("order", "'.site_url('categories/reorder/'.$parentID).'");';

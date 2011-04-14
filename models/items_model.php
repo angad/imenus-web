@@ -72,13 +72,13 @@ class Items_model extends CI_Model {
      * @param   array   Meal Items
      * @return	int
      */
-    function addItem($catID, $name, $description, $shortDesc = '', $price = 0, $type = ITEMS_TYPE_ITEM, $imageSmall = '', $imageMed = '', $imageLarge = '', $mealItems = NULL, $features = NULL) {
-        $this->db->query('INSERT INTO '.ITEMS_TABLE.'(CategoryID, Name, LongDescription, ShortDescription, Price, Type, ImageSmall, ImageMedium, ImageLarge, SortOrder) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                        array($catID, $name, $description, $shortDesc, $price, $type, $imageSmall, $imageMed, $imageLarge,
+    function addItem($catID, $name, $description, $shortDesc = '', $price = 0, $duration = 0, $type = ITEMS_TYPE_ITEM, $imageSmall = '', $imageMed = '', $imageLarge = '', $mealItems = NULL, $features = NULL) {
+        $this->db->query('INSERT INTO '.ITEMS_TABLE.'(CategoryID, Name, LongDescription, ShortDescription, Price, Duration, Type, ImageSmall, ImageMedium, ImageLarge, SortOrder) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                        array($catID, $name, $description, $shortDesc, $price, $duration, $type, $imageSmall, $imageMed, $imageLarge,
                         ($order = current($this->db->query('SELECT MAX(SortOrder) + 1 FROM '.ITEMS_TABLE.' WHERE CategoryID = ?', array($catID))->row_array())) ? $order : 0));
         $id = $this->db->insert_id();
         $this->setMealItems($id, $mealItems);
-        $this->setItemFeatures($itemID, $features);
+        $this->setItemFeatures($id, $features);
         return $id;
     }
     
@@ -112,8 +112,8 @@ class Items_model extends CI_Model {
      * @param   string  Large Image Path
      * @param   array   Meal Items
      */
-    function updateItem($itemID, $catID = NULL, $name = NULL, $description = NULL, $shortDesc = NULL, $price = NULL, $type = NULL, $imageSmall = NULL, $imageMed = NULL, $imageLarge = NULL, $mealItems = NULL, $features = NULL) {
-        $fields = array('CategoryID', 'Name', 'LongDescription', 'ShortDescription', 'Price', 'Type', 'ImageSmall', 'ImageMedium', 'ImageLarge');
+    function updateItem($itemID, $catID = NULL, $name = NULL, $description = NULL, $shortDesc = NULL, $price = NULL, $duration = NULL, $type = NULL, $imageSmall = NULL, $imageMed = NULL, $imageLarge = NULL, $mealItems = NULL, $features = NULL) {
+        $fields = array('CategoryID', 'Name', 'LongDescription', 'ShortDescription', 'Price', 'Duration', 'Type', 'ImageSmall', 'ImageMedium', 'ImageLarge');
         $args = func_get_args();
         $update = array();
         for ($i = 0; $i < count($fields); ++$i)

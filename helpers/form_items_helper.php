@@ -28,7 +28,7 @@ define('LEVELINDENT', 4);
  */
 function text_item($name, $label, $value, $required = FALSE, $readonly = FALSE, $fieldprefix = '', $extra = '') {
 return '<div class="form-item"><label for="edit-'.$name.'">'.htmlspecialchars($label).':'.($required ? ' <span class="form-required" title="This field is required">*</span>' : '').'</label>'.
-    $fieldprefix.form_input($name, $value, 'id="edit-'.$name.'"'.($readonly ? ' readonly="readonly"' : '').$extra).'</div>';
+    $fieldprefix.form_input($name, set_value($name, $value), 'id="edit-'.$name.'"'.($readonly ? ' readonly="readonly"' : '').$extra).'</div>';
 }
 
 /**
@@ -48,7 +48,7 @@ return '<div class="form-item"><label for="edit-'.$name.'">'.htmlspecialchars($l
  */
 function textarea_item($name, $label, $value, $required = FALSE, $readonly = FALSE, $fieldprefix = '', $extra = '') {
 return '<div class="form-item"><label for="edit-'.$name.'">'.htmlspecialchars($label).':'.($required ? ' <span class="form-required" title="This field is required">*</span>' : '').'</label>'.
-    $fieldprefix.form_textarea($name, $value, 'id="edit-'.$name.'"'.($readonly ? ' readonly="readonly"' : '').$extra).'</div>';
+    $fieldprefix.form_textarea($name, set_value($name, $value), 'id="edit-'.$name.'"'.($readonly ? ' readonly="readonly"' : '').$extra).'</div>';
 }
 
 /**
@@ -94,10 +94,10 @@ $output = '<div class="form-item"><label for="edit-'.$name.'">'.htmlspecialchars
         <select id="edit-'.$name.'" name="'.$name.'"'.(is_array($selected) ? ' multiple="multiple"' : '').($readonly ? ' disabled="disabled"' : '').$extra.'>';
 
 if ($allselectable)
-    $output .= '<option value="0">'.ROOT_CATEGORY.'</option>';
+    $output .= '<option value="0" '.set_select($name, 0).'>'.ROOT_CATEGORY.'</option>';
 
 foreach ($tree['Data'] as $ID => $subtree)
-    $output .= optgrouptree($ID, $subtree, $allselectable ? 1 : 0, $selected, isset($leaffilter) ? $leaffilter : NULL, $allselectable);
+    $output .= optgrouptree($name, $ID, $subtree, $allselectable ? 1 : 0, $selected, isset($leaffilter) ? $leaffilter : NULL, $allselectable);
     
 $output .= '</select></div>';
 return $output;
@@ -107,6 +107,7 @@ return $output;
  * Generates the optgroup /option tree structure
  *
  * @access	public
+ * @param   string  fieldName
  * @param	int     key
  * @param   array   tree
  * @param   int     level
@@ -114,21 +115,18 @@ return $output;
  * @param   int     (optional) leaffilter
  * @param   boolean (optional) allselectable
  */
-function optgrouptree($key, $tree, $level, $selected, $leaffilter = NULL, $allselectable = FALSE) {
+function optgrouptree($fieldName, $key, $tree, $level, $selected, $leaffilter = NULL, $allselectable = FALSE) {
     $output = '';
     if ($allselectable || !is_array($tree) || !isset($tree['Data'])) {
         if (!isset($leaffilter, $tree['Type']) || $leaffilter == $tree['Type']) {
-            $output .= '<option value="'.$key.'"';
-            if ($key == $selected || is_array($selected) && in_array($key, $selected))
-                $output .= ' selected="selected"';
-            $output .= '>'.str_repeat('&nbsp;', $level*LEVELINDENT).(is_array($tree) ? $tree['Name'] : $tree).'</option>'."\n";
+            $output .= '<option value="'.$key.'"'.set_select($fieldName, $key, ($key == $selected || is_array($selected) && in_array($key, $selected))).'>'.str_repeat('&nbsp;', $level*LEVELINDENT).(is_array($tree) ? htmlspecialchars($tree['Name']) : $tree).'</option>'."\n";
         }
     } 
     if (is_array($tree) && isset($tree['Data'])) {
         if (!$allselectable)
             $output .= '<optgroup label="'.str_repeat('&nbsp;', $level*LEVELINDENT).$tree['Name'].'">'."\n";
         foreach ($tree['Data'] as $ID => $subtree)
-            $output .=optgrouptree($ID, $subtree, $level + 1, $selected, $leaffilter);
+            $output .= optgrouptree($fieldName, $ID, $subtree, $level + 1, $selected, $leaffilter);
     }
     return $output;
 }

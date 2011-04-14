@@ -18,6 +18,7 @@ require_once 'sidebar.php';
 ?>
         <script src="http://code.jquery.com/jquery-1.5.2.min.js"></script>
         <script src="http://simplemodal.googlecode.com/files/jquery.simplemodal.1.4.1.min.js"></script>
+        <script src="<?php echo site_url('../scripts/modals.js');?>"></script>
         <?php
         if (isset($include_scripts) && is_array($include_scripts))
             foreach ($include_scripts as $script)
@@ -27,21 +28,6 @@ require_once 'sidebar.php';
             $(document).ready(function() {
                 <?php if (!empty($document_ready))
                     echo $document_ready;?>
-                $("a.modalconfirm").click(function(e) {
-                    e.preventDefault();
-                    $("#modalconfirm").attr('data-href', $(this).attr('href'));
-                    $("#modaltext").text($(this).attr('data-modaltext'));
-                    $("#modalprompt").modal({
-                        overlayClose: true
-                    });
-                });
-                $("#modalconfirm").click(function() {
-                    $.modal.close();
-                    window.location.href = $(this).attr('data-href');
-                })
-                $("img.zooming").click(function() {
-                    $.modal("<img src='" + $(this).attr('src') + "'>", {overlayClose : true, overlayCss: {backgroundColor:"black"}});
-                })
             });
         </script>
         

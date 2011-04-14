@@ -46,7 +46,7 @@ class POS_model extends CI_Model {
                        '.ITEMS_TABLE.' MEALITEM ON IP.ItemID = MEALITEM.ID
              ) I ON OI.ItemID = I.ID
          )
-         LEFT JOIN (
+         INNER JOIN (
              '.ORDERS_TABLE.' O2
              INNER JOIN '.ORDERITEMS_TABLE.' OI2 ON O2.ID = OI2.OrderID
              INNER JOIN (
@@ -68,6 +68,6 @@ class POS_model extends CI_Model {
     } 
     
     function removeOrder($orderID) {
-        $this->db->query('DELETE O, OI FROM '.ORDERS_TABLE.' O INNER JOIN '.ORDERITEMS_TABLE.' OI ON O.ID = OI.OrderID AND O.ID = ?', array($orderID));
+        $this->db->query('DELETE O, OI, OIF FROM '.ORDERS_TABLE.' O LEFT JOIN '.ORDERITEMS_TABLE.' OI ON O.ID = OI.OrderID LEFT JOIN '.ORDERITEMFEATURES_TABLE.' OIF ON OI.ID = OIF.OrderItemID WHERE O.ID = ?', array($orderID));
     }
 }

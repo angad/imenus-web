@@ -30,25 +30,28 @@ if ( ! defined('BASEPATH')) exit ('No direct script access allowed');
 
 
 <div id = "sidebar">
-	<div id = "sidebaritem">
+	<div class="sidebaritem">
 		<a href = "<?php echo site_url('designer/selectTheme');?>">Themes</a><br/>
 	</div>
-	<div id = "sidebaritem">
+	<div class="sidebaritem">
 		<a href = "<?php echo site_url('categories');?>">Categories</a><br/>
 	</div>
-	<div id = "sidebaritem">
+	<div class="sidebaritem">
 		<a href = "<?php echo site_url('features');?>">Item Features</a><br/>
 	</div>
-	<div id = "sidebaritem">
+	<div class="sidebaritem">
 		<a href = "<?php echo site_url('user/invitekey');?>">User Account</a><br/>
 	</div>
-	<div id = "sidebaritem">
+	<div class="sidebaritem">
 		<a href = "<?php echo site_url('Kitchen/orders');?>">Orders</a><br/>
 	</div>
-	<div id = "sidebaritem">
+	<div class="sidebaritem">
+		<a href = "<?php echo site_url('POS');?>">POS</a><br/>
+	</div>
+	<div class="sidebaritem">
 		<a href = "<?php echo site_url('Kitchen/waiter');?>">Waiter Call</a><br/>
 	</div>
-	<div id = "sidebaritem">
+	<div class="sidebaritem">
 		<a href = "<?php echo site_url('user/logout');?>">Logout</a><br/>
 	</div>
 </div>

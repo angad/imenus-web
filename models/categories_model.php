@@ -229,7 +229,7 @@ class Categories_model extends CI_Model {
      */
     function add($menuID, $name, $parentID) {
         $this->db->query('INSERT INTO '.CATEGORIES_TABLE.'(Name, menuID, parentID, SortOrder) VALUES (?, ?, ?, ?)', array($name, $menuID, $parentID,
-                            ($order = current($this->db->query('SELECT MAX(SortOrder) + 1 FROM '.CATEGORIES_TABLE.' WHERE parentID = ?', array($parentID))->row_array()) ? $order : 0)));
+                            ($order = current($this->db->query('SELECT MAX(SortOrder) + 1 FROM '.CATEGORIES_TABLE.' WHERE parentID = ?', array($parentID))->row_array())) ? $order : 0));
         return $this->db->insert_id();
     }
     
