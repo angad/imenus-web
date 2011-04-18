@@ -48,6 +48,17 @@ class Waiter extends CI_Controller {
 		
 		$this->load->view('Kitchen/waiter_footer');
 	}
+    
+    /**
+     * Retrieves and Outputs Waiter Call count for active Organization
+     * Called from sidebar.php
+     */
+    public function getRequestCount() {
+        $this->load->helper('globals');
+        if (!isAJAX() || ($organization_id = $this->organization->getOrganization()) === FALSE)
+            return;
+        echo count($this->waiter_model->getWaiter($organization_id));
+    }
 	
 	public function getRequests()
 	{

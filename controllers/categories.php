@@ -118,6 +118,7 @@ define('CATDELPROMPTS', 'Are you sure you want to delete this category? If you d
      */
     private function _detail($catID, $readonly = FALSE, $parentID = NULL) {
         $this->load->model('User_model');
+        $this->load->model('TSV_model');
         $this->load->helper(array('url', 'form', 'html', 'form_items'));
         
         $mode = isset($parentID) ? 'Add' : ($readonly ? 'View' : 'Edit');
@@ -139,8 +140,14 @@ define('CATDELPROMPTS', 'Are you sure you want to delete this category? If you d
         
         $readonly_text = $readonly ? 'readonly="readonly"' : '';
         
-        $output .= tree_select_item('parentID', 'Parent Category', $this->Categories_model->getTreeFromMenu($this->User_model->getMenuId()), $parentID, TRUE, $readonly, TRUE);
+        $output .= tree_select_item('parentID', 'Parent Category', $this->Categories_model->getTreeFromMenu($menuID = $this->User_model->getMenuId()), $parentID, TRUE, $readonly, TRUE);
         $output .= text_item('name', 'Name', $name, TRUE, $readonly);
+        
+        $TVOptions = $this->TSV_model->getThemeValueOptions($menuID, TSV_TYPE_CATEGORY);
+        $TVDetails = $this->TSV_model->getThemeValueDetails($menuID, TSV_TYPE_CATEGORY);
+        if ($TVOptions)
+            $output .= select_item('TSV1', THEMEVALUE_LABEL_PREFIX.': '.$TVDetails['Label'], $TVOptions, isset($cat['TSV1']) ? $cat['TSV1'] : $TVDetails['Default'], TRUE, $readonly);
+        
         $output .= '<div class="fileupload form-item"><label for="edit-catImage">Category Icon (Recommended 200x150):</label>'.($readonly ? '' : form_upload('catImage', '', 'id="edit-catImage"')).(!empty($cat['Image']) ? img(array('src' => $cat['Image'], 'class' => 'zooming')) : '').'</div>';
         
         if (!$readonly)
@@ -166,6 +173,11 @@ define('CATDELPROMPTS', 'Are you sure you want to delete this category? If you d
         $this->load->library("form_validation");
         $this->form_validation->set_rules('name', 'Name', 'required');
         
+        if (isset($_POST['TSV1'])) {
+            $this->form_validation->set_rules('TSV1', THEMEVALUE_LABEL_PREFIX, 'required');
+            $TSV1 = $this->input->post('TSV1');
+        } else $TSV1 = NULL;
+        
         $insert = isset($parentID);
         
         if (!$this->form_validation->run())
@@ -179,9 +191,9 @@ define('CATDELPROMPTS', 'Are you sure you want to delete this category? If you d
         $parentID = $this->input->post('parentID');
         
         if ($insert)
-            $catID = $this->Categories_model->add($this->User_model->getMenuId(), $this->input->post('name'), $parentID);
+            $catID = $this->Categories_model->add($this->User_model->getMenuId(), $this->input->post('name'), $parentID, $TSV1);
         else
-            $this->Categories_model->update($catID, $this->input->post('name'), $parentID);
+            $this->Categories_model->update($catID, $this->input->post('name'), $parentID, $TSV1);
         
         $n = rand(10e16, 10e20);
 		$file_name =  base_convert($n, 10, 36);

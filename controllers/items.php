@@ -123,6 +123,7 @@ class Items extends CI_Controller {
      */
     private function _handlesubmit($catID, $itemType, $insert, $itemID = NULL) {
         $this->load->model('Items_model');
+        $this->load->model('TSV_model');
         
         if (isset($itemID)) {
             $item = $this->Items_model->getItem($itemID);
@@ -140,6 +141,11 @@ class Items extends CI_Controller {
         else
             $this->form_validation->set_rules('dur', 'Preparation Time', 'callback_time_check');
         
+        if (isset($_POST['TSV1'])) {
+            $this->form_validation->set_rules('TSV1', THEMEVALUE_LABEL_PREFIX, 'required');
+            $TSV1 = $this->input->post('TSV1');
+        } else $TSV1 = NULL;
+        
         if (!$this->form_validation->run())
             if ($insert)
                 return $this->_details(NULL, FALSE, $itemType, $catID);
@@ -148,11 +154,11 @@ class Items extends CI_Controller {
         
         
         if ($insert) {
-            $itemID = $this->Items_model->addItem($catID, $this->input->post('name'), $this->input->post('longdesc'), $this->input->post('shortdesc'), $this->input->post('price'), strtotime($this->input->post('dur'), 0), isset($_POST['items']) ? ITEMS_TYPE_MEAL : ITEMS_TYPE_ITEM, '', '', '', $this->input->post('items'), $this->input->post('features'));
+            $itemID = $this->Items_model->addItem($catID, $this->input->post('name'), $this->input->post('longdesc'), $this->input->post('shortdesc'), $this->input->post('price'), strtotime($this->input->post('dur'), 0), isset($_POST['items']) ? ITEMS_TYPE_MEAL : ITEMS_TYPE_ITEM, '', '', '', $TSV1, $this->input->post('items'), $this->input->post('features'));
             
         } else {
             $catID = $this->input->post('catID');
-            $this->Items_model->updateItem($itemID, $catID, $this->input->post('name'), $this->input->post('longdesc'), $this->input->post('shortdesc'), $this->input->post('price'), strtotime($this->input->post('dur'), 0), isset($_POST['items']) ? ITEMS_TYPE_MEAL : ITEMS_TYPE_ITEM, NULL, NULL, NULL, $this->input->post('items'), $this->input->post('features'));
+            $this->Items_model->updateItem($itemID, $catID, $this->input->post('name'), $this->input->post('longdesc'), $this->input->post('shortdesc'), $this->input->post('price'), strtotime($this->input->post('dur'), 0), isset($_POST['items']) ? ITEMS_TYPE_MEAL : ITEMS_TYPE_ITEM, NULL, NULL, NULL, $TSV1, $this->input->post('items'), $this->input->post('features'));
         }   
         
         $n = rand(10e16, 10e20);
@@ -220,6 +226,7 @@ class Items extends CI_Controller {
     private function _details($itemID, $readonly, $itemType = NULL, $catID = NULL) {
         $this->load->model('Items_model');
         $this->load->model('Features_model');
+        $this->load->model('User_model');
         $item = $this->Items_model->getItem($itemID);
         $this->load->helper(array('url', 'html', 'form', 'form_items'));
         
@@ -231,6 +238,7 @@ class Items extends CI_Controller {
         }
         
         $this->_checkAccess($catID);
+        $menuID = $this->User_model->getMenuId();
         
         $data['document_ready'] = '';
         
@@ -245,6 +253,7 @@ class Items extends CI_Controller {
         $output .= form_open_multipart('');
         
         $this->load->model('Categories_model');
+        $this->load->model('TSV_model');
         
         $readonly_text = $readonly ? 'readonly="readonly"' : '';
         
@@ -264,11 +273,7 @@ class Items extends CI_Controller {
             $data['document_ready'] .= 'AnyTime.picker("edit-dur", { format: "%H:%i:%s" });';
         }
         
-		$output .= '<div class="fileupload form-item"><label for="edit-imageSmall">Small Image (Recommended 200x150):</label>'.($readonly ? '' : form_upload('imageSmall', '', 'id="edit-imageSmall"')).(!empty($item['ImageSmall']) ? img(array('src' => $item['ImageSmall'], 'class' => 'zooming')) : '').'</div>';
-
-        $output .= '<div class="fileupload form-item"><label for="edit-imageLarge">Large Image (Recommended 500x375):</label>'.($readonly ? '' : form_upload('imageLarge', '', 'id="edit-imageLarge"')).(!empty($item['ImageLarge']) ? img(array('src' => $item['ImageLarge'], 'class' => 'zooming')) : '').'</div>';
-    
-        $seljs = '[]';
+		$seljs = '[]';
         if (isset($itemType) && $itemType == ITEMS_TYPE_MEAL) {
             $sel = isset($itemID) ? $this->Items_model->getMealItems($itemID, TRUE) : array();
             $seljs = '';
@@ -289,7 +294,7 @@ class Items extends CI_Controller {
             
             foreach ($allFeatures as $feature) {
                 $featVals[$feature['ID']] = $feature['Name'];
-                $featRangesJS .= 'featRanges['.$feature['ID'].'] = '.($feature['Type'] == FEATURES_TYPE_NUMERIC ? $feature['MaxValue'] : '"'.addslashes($feature['StringValues']).'"').';';
+                $featRangesJS .= 'featRanges['.$feature['ID'].'] = '.($feature['Type'] == FEATURES_TYPE_NUMERIC ? $feature['MaxValue'] : '"'.escape($feature['StringValues']).'"').';';
             }
             
             foreach ($feat as $featItem)
@@ -298,6 +303,16 @@ class Items extends CI_Controller {
             $output .= select_item('featSelect', 'Features', $featVals, NULL, FALSE, $readonly);
             $output .= '<table id="featListTable"><tbody></tbody></table>';
         }
+        
+        $TVOptions = $this->TSV_model->getThemeValueOptions($menuID, TSV_TYPE_ITEM);
+        $TVDetails = $this->TSV_model->getThemeValueDetails($menuID, TSV_TYPE_ITEM);
+        if ($TVOptions)
+            $output .= select_item('TSV1', THEMEVALUE_LABEL_PREFIX.': '.$TVDetails['Label'], $TVOptions, isset($item['TSV1']) ? $item['TSV1'] : $TVDetails['Default'], TRUE, $readonly);
+        
+        $output .= '<div class="fileupload form-item"><label for="edit-imageSmall">Small Image (Recommended 200x150):</label>'.($readonly ? '' : form_upload('imageSmall', '', 'id="edit-imageSmall"')).(!empty($item['ImageSmall']) ? img(array('src' => $item['ImageSmall'], 'class' => 'zooming')) : '').'</div>';
+
+        $output .= '<div class="fileupload form-item"><label for="edit-imageLarge">Large Image (Recommended 500x375):</label>'.($readonly ? '' : form_upload('imageLarge', '', 'id="edit-imageLarge"')).(!empty($item['ImageLarge']) ? img(array('src' => $item['ImageLarge'], 'class' => 'zooming')) : '').'</div>';
+    
         
         
         if (!$readonly)

@@ -69,12 +69,13 @@ class Items_model extends CI_Model {
      * @param   string  Small Image Path
      * @param   string  Medium Image Path
      * @param   string  Large Image Path
+     * @param   int     Theme Option Value
      * @param   array   Meal Items
      * @return	int
      */
-    function addItem($catID, $name, $description, $shortDesc = '', $price = 0, $duration = 0, $type = ITEMS_TYPE_ITEM, $imageSmall = '', $imageMed = '', $imageLarge = '', $mealItems = NULL, $features = NULL) {
-        $this->db->query('INSERT INTO '.ITEMS_TABLE.'(CategoryID, Name, LongDescription, ShortDescription, Price, Duration, Type, ImageSmall, ImageMedium, ImageLarge, SortOrder) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                        array($catID, $name, $description, $shortDesc, $price, $duration, $type, $imageSmall, $imageMed, $imageLarge,
+    function addItem($catID, $name, $description, $shortDesc = '', $price = 0, $duration = 0, $type = ITEMS_TYPE_ITEM, $imageSmall = '', $imageMed = '', $imageLarge = '', $mealItems = NULL, $features = NULL, $TSV1 = NULL) {
+        $this->db->query('INSERT INTO '.ITEMS_TABLE.'(CategoryID, Name, LongDescription, ShortDescription, Price, Duration, Type, ImageSmall, ImageMedium, ImageLarge, TSV1, SortOrder) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                        array($catID, $name, $description, $shortDesc, $price, $duration, $type, $imageSmall, $imageMed, $imageLarge, $TSV1,
                         ($order = current($this->db->query('SELECT MAX(SortOrder) + 1 FROM '.ITEMS_TABLE.' WHERE CategoryID = ?', array($catID))->row_array())) ? $order : 0));
         $id = $this->db->insert_id();
         $this->setMealItems($id, $mealItems);
@@ -112,8 +113,8 @@ class Items_model extends CI_Model {
      * @param   string  Large Image Path
      * @param   array   Meal Items
      */
-    function updateItem($itemID, $catID = NULL, $name = NULL, $description = NULL, $shortDesc = NULL, $price = NULL, $duration = NULL, $type = NULL, $imageSmall = NULL, $imageMed = NULL, $imageLarge = NULL, $mealItems = NULL, $features = NULL) {
-        $fields = array('CategoryID', 'Name', 'LongDescription', 'ShortDescription', 'Price', 'Duration', 'Type', 'ImageSmall', 'ImageMedium', 'ImageLarge');
+    function updateItem($itemID, $catID = NULL, $name = NULL, $description = NULL, $shortDesc = NULL, $price = NULL, $duration = NULL, $type = NULL, $imageSmall = NULL, $imageMed = NULL, $imageLarge = NULL, $TSV1 = NULL, $mealItems = NULL, $features = NULL) {
+        $fields = array('CategoryID', 'Name', 'LongDescription', 'ShortDescription', 'Price', 'Duration', 'Type', 'ImageSmall', 'ImageMedium', 'ImageLarge', 'TSV1');
         $args = func_get_args();
         $update = array();
         for ($i = 0; $i < count($fields); ++$i)
@@ -167,7 +168,7 @@ class Items_model extends CI_Model {
         
         $to_del = array_keys(array_diff_key($oldmap, $newmap));
         $to_ins = array_diff_key($newmap, $oldmap);
-        $to_upd = array_intersect_key($oldmap, $newmap);
+        $to_upd = array_intersect_key($newmap, $oldmap);
         
         if (count($to_del) > 0) {
             array_unshift($to_del, 'DELETE FROM '.PARENTS_TABLE.' WHERE ParentID = %d AND ItemID IN (%d'.str_repeat(', %d', count($to_del) - 1).')', $itemID);
@@ -182,6 +183,7 @@ class Items_model extends CI_Model {
         	}
             $this->db->query(call_user_func_array('sprintf', $ins_args));
         }
+        
         foreach ($to_upd as $item => $qty) {
             $this->db->query('UPDATE '.PARENTS_TABLE.' SET ItemQuantity = ? WHERE ParentID = ? AND ItemID = ?', array($qty, $itemID, $item));
         }
@@ -229,7 +231,7 @@ class Items_model extends CI_Model {
         
         $to_del = array_keys(array_diff_key($oldmap, $newmap));
         $to_ins = array_diff_key($newmap, $oldmap);
-        $to_upd = array_intersect_key($oldmap, $newmap);
+        $to_upd = array_intersect_key($newmap, $oldmap);
         
         if (count($to_del) > 0) {
             array_unshift($to_del, 'DELETE FROM '.ITEMFEATURES_TABLE.' WHERE ItemID = %d AND FeatureID IN (%d'.str_repeat(', %d', count($to_del) - 1).')', $itemID);

@@ -248,3 +248,9 @@ span.form-required {
     background:#EEF;
     cursor:pointer;
 }
+
+.waiterCalled {
+    border: 1px solid #D77;
+    color: #A30000;
+    background-color: #FCC;
+}

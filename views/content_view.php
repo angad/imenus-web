@@ -16,7 +16,6 @@
 
 require_once 'sidebar.php';
 ?>
-        <script src="http://code.jquery.com/jquery-1.5.2.min.js"></script>
         <script src="http://simplemodal.googlecode.com/files/jquery.simplemodal.1.4.1.min.js"></script>
         <script src="<?php echo site_url('../scripts/modals.js');?>"></script>
         <?php

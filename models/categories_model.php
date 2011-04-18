@@ -37,9 +37,9 @@ class Categories_model extends CI_Model {
         $filter = isset($only_children_of) ? ' AND ParentID = ?' : '';
         $order = ' ORDER BY SortOrder ASC';
         if ($include_counts)
-            $sql = 'SELECT C.menuID, C.parentID, C.ID, C.Name, C.Image, (SELECT COUNT(*) FROM '.ITEMS_TABLE.' X WHERE X.CategoryID = C.ID AND X.Type = '.ITEMS_TYPE_ITEM.') AS ItemCount, (SELECT COUNT(*) FROM '.ITEMS_TABLE.' X WHERE X.CategoryID = C.ID AND X.Type = '.ITEMS_TYPE_MEAL.') AS MealCount, (SELECT COUNT(*) FROM '.CATEGORIES_TABLE.' X WHERE X.ParentID = C.ID) AS SubcatCount FROM '.CATEGORIES_TABLE.' C WHERE C.menuID = ?'.$filter.$order;
+            $sql = 'SELECT C.menuID, C.parentID, C.ID, C.Name, C.Image, C.TSV1, (SELECT COUNT(*) FROM '.ITEMS_TABLE.' X WHERE X.CategoryID = C.ID AND X.Type = '.ITEMS_TYPE_ITEM.') AS ItemCount, (SELECT COUNT(*) FROM '.ITEMS_TABLE.' X WHERE X.CategoryID = C.ID AND X.Type = '.ITEMS_TYPE_MEAL.') AS MealCount, (SELECT COUNT(*) FROM '.CATEGORIES_TABLE.' X WHERE X.ParentID = C.ID) AS SubcatCount FROM '.CATEGORIES_TABLE.' C WHERE C.menuID = ?'.$filter.$order;
         else                
-            $sql = 'SELECT menuID, parentID, ID, Name, Image FROM '.CATEGORIES_TABLE.' WHERE menuID = ?'.$filter.$order;
+            $sql = 'SELECT menuID, parentID, ID, Name, Image, TSV1 FROM '.CATEGORIES_TABLE.' WHERE menuID = ?'.$filter.$order;
         return $this->db->query($sql, array($menuID, $only_children_of))->result_array();
     }
     
@@ -72,7 +72,7 @@ class Categories_model extends CI_Model {
      * @return	array
      */
     function getCat($catID) {
-        return $this->db->query('SELECT menuID, parentID, ID, Name, Image FROM '.CATEGORIES_TABLE.' WHERE ID = ?', array($catID))->row_array();
+        return $this->db->query('SELECT menuID, parentID, ID, Name, Image, TSV1 FROM '.CATEGORIES_TABLE.' WHERE ID = ?', array($catID))->row_array();
     }
     
     /**
@@ -85,7 +85,7 @@ class Categories_model extends CI_Model {
      * @return	array
      */
     function getCategoriesInSameMenu($catID) {
-        return $this->db->query('SELECT C1.menuID, C1.parentID, C1.ID, C1.Name, C1.Image FROM '.CATEGORIES_TABLE.' C1 INNER JOIN '.CATEGORIES_TABLE.' C2 ON C2.menuID = C1.menuID AND C2.ID = ? ORDER BY C1.ParentID ASC, C1.SortOrder ASC', array($catID))->result_array();
+        return $this->db->query('SELECT C1.menuID, C1.parentID, C1.ID, C1.Name, C1.Image, C1.TSV1 FROM '.CATEGORIES_TABLE.' C1 INNER JOIN '.CATEGORIES_TABLE.' C2 ON C2.menuID = C1.menuID AND C2.ID = ? ORDER BY C1.ParentID ASC, C1.SortOrder ASC', array($catID))->result_array();
     }
     
     /**
@@ -98,7 +98,7 @@ class Categories_model extends CI_Model {
      * @return	array
      */
     function getCategoriesInMenu($menuID) {
-        return $this->db->query('SELECT menuID, parentID, ID, Name, Image FROM '.CATEGORIES_TABLE.' WHERE menuID = ? ORDER BY ParentID ASC, SortOrder ASC', array($menuID))->result_array();
+        return $this->db->query('SELECT menuID, parentID, ID, Name, Image, TSV1 FROM '.CATEGORIES_TABLE.' WHERE menuID = ? ORDER BY ParentID ASC, SortOrder ASC', array($menuID))->result_array();
     }
     
     /**
@@ -206,8 +206,8 @@ class Categories_model extends CI_Model {
      * @param   string
      * @param   string
      */
-    function update($catID, $name = NULL, $parentID = NULL) {
-        $fields = array('Name', 'ParentID');
+    function update($catID, $name = NULL, $parentID = NULL, $TSV1 = NULL) {
+        $fields = array('Name', 'ParentID', 'TSV1');
         $args = func_get_args();
         $update = array();
         for ($i = 0; $i < count($fields); ++$i)
@@ -227,8 +227,15 @@ class Categories_model extends CI_Model {
      * @param   int   parentID; Specify 0 for root
      * @return	int
      */
-    function add($menuID, $name, $parentID) {
-        $this->db->query('INSERT INTO '.CATEGORIES_TABLE.'(Name, menuID, parentID, SortOrder) VALUES (?, ?, ?, ?)', array($name, $menuID, $parentID,
+    function add($menuID, $name, $parentID, $TSV1 = NULL) {
+        if (!isset($TSV1)) {
+            $TVDetails = $this->TSV_model->getThemeValueDetails($menuID, TSV_TYPE_CATEGORY);
+            if ($TVDetails)
+                $TSV1 = $TVDetails['Default'];
+            else
+                $TSV1 = 0;
+        }
+        $this->db->query('INSERT INTO '.CATEGORIES_TABLE.'(Name, menuID, parentID, TSV1, SortOrder) VALUES (?, ?, ?, ?, ?)', array($name, $menuID, $parentID, $TSV1,
                             ($order = current($this->db->query('SELECT MAX(SortOrder) + 1 FROM '.CATEGORIES_TABLE.' WHERE parentID = ?', array($parentID))->row_array())) ? $order : 0));
         return $this->db->insert_id();
     }

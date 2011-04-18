@@ -25,7 +25,7 @@ class POS_model extends CI_Model {
                 INNER JOIN '.PARENTS_TABLE.' MEALITEM ON MEAL.ID = MEALITEM.ParentID
                 AND MEAL.Type = '.ITEMS_TYPE_MEAL.'
                 ) I ON OI.ItemID = I.ID
-        GROUP BY OrganizationID, TableNumber', array($orgID))->result_array();
+        GROUP BY O.ID', array($orgID))->result_array();
     }
 
     function getOrderItemETAs($orderID) {
