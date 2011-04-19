@@ -1,3 +1,8 @@
+<?php 
+/**
+ * @author angad
+ */
+?>
 
 <script> 
 
@@ -8,16 +13,13 @@ if(isset($feature))
 	$options = explode(";", $feature['StringValues']);
 	$count = sizeof($options);
 	$type = $feature['Type'];
+	$id = $feature['Id'];
 }
 ?>
 	
 	function populateoptions()
 	{
-		<?php if($type==0) { ?>
-			showNumeric();
-		<?php } else {?>
-			showOptions();
-			<?php } ?>
+		<?php if(isset($feature)) { if($type==0) echo "showNumeric()"; else echo "showOptions();"; } ?>
 			
 		options = document.getElementById('options');
 		option1 = document.getElementById('option1');
@@ -27,7 +29,7 @@ if(isset($feature))
 		count.setAttribute("value", "<?php echo $count-1; ?>");
 		
 		var i=1;
-		<?php for($i=0; $i<$count-1; $i++) {?>
+		<?php for($i=0; $i<$count; $i++) {?>
 			var element = document.createElement("input");
 
 			element.setAttribute("type", "text");
@@ -41,12 +43,10 @@ if(isset($feature))
 			options.appendChild(br);
 			i++;
 		<?php } ?>
-		
 	
-		
 	}
 
-	function load()
+	function firstload()
 	{
 		toggleLayer('options');
 		toggleLayer('numeric');
@@ -184,7 +184,9 @@ if(isset($feature))
 		<input onclick = "fixedcheck()" id = "fixed"  type = "checkbox" name = "fixed" value = "<?php if(isset($feature)) echo $feature['Fixed'];  else echo "0"?>"/>Fixed</br>
 
 		<input type = "hidden" id = "icon" name = "icon" value = "1"/>
+		<input type = "hidden" id = "itemid" name = "itemid" value = "<?php if(isset($feature)) echo $id; ?>"/>
 		
+				
 		<p><input type = "submit" value = "Submit" /></p>
 		</form>
 

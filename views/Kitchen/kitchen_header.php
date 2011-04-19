@@ -1,6 +1,13 @@
 <?php 
+
+/**
+ * @author angad
+ */
+
 $fetch_time = 5;
+
 ?>
+
 
 <html>
 <head>

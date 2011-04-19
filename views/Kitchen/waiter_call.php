@@ -1,3 +1,10 @@
+<?php 
+/**
+ * @author angad
+ */
+?>
+
+
 <div id = "waiter">
 	<div class = "time">
 		<?php echo $time ?>

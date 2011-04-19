@@ -1,3 +1,9 @@
+<?php 
+/**
+ * @author patrick
+ */
+?>
+
 <link rel='stylesheet' type='text/css' media='all' href='<?php echo site_url('../POS.css');?>' />
 
 <script src="http://simplemodal.googlecode.com/files/jquery.simplemodal.1.4.1.min.js"></script>

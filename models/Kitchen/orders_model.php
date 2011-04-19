@@ -1,4 +1,7 @@
-<?php
+<?php 
+/**
+ * @author angad
+ */
 
 class Orders_model extends CI_Model{
 	

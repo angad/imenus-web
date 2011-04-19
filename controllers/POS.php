@@ -1,4 +1,9 @@
 <?php if ( ! defined('BASEPATH')) exit ('No direct script access allowed');
+ 
+/**
+ * @author patrick
+ */
+
 
 class POS extends CI_Controller {
     

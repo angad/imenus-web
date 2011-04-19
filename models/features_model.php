@@ -1,4 +1,8 @@
-<?php
+<?php 
+/**
+ * @author angad
+ */
+
 
 class Features_model extends CI_Model
 {
@@ -31,5 +35,10 @@ class Features_model extends CI_Model
 		$result = $this->db->query('SELECT * FROM Feature WHERE Id=?', array($feature_id));
 		if($result) return $result->row_array();
 		else return False;
+	}
+	
+	public function updateFeature($data)
+	{
+		$this->db->query('UPDATE Feature SET `Name`=? `Type`=? `MenuId`=? `MaxValue`=? `Icon`=? `StringValues`=? `Fixed`=? WHERE `Id`=?', array($data['Name'], intval($data['Type']), intval($data['MenuId']), intval($data['MaxValue']), $data['Icon'], $data['StringValues'], intval($data['Fixed']), intval($data['Id'])));
 	}
 }

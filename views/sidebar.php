@@ -38,7 +38,7 @@ if ( ! defined('BASEPATH')) exit ('No direct script access allowed');
         ?>
 </head>
 
-<body onload = "load()">
+<body onload = "firstload()">
 
 <div id = "outer-wrapper">
 <div id = "header">

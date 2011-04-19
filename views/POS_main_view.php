@@ -1,3 +1,9 @@
+<?php 
+/**
+ * @author patrick
+ */
+?>
+
 <script> 
  $(document).ready(function() {
  	var POSrefreshId = setInterval(function() {

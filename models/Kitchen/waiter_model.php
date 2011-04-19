@@ -1,4 +1,7 @@
-<?php
+<?php 
+/**
+ * @author angad
+ */
 
 class Waiter_model extends CI_Controller
 {
