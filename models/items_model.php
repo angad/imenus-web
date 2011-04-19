@@ -54,6 +54,10 @@ class Items_model extends CI_Model {
         return $this->db->query('SELECT '.ITEM_FIELDS.' FROM '.ITEMS_TABLE.' WHERE ID = ?', array($itemID))->row_array();
     }
     
+    function itemsExist($menuID) {
+        return (count($this->db->query('SELECT 1 FROM '.CATEGORIES_TABLE.' C INNER JOIN '.ITEMS_TABLE.' I ON C.ID = I.CategoryID AND C.MenuID = ? LIMIT 1', array($menuID))->result_array()) != 0);
+    }
+    
     /**
      * Adds a Category
      *

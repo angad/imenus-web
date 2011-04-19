@@ -112,7 +112,9 @@ class POS extends CI_Controller {
         $this->load->model('Items_model');
         
         $det = $this->Orders_model->getOrderDetails($orderID);
-        if ($det['OrganizationID'] != ($orgID = $this->User_model->getOrgID()))
+        if (empty($det))
+            show_404();
+        else if ($det['OrganizationID'] != ($orgID = $this->User_model->getOrgID()))
             show_error(ACCESS_DENIED_MSG, 403, ACCESS_DENIED);
         
         $items = $this->POS_model->getOrderItemDetails($orderID);

@@ -8,7 +8,6 @@
  */
 
 define('CATPREFIX', 'cat');
-define('PLACEHOLDER', 'Add New Category');
 define('EDITTITLE', 'Click to Edit');
 define('CATDELPROMPT', 'Are you sure you want to delete this category?');
 define('CATDELPROMPTI', 'Are you sure you want to delete this category? If you do, %d Item(s) and %d Set Meal(s) will also be deleted!');
@@ -48,11 +47,27 @@ define('CATDELPROMPTS', 'Are you sure you want to delete this category? If you d
             
         $this->load->library('table');
         $this->load->model('Categories_model');
-        $this->load->model('Items_model');
         
-        $note = '<h3 class="note">A Category can have Sub-Categories or Items, but not both.<br />You may sort the Categories by dragging them around.</h3>';
-        if (count($this->Items_model->getAll($parentID, NULL, NULL, 1)) == 0)
-            $note .= anchor('categories/add/'.$parentID, 'Add Sub-Category');
+        $breadcrumbs = '';
+        
+        if ($parentID != 0) {
+            $ancestorDet = $det = $this->Categories_model->getCat($parentID, TRUE);
+            $ancestor = $det['parentID'];
+            if ($det['ItemCount'] + $det['MealCount'] > 0)
+                redirect('categories/index/'.$ancestor);
+            $title = 'Sub-Categories of '.htmlspecialchars($det['Name']);
+            
+            while ($ancestor != 0) {
+                $ancestorDet = $this->Categories_model->getCat($ancestor);
+                $breadcrumbs = anchor('categories/index/'.$ancestor, htmlspecialchars($ancestorDet['Name'])).($breadcrumbs == '' ? '' : ' &gt; '.$breadcrumbs);
+                $ancestor = $ancestorDet['parentID'];
+            }
+            
+            $breadcrumbs = 'Parent Categories: '.anchor('categories', ROOT_CATEGORY).($breadcrumbs == '' ? '' : ' &gt; '.$breadcrumbs).'<br />';
+        } else $title = 'Categories';
+        
+        $note = $breadcrumbs.'<h3 class="note">A Category can have Sub-Categories or Items, but not both.<br />You may sort the Categories by dragging them around.</h3>';
+        $note .= anchor('categories/add/'.$parentID, 'Add Sub-Category');
         
         $this->table->set_template(array('table_open' => '<table id="order" border="0" cellpadding="4" cellspacing="0">'));
         // $this->table->set_heading('Category', 'Edit', 'Sub-Categories', 'Items', 'Delete');
@@ -65,9 +80,9 @@ define('CATDELPROMPTS', 'Are you sure you want to delete this category? If you d
                 $prompt = sprintf(CATDELPROMPTS, $cat['SubcatCount']);
             else
                 $prompt = CATDELPROMPT;
-            $this->table->add_row(anchor('categories/edit/'.$cat['ID'], $cat['Name']), $cat['ItemCount'] + $cat['MealCount'] ? '' : anchor('categories/index/'.$cat['ID'], 'View Sub-Categories'), $cat['SubcatCount'] ? '' : anchor('items/view/'.$cat['ID'], 'View Items'), anchor('categories/delete/'.$cat['ID'], 'Delete Category', array('class' => 'modalconfirm', 'data-modaltext' => $prompt)));
+            $this->table->add_row(anchor('categories/edit/'.$cat['ID'], htmlspecialchars($cat['Name'])), $cat['ItemCount'] + $cat['MealCount'] ? '' : anchor('categories/index/'.$cat['ID'], 'View Sub-Categories'), $cat['SubcatCount'] ? '' : anchor('items/view/'.$cat['ID'], 'View Items'), anchor('categories/delete/'.$cat['ID'], 'Delete Category', array('class' => 'modalconfirm', 'data-modaltext' => $prompt)));
         }
-        $data = array('title' => 'Categories', 'content' => $note.$this->table->generate(), 'include_scripts' => array(site_url('../scripts/jquery.tablednd_0_5.js'), site_url('../scripts/reorder.js')));
+        $data = array('title' => $title, 'content' => $note.$this->table->generate(), 'include_scripts' => array(site_url('../scripts/jquery.tablednd_0_5.js'), site_url('../scripts/reorder.js')));
         $data['document_ready'] = 'handleReOrder("order", "'.site_url('categories/reorder/'.$parentID).'");';
         $this->load->view('content_view', $data);
  	}
@@ -119,13 +134,19 @@ define('CATDELPROMPTS', 'Are you sure you want to delete this category? If you d
     private function _detail($catID, $readonly = FALSE, $parentID = NULL) {
         $this->load->model('User_model');
         $this->load->model('TSV_model');
+        $this->load->model('Categories_model');
+        
         $this->load->helper(array('url', 'form', 'html', 'form_items'));
         
         $mode = isset($parentID) ? 'Add' : ($readonly ? 'View' : 'Edit');
         
-        $name = '';
+        if (isset($parentID) && $parentID != 0) {
+            $det = $this->Categories_model->getCat($parentID, TRUE);
+            if ($det['ItemCount'] + $det['MealCount'] > 0)
+                redirect('categories/index/'.$parentID);
+        }
         
-        $this->load->model('Categories_model');
+        $name = '';
         
         if (isset($catID) && $cat = $this->Categories_model->getCat($catID)) {
             if (!empty($cat)) {
@@ -140,7 +161,7 @@ define('CATDELPROMPTS', 'Are you sure you want to delete this category? If you d
         
         $readonly_text = $readonly ? 'readonly="readonly"' : '';
         
-        $output .= tree_select_item('parentID', 'Parent Category', $this->Categories_model->getTreeFromMenu($menuID = $this->User_model->getMenuId()), $parentID, TRUE, $readonly, TRUE);
+        $output .= tree_select_item('parentID', 'Parent Category', $this->Categories_model->getTreeFromMenu($menuID = $this->User_model->getMenuId(), FALSE, isset($catID) ? $catID : NULL, TRUE), $parentID, TRUE, $readonly, TRUE);
         $output .= text_item('name', 'Name', $name, TRUE, $readonly);
         
         $TVOptions = $this->TSV_model->getThemeValueOptions($menuID, TSV_TYPE_CATEGORY);
@@ -190,10 +211,19 @@ define('CATDELPROMPTS', 'Are you sure you want to delete this category? If you d
         
         $parentID = $this->input->post('parentID');
         
+        if ($parentID != 0) {
+            $parentDet = $this->Categories_model->getCat($parentID, TRUE);
+            if ($parentDet['ItemCount'] + $parentDet['MealCount'] > 0)
+                redirect('categories/index/'.$parentID);
+        }
+        
         if ($insert)
             $catID = $this->Categories_model->add($this->User_model->getMenuId(), $this->input->post('name'), $parentID, $TSV1);
-        else
+        else {
+            if ($catID == $parentID)
+                redirect('categories/index/'.$parentID);
             $this->Categories_model->update($catID, $this->input->post('name'), $parentID, $TSV1);
+        }
         
         $n = rand(10e16, 10e20);
 		$file_name =  base_convert($n, 10, 36);
@@ -239,14 +269,20 @@ define('CATDELPROMPTS', 'Are you sure you want to delete this category? If you d
         
         $this->load->model('Categories_model');
         
- 		if (($menuID = $this->User_model->getMenuId()) === FALSE || ($parentID != 0 && !in_array($parentID, $this->Categories_model->getAllIDs($menuID))))
+ 		if (($menuID = $this->User_model->getMenuId()) === FALSE || ($parentID != 0 && !in_array($parentID, $this->Categories_model->getAllIDs($menuID))) || !is_array($cats = $this->input->post('order')))
             return;
             
         $i = 1;
         
-        foreach ($this->input->post('order') as $cat)
-            if (is_numeric($cat))
-                $this->db->query('UPDATE '.CATEGORIES_TABLE.' SET SortOrder = ? WHERE ID = ?', array($i++, $cat));
+        $cats = array_filter($cats, 'is_numeric');
+        
+        // check if they all belong to the specified parent 
+        $check_SQL = 'SELECT MAX(NoMatch) FROM (SELECT ISNULL(C.ID) AS NoMatch FROM '.CATEGORIES_TABLE.' C RIGHT JOIN (SELECT '.implode(' AS ID UNION SELECT ', $cats).') X ON X.ID = C.ID AND C.ParentID = '.$parentID.') Z';
+        if (current($this->db->query($check_SQL)->row_array()))
+            return;
+        
+        foreach ($cats as $cat)
+            $this->db->query('UPDATE '.CATEGORIES_TABLE.' SET SortOrder = ? WHERE ID = ?', array($i++, $cat));
     }
     
     /**
