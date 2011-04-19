@@ -9,6 +9,7 @@ class Features extends CI_Controller{
 		$this->load->helper('url');
 		$this->load->model('features_model');
 		$this->load->model('user_model');
+		$this->load->library('form_validation');
 	}
 	
 	function checkAccess()
@@ -76,7 +77,7 @@ class Features extends CI_Controller{
 		$this->load->view('sidebar', array('title'=>"Edit Item Feature"));
 		$this->load->view('features_edit', array('error'=>'', 'feature'=>$feature));
 		$this->load->view('footer');
-	}
+	}	
 
 	public function newFeature()
 	{
@@ -84,9 +85,7 @@ class Features extends CI_Controller{
 		
 		$data['MenuId'] = $menu_id;
 		
-	 	$this->load->model('features_model');
-    
-		$this->load->library('form_validation');
+		print_r($this->input->post());
 		
 		//Input validation rules
         $this->form_validation->set_rules('name', 'Name', 'required|min_length[5]');
@@ -100,6 +99,7 @@ class Features extends CI_Controller{
 		$data['Icon'] = 'images/' . $this->input->post('icon') . '.gif';
 		$data['Fixed'] = $this->input->post('fixed');
 	
+		if($count>0) $data['Type'] = 1;
 		for($i=1; $i<=$count; $i++)
 		{
 			if(strstr($this->input->post('option'. $i), ';'))
@@ -113,6 +113,8 @@ class Features extends CI_Controller{
 			$data['StringValues'] = $data['StringValues']  . $this->input->post('option' . $i) . ';';
 		}
 		
+		$data['StringValues'] = trim($data['StringValues'], ';');
+				
 		if($count!=0)
 		{
 			$data['MaxValue'] = $count;
@@ -130,8 +132,10 @@ class Features extends CI_Controller{
 		{
 			//Call the model
 			$this->features_model->newFeature($data);
+			print_r($data);
 			$data = NULL;
-			redirect('/features', 'refresh');
+			
+			//redirect('/features', 'refresh');
 		}
 	}
 }

@@ -152,7 +152,8 @@ h4{
 #contentarea input[type="text"],
 #registration input[type="text"],
 #registration input[type = 'password'],
-#login input[type="text"]
+#login input[type="text"],
+#login input[type = "password"]
 {
 	margin:0px 0px 0px 0px;
 	border:0px;

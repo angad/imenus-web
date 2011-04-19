@@ -7,16 +7,26 @@ if(isset($feature))
 {
 	$options = explode(";", $feature['StringValues']);
 	$count = sizeof($options);
+	$type = $feature['Type'];
 }
 ?>
 	
 	function populateoptions()
 	{
+		<?php if($type==0) { ?>
+			showNumeric();
+		<?php } else {?>
+			showOptions();
+			<?php } ?>
+			
 		options = document.getElementById('options');
-		vis = options.style;
-		vis.display = 'block';
-
-		var i =0;
+		option1 = document.getElementById('option1');
+		options.removeChild(option1);
+		
+		optionsCount = document.getElementById('count');
+		count.setAttribute("value", "<?php echo $count-1; ?>");
+		
+		var i=1;
 		<?php for($i=0; $i<$count-1; $i++) {?>
 			var element = document.createElement("input");
 
@@ -31,6 +41,8 @@ if(isset($feature))
 			options.appendChild(br);
 			i++;
 		<?php } ?>
+		
+	
 		
 	}
 
@@ -59,7 +71,7 @@ if(isset($feature))
 	  vis.display = (vis.display == '' || vis.display == 'block') ? 'none':'block';
 	}
 	
-	function numeric()
+	function showNumeric()
 	{
 		var elem, vis;
 		
@@ -76,7 +88,7 @@ if(isset($feature))
 		vis.display = 'none';
 	}
 	
-	function options()
+	function showOptions()
 	{
 		var elem, vis;
 		
@@ -145,20 +157,18 @@ if(isset($feature))
         <p><h4>Name</h4> <input type = "text" name = "name" value = "<?php if(isset($feature)) echo $feature['Name']; else echo set_value('name'); ?>" size = "50" /></p>
 		
         <p><h4>Type</h4>
-			<p><input onclick = "numeric()" type="radio" name="rad" value="<?php if(isset($feature)) echo $feature['Type'];  else echo "0"?>" style ="width:20px;"/>Numeric<br/></p>
-			<p><input onclick = "options()" type="radio" name="rad" value="<?php if(isset($feature)) echo $feature['Type']; else echo "1" ?>" style ="width:20px;"/>Options</p>
+			<p><input onclick = "showNumeric()" type="radio" name="rad" value="<?php if(isset($feature)) echo $feature['Type'];  else echo "0" ?>" style ="width:20px;" <?php if(isset($feature)) if($feature['Type']==0) echo "checked"; else echo ""?>/>Numeric<br/></p>
+			<p><input onclick = "showOptions()" type="radio" name="rad" value="<?php if(isset($feature)) echo $feature['Type']; else echo "1" ?>" style ="width:20px;" <?php if(isset($feature)) if($feature['Type']==1) echo "checked"; else echo ""?>/>Options</p>
 		</p>
 		
 		<div id = "numeric">
 		<p>
-			<h4>MaxValue</h4><input type = "text" name = "maxvalue" value = "<?php if(isset($feature)) echo $feature['MaxValue']; ?>"/>
+			<h4>MaxValue</h4><input type = "text" name = "maxvalue" value = "<?php if(isset($feature) && $feature['Type'] == 0) echo $feature['MaxValue']; ?>"/>
 		</p>
 		</div>
 		<div id = "options">
-		<p>
 			<a href = "javascript:addTextBox()">+</a><br/><br/>
-			<input type = "text" name = "option1" size = "50" value = "<?php if(isset($feature)) echo ''; ?>"/>
-		</p>
+			<input id = "option1" type = "text" name = "option1" size = "50" value = "<?php if(isset($feature)) echo ''; ?>"/>
 		</div>
 		
 		<input type = "hidden" id = "count" name = "count" value = "0"/>
