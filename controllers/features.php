@@ -18,6 +18,7 @@ class Features extends CI_Controller{
 	
 	function checkAccess()
 	{
+		//check user access
 		$menu_id = $this->user_model->getMenuId();
 		if(!$menu_id)
 		{
@@ -31,6 +32,7 @@ class Features extends CI_Controller{
 	{
 		$menu_id = $this->checkAccess();
 		
+		//get all the features
 		$features = $this->features_model->getFeaturesFromMenu($menu_id);
         
         $this->load->library('table');
@@ -39,6 +41,7 @@ class Features extends CI_Controller{
 		
 		foreach($features as $feature)
 		{
+			//generate table on features
 		    $items = '';
             if ($feature['Type'])
                 $items = ul(explode(';', $feature['StringValues']));
@@ -55,6 +58,7 @@ class Features extends CI_Controller{
 	
 	public function addFeature()
 	{
+		//new Feature page
 		$menu_id = $this->checkAccess();
 		$this->load->view('sidebar', array('title' => "Add Item Feature"));
 		$this->load->view('features_edit', array('error'=>''));
@@ -63,8 +67,8 @@ class Features extends CI_Controller{
 	
 	public function editFeature($id)
 	{
-		$menu_id = $this->checkAccess();
-		
+		//edit Feature page
+		$menu_id = $this->checkAccess();	
 		$feature = $this->features_model->getFeatureById($id);
 		
 		if(!$feature)
@@ -79,6 +83,7 @@ class Features extends CI_Controller{
 
 	public function newFeature()
 	{
+		//new feature handler
 		$menu_id = $this->checkAccess();
 		
 		$data['MenuId'] = $menu_id;
@@ -113,7 +118,7 @@ class Features extends CI_Controller{
 		}
 		
 		$data['StringValues'] = trim($data['StringValues'], ';');
-				
+
 		if($count!=0)
 		{
 			$data['MaxValue'] = $count;
@@ -130,7 +135,7 @@ class Features extends CI_Controller{
 		else
 		{
 			//Call the model
-			if($itemid)
+			if($itemid)	//check if editing or new feature
 				$this->features_model->updateFeature($data);
 			else
 				$this->features_model->newFeature($data);

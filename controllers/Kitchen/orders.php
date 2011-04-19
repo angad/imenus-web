@@ -8,7 +8,6 @@ class Orders extends CI_Controller{
 	public function __construct()
 	{
 		parent::__construct();
-		
 		$this->load->model('Kitchen/orders_model');
 		$this->load->model('organization');
 		$this->load->model('items_model');
@@ -22,6 +21,67 @@ class Orders extends CI_Controller{
 			return $check;
 		}
 		else return "&nbsp;";
+	}
+	
+	public function index()
+	{		
+		$this->load->view('Kitchen/kitchen_header.php');
+		$content['tab'] = $this->generateTable();
+		$this->load->view('Kitchen/kitchen_footer.php', $content);
+	}
+
+	public function getorders()
+	{
+		//ajax response function
+		echo $this->generateTable();
+	}
+	
+	public function generateTable()
+	{
+		$organization_id = $this->organization->getOrganization();
+		
+			if(!$organization_id)
+			{
+				$this->load->view('login_form');
+				return;
+			}
+
+		$orders = $this->orders_model->getOrders($organization_id);
+		
+		$this->load->library('table');
+		$this->table->set_heading('Id', 'Name','Quantity','Remarks','Time','Table Number','Feature');
+		foreach($orders as $order)
+		{
+			$order_items = $this->orders_model->getOrderItem($order['Id']);
+			if(!$order_items) 
+			{
+				continue;
+			}
+			foreach($order_items as $order_item)
+			{
+				$data = $this->getOrder($order_item, $order);
+	
+				if(!$data) continue;
+			
+				$f = "";
+				if($data['feature_names'])
+				{
+					foreach($data['feature_names'] as $feature_name)
+					{
+						$f.= $feature_name . " ";
+					}
+					foreach($data['feature_values'] as $feature_value)
+					{
+						$f.= $feature_value;
+					}
+				}
+				else $f.= "&nbsp;";
+			
+				$this->table->add_row($data['order_id'], $data['item_name'], $data['quantity'], $data['remarks'], $data['time'], $data['table_number'], $f);
+			}
+		}
+
+		return $this->table->generate();
 	}
 	
 	public function getOrder($order_item, $order)
@@ -59,99 +119,6 @@ class Orders extends CI_Controller{
 		$data['order_id'] = $this->checknil($order_item['Id']);
 		return $data;
 	}
-	
-	public function index()
-	{		
-		$organization_id = $this->organization->getOrganization();
-		
-		if(!$organization_id)
-		{
-			$this->load->view('login_form');
-			return;
-		}
-
-		$orders = $this->orders_model->getOrders($organization_id);
-
-		$this->load->view('Kitchen/kitchen_header.php');
-		$this->load->library('table');
-		$this->table->set_heading('Id', 'Name','Quantity','Remarks','Time','Table Number','Feature');
-		
-		foreach($orders as $order)
-		{
-			$order_items = $this->orders_model->getOrderItem($order['Id']);
-
-			if(!$order_items) continue;
-						
-			foreach($order_items as $order_item)
-			{				
-				$data = $this->getOrder($order_item, $order);
-			
-				if(!$data) continue;
-			
-				$f = "";
-				if($data['feature_names'])
-				{
-					foreach($data['feature_names'] as $feature_name)
-					{
-						$f.= $feature_name . " ";
-					}
-					foreach($data['feature_values'] as $feature_value)
-					{
-						$f.= $feature_value;
-					}
-				}
-				else $f.= "&nbsp;";
-
-				$this->table->add_row($data['order_id'], $data['item_name'], $data['quantity'], $data['remarks'], $data['time'], $data['table_number'], $f);
-			}
-		}
-		
-		$content['tab'] = $this->table->generate();
-		$this->load->view('Kitchen/kitchen_footer.php', $content);
-	}
-
-	public function getorders()
-	{
-		$organization_id = $this->organization->getOrganization();
-		
-		$orders = $this->orders_model->getOrders($organization_id);
-		
-		$this->load->library('table');
-		$this->table->set_heading('Id', 'Name','Quantity','Remarks','Time','Table Number','Feature');
-		foreach($orders as $order)
-		{
-			$order_items = $this->orders_model->getOrderItem($order['Id']);
-			if(!$order_items) 
-			{
-				continue;
-			}
-			foreach($order_items as $order_item)
-			{
-				$data = $this->getOrder($order_item, $order);
-	
-				if(!$data) continue;
-			
-				$f = "";
-				if($data['feature_names'])
-				{
-					foreach($data['feature_names'] as $feature_name)
-					{
-						$f.= $feature_name . " ";
-					}
-					foreach($data['feature_values'] as $feature_value)
-					{
-						$f.= $feature_value;
-					}
-				}
-				else $f.= "&nbsp;";
-			
-				$this->table->add_row($data['order_id'], $data['item_name'], $data['quantity'], $data['remarks'], $data['time'], $data['table_number'], $f);
-			}
-		}
-
-		echo $this->table->generate();
-	}
-	
 
 	public function orderStarted($order_id)
 	{

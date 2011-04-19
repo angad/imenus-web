@@ -153,7 +153,6 @@ class Orders extends CI_Controller{
 		echo $this->table->generate();
 	}
 	
-
 	public function orderStarted($order_id)
 	{
 		$this->orders_model->orderStarted($order_id);
