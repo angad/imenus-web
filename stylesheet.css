@@ -254,3 +254,7 @@ span.form-required {
     color: #A30000;
     background-color: #FCC;
 }
+
+a.forbidden {
+    cursor:not-allowed;
+}

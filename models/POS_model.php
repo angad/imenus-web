@@ -9,7 +9,9 @@ class POS_model extends CI_Model {
 	}
     
     function getActiveOrders($orgID) {
-        
+        // 0-items-defined safeguard
+        if (count($this->db->query('SELECT 1 FROM '.ORDERS_TABLE)->result_array()) == 0)
+            return array();
         return $this->db->query(
         'SELECT O.ID, O.OrganizationID, O.Remarks, O.TableNumber, SUM(OI.Quantity * I.iQty) AS ItemsOrdered, SUM(OI.Quantity * I.Price) AS TotalBill
         FROM '.ORDERS_TABLE.' O
@@ -25,6 +27,7 @@ class POS_model extends CI_Model {
                 INNER JOIN '.PARENTS_TABLE.' MEALITEM ON MEAL.ID = MEALITEM.ParentID
                 AND MEAL.Type = '.ITEMS_TYPE_MEAL.'
                 ) I ON OI.ItemID = I.ID
+        WHERE O.OrganizationID = ?
         GROUP BY O.ID', array($orgID))->result_array();
     }
 

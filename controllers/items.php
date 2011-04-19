@@ -44,11 +44,18 @@ class Items extends CI_Controller {
         $this->load->model('Items_model');
         
         $this->load->model('Categories_model');
-        $cat = $this->Categories_model->getCat($catID);
+        $cat = $this->Categories_model->getCat($catID, TRUE);
+        if ($cat['SubcatCount'] > 0)
+            redirect('categories/index/'.$catID);
         $parentCat = $cat['parentID'];
         
+        if ($this->Items_model->itemsExist($cat['menuID']))
+            $addMealLink = anchor('items/additem/'.$catID.'/'.ITEMS_TYPE_MEAL, 'Add Meal');
+        else
+            $addMealLink = '<a class="forbidden" title="Add Items first!">Add Meal</a>';
+        
         $note = '<h3 class="note">You may sort the Items and Set Meals by dragging them around.</h3>';
-        $note .= anchor('items/additem/'.$catID.'/'.ITEMS_TYPE_ITEM, 'Add Item').' / '.anchor('items/additem/'.$catID.'/'.ITEMS_TYPE_MEAL, 'Add Meal');
+        $note .= anchor('items/additem/'.$catID.'/'.ITEMS_TYPE_ITEM, 'Add Item').' / '.$addMealLink;
         
         $this->table->set_template(array('table_open' => '<table id="order" border="0" cellpadding="4" cellspacing="0">'));
         // $this->table->set_heading('Pic', 'Name', 'Price', 'Edit', 'Delete');
@@ -227,10 +234,23 @@ class Items extends CI_Controller {
         $this->load->model('Items_model');
         $this->load->model('Features_model');
         $this->load->model('User_model');
+        $this->load->model('Categories_model');
+        $this->load->model('TSV_model');
+        
         $item = $this->Items_model->getItem($itemID);
         $this->load->helper(array('url', 'html', 'form', 'form_items'));
         
         $mode = isset($catID) ? 'Add' : ($readonly ? 'View' : 'Edit');
+        
+        $menuID = $this->User_model->getMenuId();
+        if (isset($catID) && $itemType == ITEMS_TYPE_MEAL && !$this->Items_model->itemsExist($menuID))
+            redirect('items/view/'.$catID);
+
+        if (isset($catID)) {
+            $det = $this->Categories_model->getCat($catID, TRUE);
+            if ($det['SubcatCount'] > 0)
+                redirect('categories/index/'.$catID);
+        }
         
         if (!empty($item['CategoryID'])) { 
             $catID = $item['CategoryID'];
@@ -238,7 +258,6 @@ class Items extends CI_Controller {
         }
         
         $this->_checkAccess($catID);
-        $menuID = $this->User_model->getMenuId();
         
         $data['document_ready'] = '';
         
@@ -251,9 +270,6 @@ class Items extends CI_Controller {
             $output .= img(array('src' => $item['ImageLarge'], 'class' => 'zooming'));
         
         $output .= form_open_multipart('');
-        
-        $this->load->model('Categories_model');
-        $this->load->model('TSV_model');
         
         $readonly_text = $readonly ? 'readonly="readonly"' : '';
         
@@ -348,14 +364,20 @@ class Items extends CI_Controller {
         
         $this->load->model('Categories_model');
         
- 		if (($menuID = $this->User_model->getMenuId()) === FALSE || !in_array($catID, $this->Categories_model->getAllIDs($menuID)))
+ 		if (($menuID = $this->User_model->getMenuId()) === FALSE || !in_array($catID, $this->Categories_model->getAllIDs($menuID) || !is_array($items = $this->input->post('order'))))
             return;
             
         $i = 1;
         
-        foreach ($this->input->post('order') as $item)
-            if (is_numeric($item))
-                $this->db->query('UPDATE '.ITEMS_TABLE.' SET SortOrder = ? WHERE ID = ?', array($i++, $item));
+        $items = array_filter($items, 'is_numeric');
+        
+        // check if they all belong to the specified category 
+        $check_SQL = 'SELECT MAX(NoMatch) FROM (SELECT ISNULL(I.ID) AS NoMatch FROM '.ITEMS_TABLE.' I RIGHT JOIN (SELECT '.implode(' AS ID UNION SELECT ', $items).') X ON X.ID = I.ID AND I.CategoryID = '.$catID.') Z';
+        if (current($this->db->query($check_SQL)->row_array()))
+            return;
+        
+        foreach ($items as $item)
+            $this->db->query('UPDATE '.ITEMS_TABLE.' SET SortOrder = ? WHERE ID = ?', array($i++, $item));
     }
     
     /**

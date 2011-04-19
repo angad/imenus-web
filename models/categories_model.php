@@ -68,11 +68,16 @@ class Categories_model extends CI_Model {
      * Retrieves details of a single Category 
      *
      * @access	public
-     * @param	int   catID
+     * @param	int      catID
+     * @param   boolean  include_counts
      * @return	array
      */
-    function getCat($catID) {
-        return $this->db->query('SELECT menuID, parentID, ID, Name, Image, TSV1 FROM '.CATEGORIES_TABLE.' WHERE ID = ?', array($catID))->row_array();
+    function getCat($catID, $include_counts = FALSE) {
+        if ($include_counts)
+            $sql = 'SELECT C.menuID, C.parentID, C.ID, C.Name, C.Image, C.TSV1, (SELECT COUNT(*) FROM '.ITEMS_TABLE.' X WHERE X.CategoryID = C.ID AND X.Type = '.ITEMS_TYPE_ITEM.') AS ItemCount, (SELECT COUNT(*) FROM '.ITEMS_TABLE.' X WHERE X.CategoryID = C.ID AND X.Type = '.ITEMS_TYPE_MEAL.') AS MealCount, (SELECT COUNT(*) FROM '.CATEGORIES_TABLE.' X WHERE X.ParentID = C.ID) AS SubcatCount FROM '.CATEGORIES_TABLE.' C WHERE C.ID = ?';
+        else                
+            $sql = 'SELECT menuID, parentID, ID, Name, Image, TSV1 FROM '.CATEGORIES_TABLE.' WHERE ID = ?';
+        return $this->db->query($sql, array($catID))->row_array();
     }
     
     /**
@@ -82,10 +87,17 @@ class Categories_model extends CI_Model {
      *
      * @access	public
      * @param	int
+     * @param   int
+     * @param   boolean
      * @return	array
      */
-    function getCategoriesInSameMenu($catID) {
-        return $this->db->query('SELECT C1.menuID, C1.parentID, C1.ID, C1.Name, C1.Image, C1.TSV1 FROM '.CATEGORIES_TABLE.' C1 INNER JOIN '.CATEGORIES_TABLE.' C2 ON C2.menuID = C1.menuID AND C2.ID = ? ORDER BY C1.ParentID ASC, C1.SortOrder ASC', array($catID))->result_array();
+    function getCategoriesInSameMenu($catID, $excludeCat = NULL, $excludeCatsWithItems = FALSE) {
+        $filter = is_numeric($excludeCat) ? ' AND C1.ID <> '.$excludeCat : '';
+        if ($excludeCatsWithItems)
+            $sql = 'SELECT C1.menuID, C1.parentID, C1.ID, C1.Name, C1.Image, C1.TSV1 FROM ('.CATEGORIES_TABLE.' C1 INNER JOIN '.CATEGORIES_TABLE.' C2 ON C2.menuID = C1.menuID AND C2.ID = ?) LEFT JOIN '.ITEMS_TABLE.' I ON C1.ID = I.CategoryID WHERE ISNULL(I.ID)'.$filter.' ORDER BY C1.ParentID ASC, C1.SortOrder ASC';
+        else
+            $sql = 'SELECT C1.menuID, C1.parentID, C1.ID, C1.Name, C1.Image, C1.TSV1 FROM '.CATEGORIES_TABLE.' C1 INNER JOIN '.CATEGORIES_TABLE.' C2 ON C2.menuID = C1.menuID AND C2.ID = ?'.$filter.' ORDER BY C1.ParentID ASC, C1.SortOrder ASC';
+        return $this->db->query($sql, array($catID))->result_array();
     }
     
     /**
@@ -95,10 +107,17 @@ class Categories_model extends CI_Model {
      *
      * @access	public
      * @param	int
+     * @param   int
+     * @param   boolean
      * @return	array
      */
-    function getCategoriesInMenu($menuID) {
-        return $this->db->query('SELECT menuID, parentID, ID, Name, Image, TSV1 FROM '.CATEGORIES_TABLE.' WHERE menuID = ? ORDER BY ParentID ASC, SortOrder ASC', array($menuID))->result_array();
+    function getCategoriesInMenu($menuID, $excludeCat = NULL, $excludeCatsWithItems = FALSE) {
+        $filter = is_numeric($excludeCat) ? ' AND C.ID <> '.$excludeCat : '';
+        if ($excludeCatsWithItems)
+            $sql = 'SELECT C.menuID, C.parentID, C.ID, C.Name, C.Image, C.TSV1 FROM '.CATEGORIES_TABLE.' C LEFT JOIN '.ITEMS_TABLE.' I ON C.ID = I.CategoryID WHERE ISNULL(I.ID) AND C.menuID = ?'.$filter.' ORDER BY ParentID ASC, C.SortOrder ASC';
+        else
+            $sql = 'SELECT menuID, parentID, ID, Name, Image, TSV1 FROM '.CATEGORIES_TABLE.' C WHERE menuID = ?'.$filter.' ORDER BY ParentID ASC, SortOrder ASC';
+        return $this->db->query($sql, array($menuID))->result_array();
     }
     
     /**
@@ -112,10 +131,12 @@ class Categories_model extends CI_Model {
      * @access	public
      * @param	int       menuID
      * @param   boolean   include_items
+     * @param   int       excludeCat
+     * @param   boolean   excludeCatsWithItems
      * @return	array
      */
-    function getTreeFromMenu($menuID, $include_items = FALSE) {
-        return $this->_getTree($this->getCategoriesInMenu($menuID), $include_items);
+    function getTreeFromMenu($menuID, $include_items = FALSE, $excludeCat = NULL, $excludeCatsWithItems = FALSE) {
+        return $this->_getTree($this->getCategoriesInMenu($menuID, $excludeCat, $excludeCatsWithItems), $include_items);
     }
     
     /**
@@ -130,10 +151,12 @@ class Categories_model extends CI_Model {
      * @param	int       catID
      * @param   boolean   include_items
      * @param   boolean   TRUE if only specified Category's subtree is required
+     * @param   int       excludeCat
+     * @param   boolean   excludeCatsWithItems
      * @return	array
      */
-    function getTreeFromCurrentMenu($catID, $include_items = FALSE, $only_descendants = FALSE) {
-        return $this->_getTree($this->getCategoriesInSameMenu($catID), $include_items, $only_descendants ? $catID : 0);
+    function getTreeFromCurrentMenu($catID, $include_items = FALSE, $only_descendants = FALSE, $excludeCat = NULL, $excludeCatsWithItems = FALSE) {
+        return $this->_getTree($this->getCategoriesInSameMenu($catID, $excludeCat, $excludeCatsWithItems), $include_items, $only_descendants ? $catID : 0);
     }
     
     /**
@@ -229,6 +252,7 @@ class Categories_model extends CI_Model {
      */
     function add($menuID, $name, $parentID, $TSV1 = NULL) {
         if (!isset($TSV1)) {
+            $this->load->model('TSV_model');
             $TVDetails = $this->TSV_model->getThemeValueDetails($menuID, TSV_TYPE_CATEGORY);
             if ($TVDetails)
                 $TSV1 = $TVDetails['Default'];

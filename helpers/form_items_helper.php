@@ -96,8 +96,9 @@ $output = '<div class="form-item"><label for="edit-'.$name.'">'.htmlspecialchars
 if ($allselectable)
     $output .= '<option value="0" '.set_select($name, 0).'>'.ROOT_CATEGORY.'</option>';
 
-foreach ($tree['Data'] as $ID => $subtree)
-    $output .= optgrouptree($name, $ID, $subtree, $allselectable ? 1 : 0, $selected, isset($leaffilter) ? $leaffilter : NULL, $allselectable);
+if (is_array($tree))
+    foreach ($tree['Data'] as $ID => $subtree)
+        $output .= optgrouptree($name, $ID, $subtree, $allselectable ? 1 : 0, $selected, isset($leaffilter) ? $leaffilter : NULL, $allselectable);
     
 $output .= '</select></div>';
 return $output;
